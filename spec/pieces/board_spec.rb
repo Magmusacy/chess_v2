@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require_relative '../lib/board'
-require_relative '../lib/square'
-require_relative '../lib/piece'
+require_relative '../../lib/pieces/board'
+require_relative '../../lib/pieces/square'
+require_relative '../../lib/pieces/piece'
 
 describe Board do
   subject(:chess_board) { described_class.new }
