@@ -14,10 +14,6 @@ class Board
     assign_pieces(black_pieces)
   end
 
-  def get_square(square_position)
-    board.find { |square| square.position == square_position }
-  end
-
   def create_square(position)
     Square.new(position)
   end
@@ -32,5 +28,13 @@ class Board
       square.update_piece(piece)
       piece.update_position(square)
     end
+  end
+
+  def get_square(square_position)
+    board.find { |square| square.position == square_position }
+  end
+
+  def square_taken?(square_position)
+    get_square(square_position).piece == ' ' ? false : true
   end
 end
