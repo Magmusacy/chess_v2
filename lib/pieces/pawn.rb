@@ -21,7 +21,18 @@ class Pawn < Piece
     ary
   end
 
-  def diagonal_moves(board, y_shift); end
+  def diagonal_moves(board, y_shift)
+    ary = []
+    new_positions = [clone_position(x: -1, y: y_shift),
+                     clone_position(x: 1, y: y_shift)]
+    2.times do |i|
+      if board.square_taken?(new_positions[i])
+        new_sqr = board.get_square(new_positions[i])
+        ary << new_sqr unless new_sqr.piece.color == color
+      end
+    end
+    ary
+  end
 
   def en_passant(board, y_shift); end
 
