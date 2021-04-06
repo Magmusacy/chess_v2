@@ -10,7 +10,16 @@ class Pawn < Piece
     en_passant(board, y_axis_shift)
   end
 
-  def y_axis_moves(board, y_shift); end
+  def y_axis_moves(board, y_shift)
+    ary = []
+    new_pos = clone_position(y: y_shift)
+    ary << board.get_square(new_pos) unless board.square_taken?(new_pos)
+    if [2, 7].include?(location.position[:y]) && !ary.empty?
+      new_pos[:y] += 1
+      ary << board.get_square(new_pos) unless board.square_taken?(new_pos)
+    end
+    ary
+  end
 
   def diagonal_moves(board, y_shift); end
 
