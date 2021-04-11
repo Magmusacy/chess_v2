@@ -4,7 +4,7 @@
 class Square
   attr_reader :position, :piece
 
-  def initialize(position, piece = ' ')
+  def initialize(position, piece = '   ')
     @position = { x: position.first, y: position.last }
     @piece = piece
   end
