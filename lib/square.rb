@@ -9,7 +9,7 @@ class Square
     @piece = piece
   end
 
-  def update_piece(new_piece)
+  def update_piece(new_piece = '   ')
     @piece = new_piece
   end
 end
