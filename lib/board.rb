@@ -35,6 +35,6 @@ class Board
   end
 
   def square_taken?(square_position)
-    get_square(square_position).piece.is_a?(String)
+    !get_square(square_position).piece.is_a?(String)
   end
 end
