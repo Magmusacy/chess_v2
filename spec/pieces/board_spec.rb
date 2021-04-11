@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require_relative '../lib/board'
-require_relative '../lib/square'
-require_relative '../lib/pieces/piece'
+require_relative '../../lib/pieces/board'
+require_relative '../../lib/pieces/square'
+require_relative '../../lib/pieces/piece'
 
 describe Board do
   subject(:chess_board) { described_class.new }
@@ -40,12 +40,12 @@ describe Board do
         chess_board.board = [square_dbl]
       end
 
-      it 'sends :update_piece message with Piece argument to Square with the same default position' do
+      it 'assigns pieces with their default position to correct squares' do
         expect(square_dbl).to receive(:update_piece).with(black_piece)
         chess_board.assign_pieces([black_piece])
       end
 
-      it 'sends :update_position message with Square object for Piece that is being assigned to the Square' do
+      it 'invokes #update_position with square object for each piece that is being assigned to the square' do
         expect(black_piece).to receive(:update_position).with(square_dbl)
         chess_board.assign_pieces([black_piece])
       end
@@ -68,7 +68,7 @@ describe Board do
   end
 
   describe '#square_taken?' do
-    context 'when given square with position: { x: 2, y: 2 } has @piece attribute not equal to String object' do
+    context 'when given square with position: { x: 2, y: 2 } has @piece attribute not equal to \' \'' do
       let(:piece) { double('piece') }
       let(:taken_square) { instance_double(Square, position: { x: 2, y: 2 }, piece: piece) }
 
@@ -80,7 +80,7 @@ describe Board do
       end
     end
 
-    context 'when given square with position: { x: 2, y: 3 } has @piece attr equal to String object' do
+    context 'when given square with position: { x: 2, y: 3 } has @piece attr equal to \' \'' do
       let(:free_square) { instance_double(Square, position: { x: 2, y: 2 }, piece: ' ') }
 
       it 'returns false' do

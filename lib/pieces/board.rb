@@ -9,7 +9,7 @@ class Board
   end
 
   def setup_board(white_pieces, black_pieces)
-    @board = create_square_array(Array(1..8).product(Array(1..8)))
+    @board = create_square_array(Array(1..8).product Array(1..8))
     assign_pieces(white_pieces)
     assign_pieces(black_pieces)
   end
@@ -35,6 +35,6 @@ class Board
   end
 
   def square_taken?(square_position)
-    get_square(square_position).piece.is_a?(String)
+    get_square(square_position).piece == ' ' ? false : true
   end
 end
