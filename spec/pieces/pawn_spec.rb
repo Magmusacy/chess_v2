@@ -177,11 +177,10 @@ describe Pawn do
       context 'when given white enemy Piece on square: { x: 2, y: 6 }' do
         let(:wht_piece_26) { instance_double(Piece, color: :white) }
         let(:square_26) { instance_double(Square, position: { x: 2, y: 6 }, taken?: true, piece: wht_piece_26) }
-        let(:square_06) { nil }
 
         before do
           allow(blk_pawn_17).to receive(:find_relative_square).with(chess_board, x: -1, y: -1).and_return(square_26)
-          allow(blk_pawn_17).to receive(:find_relative_square).with(chess_board, x: 1, y: -1).and_return(square_06)
+          allow(blk_pawn_17).to receive(:find_relative_square).with(chess_board, x: 1, y: -1).and_return(nil)
         end
 
         it 'returns square: { x: 2, y: 6 }' do
@@ -194,189 +193,197 @@ describe Pawn do
   end
 
   describe '#en_passant_move' do
+    let(:chess_board) { double('chess board', recorded_moves: []) }
+
     context 'when given white Pawn { x: 5, y: 5 } and black Pawn { x: 6, y: 5 } that has just moved from { x: 6, y: 7 }' do
-      let(:en_passant_board) { double('board', board: position_array) }
-      let(:blk_pawn) { instance_double(Pawn, color: :black) }
-      let(:blk_pawn_sqr) { instance_double(Square, position: { x: 6, y: 5 }, piece: blk_pawn) }
-      let(:prev_blk_pawn_sqr) { instance_double(Square, position: { x: 6, y: 7 }) }
-      let(:start_square) { instance_double(Square, position: { x: 5, y: 5 }) }
-      subject(:wht_pawn) { described_class.new(start_square, :white) }
+      let(:square_65) { instance_double(Square, position: { x: 6, y: 5 }, taken?: true) }
+      let(:square_45) { instance_double(Square, position: { x: 4, y: 5 }, taken?: false) }
+      let(:square_66) { instance_double(Square, position: { x: 6, y: 6 }, taken?: false) }
+      let(:start_square_55) { instance_double(Square, position: { x: 5, y: 5 }) }
+      subject(:wht_pawn_55) { described_class.new(start_square_55, :white) }
 
       before do
-        en_passant_board.board.map! do |sqr|
-          if sqr == [6, 5]
-            blk_pawn_sqr
-          else
-            instance_double(Square, position: { x: sqr.first, y: sqr.last }, piece: '   ')
-          end
-        end
-
-        allow(en_passant_board).to receive(:square_taken?).with({ x: 4, y: 5 }).and_return(false)
-        allow(en_passant_board).to receive(:square_taken?).with({ x: 6, y: 5 }).and_return(true)
-        allow(en_passant_board).to receive(:get_square).with({ x: 6, y: 5 }).and_return(blk_pawn_sqr)
-        allow(blk_pawn).to receive(:is_a?).and_return(true)
-        allow(en_passant_board).to receive(:recorded_moves).and_return([[prev_blk_pawn_sqr, blk_pawn_sqr]])
+        allow(wht_pawn_55).to receive(:find_relative_square).with(chess_board, x: -1).and_return(square_45)
+        allow(wht_pawn_55).to receive(:find_relative_square).with(chess_board, x: 1).and_return(square_65)
+        allow(wht_pawn_55).to receive(:find_relative_square).with(chess_board, y: 1, initial_square: square_65).and_return(square_66)
+        allow(wht_pawn_55).to receive(:en_passantable?).and_return(true)
       end
 
       it 'returns square { x: 6, y: 6 }' do
-        exp_sqrs = en_passant_board.board.select do |sqr|
-          [{ x: 6, y: 6 }].include?(sqr.position)
-        end
-        allow(en_passant_board).to receive(:get_square).with({ x: 6, y: 6 }).and_return(exp_sqrs[0])
-        expect(wht_pawn.en_passant_move(en_passant_board, 1)).to match_array(exp_sqrs)
+        exp_sqrs = [square_66]
+        result = wht_pawn_55.en_passant_move(chess_board, 1)
+        expect(result).to match_array(exp_sqrs)
       end
     end
 
     context 'when given white Pawn { x: 5, y: 5 } and black Pawn { x: 4, y: 5 } that has just moved from { x: 4, y: 7 }' do
-      let(:en_passant_board) { double('board', board: position_array) }
-      let(:blk_pawn) { instance_double(Pawn, color: :black) }
-      let(:blk_pawn_sqr) { instance_double(Square, position: { x: 4, y: 5 }, piece: blk_pawn) }
-      let(:prev_blk_pawn_sqr) { instance_double(Square, position: { x: 4, y: 7 }) }
-      let(:start_square) { instance_double(Square, position: { x: 5, y: 5 }) }
-      subject(:wht_pawn) { described_class.new(start_square, :white) }
+      let(:square_45) { instance_double(Square, position: { x: 4, y: 5 }, taken?: true) }
+      let(:square_65) { instance_double(Square, position: { x: 6, y: 5 }, taken?: false) }
+      let(:start_square_55) { instance_double(Square, position: { x: 5, y: 5 }) }
+      subject(:wht_pawn_55) { described_class.new(start_square_55, :white) }
+      let(:square_46) { instance_double(Square, position: { x: 4, y: 6 }, taken?: false) }
+
 
       before do
-        en_passant_board.board.map! do |sqr|
-          if sqr == [4, 5]
-            blk_pawn_sqr
-          else
-            instance_double(Square, position: { x: sqr.first, y: sqr.last }, piece: '   ')
-          end
-        end
-
-        allow(en_passant_board).to receive(:square_taken?).with({ x:4, y:5 }).and_return(true)
-        allow(en_passant_board).to receive(:square_taken?).with({ x:6, y:5 }).and_return(false)
-        allow(en_passant_board).to receive(:get_square).with({ x:4, y:5 }).and_return(blk_pawn_sqr)
-        allow(blk_pawn).to receive(:is_a?).and_return(true)
-        allow(en_passant_board).to receive(:recorded_moves).and_return([[prev_blk_pawn_sqr, blk_pawn_sqr]])
+        allow(wht_pawn_55).to receive(:find_relative_square).with(chess_board, x: -1).and_return(square_45)
+        allow(wht_pawn_55).to receive(:find_relative_square).with(chess_board, x: 1).and_return(square_65)
+        allow(wht_pawn_55).to receive(:find_relative_square).with(chess_board, y: 1, initial_square: square_45).and_return(square_46)
+        allow(wht_pawn_55).to receive(:en_passantable?).and_return(true)
       end
 
       it 'returns square { x: 4, y: 6 }' do
-        exp_sqrs = en_passant_board.board.select do |sqr|
-          [{ x: 4, y: 6 }].include?(sqr.position)
-        end
-        allow(en_passant_board).to receive(:get_square).with({ x: 4, y: 6 }).and_return(exp_sqrs[0])
-        expect(wht_pawn.en_passant_move(en_passant_board, 1)).to match_array(exp_sqrs)
+        exp_sqrs = [square_46]
+        result = wht_pawn_55.en_passant_move(chess_board, 1)
+        expect(result).to match_array(exp_sqrs)
       end
     end
 
     context 'when given black Pawn { x: 1, y: 4 } and white Pawn { x: 2, y: 4 } that has just moved from { x: 2, y: 2 }' do
-      let(:en_passant_board) { double('board', board: position_array) }
-      let(:wht_pawn) { instance_double(Pawn, color: :white) }
-      let(:wht_pawn_sqr) { instance_double(Square, position: { x: 2, y: 4 }, piece: wht_pawn) }
-      let(:prev_wht_pawn_sqr) { instance_double(Square, position: { x: 2, y: 2 }) }
-      let(:start_square) { instance_double(Square, position: { x: 1, y: 4 }) }
-      subject(:blk_pawn) { described_class.new(start_square, :black) }
+      let(:square_24) { instance_double(Square, position: { x: 2, y: 4 }, taken?: true) }
+      let(:start_square_14) { instance_double(Square, position: { x: 1, y: 4 }) }
+      subject(:blk_pawn_14) { described_class.new(start_square_14, :black) }
+      let(:square_23) { instance_double(Square, position: { x: 2, y: 3 }, taken?: false) }
 
       before do
-        en_passant_board.board.map! do |sqr|
-          if sqr == [2, 4]
-            wht_pawn_sqr
-          else
-            instance_double(Square, position: { x: sqr.first, y: sqr.last }, piece: '   ')
-          end
-        end
-
-        allow(en_passant_board).to receive(:square_taken?).with({ x: 0, y: 4 }).and_return(false)
-        allow(en_passant_board).to receive(:square_taken?).with({ x: 2, y: 4 }).and_return(true)
-        allow(en_passant_board).to receive(:get_square).with({ x: 2, y: 4 }).and_return(wht_pawn_sqr)
-        allow(wht_pawn).to receive(:is_a?).and_return(true)
-        allow(en_passant_board).to receive(:recorded_moves).and_return([[prev_wht_pawn_sqr, wht_pawn_sqr]])
+        allow(blk_pawn_14).to receive(:find_relative_square).with(chess_board, x: -1).and_return(nil)
+        allow(blk_pawn_14).to receive(:find_relative_square).with(chess_board, x: 1).and_return(square_24)
+        allow(blk_pawn_14).to receive(:find_relative_square).with(chess_board, y: -1, initial_square: square_24).and_return(square_23)
+        allow(blk_pawn_14).to receive(:en_passantable?).and_return(true)
       end
 
       it 'returns square { x: 2, y: 3 }' do
-        exp_sqrs = en_passant_board.board.select do |sqr|
-          [{ x: 2, y: 3 }].include?(sqr.position)
-        end
-        allow(en_passant_board).to receive(:get_square).with({ x: 2, y: 3 }).and_return(exp_sqrs[0])
-        expect(blk_pawn.en_passant_move(en_passant_board, -1)).to match_array(exp_sqrs)
+        exp_sqrs = [square_23]
+        result = blk_pawn_14.en_passant_move(chess_board, -1)
+        expect(result).to match_array(exp_sqrs)
       end
     end
 
     context 'when given white Pawn { x: 5, y: 5 } and black Pawn { x: 6, y: 5 } that has just moved from { x: 6, y: 6 }' do
-      let(:en_passant_board) { double('board', board: position_array) }
-      let(:blk_pawn) { instance_double(Pawn, color: :black) }
-      let(:blk_pawn_sqr) { instance_double(Square, position: { x: 6, y: 5 }, piece: blk_pawn) }
-      let(:prev_blk_pawn_sqr) { instance_double(Square, position: { x: 6, y: 6 }) }
-      let(:start_square) { instance_double(Square, position: { x: 5, y: 5 }) }
-      subject(:wht_pawn) { described_class.new(start_square, :white) }
+      let(:square_65) { instance_double(Square, position: { x: 6, y: 5 }, taken?: true) }
+      let(:square_45) { instance_double(Square, position: { x: 6, y: 5 }, taken?: false) }
+      let(:start_square_55) { instance_double(Square, position: { x: 5, y: 5 }) }
+      subject(:wht_pawn_55) { described_class.new(start_square_55, :black) }
 
       before do
-        en_passant_board.board.map! do |sqr|
-          if sqr == [6, 5]
-            instance_double(Square, position: { x: sqr.first, y: sqr.last }, piece: blk_pawn)
-          else
-            instance_double(Square, position: { x: sqr.first, y: sqr.last }, piece: '   ')
-          end
-        end
-
-        allow(en_passant_board).to receive(:square_taken?).with({ x: 4, y: 5 }).and_return(false)
-        allow(en_passant_board).to receive(:square_taken?).with({ x: 6, y: 5 }).and_return(true)
-        allow(en_passant_board).to receive(:get_square).with({ x: 6, y: 5 }).and_return(blk_pawn_sqr)
-        allow(blk_pawn).to receive(:is_a?).and_return(true)
-        allow(en_passant_board).to receive(:recorded_moves).and_return([[prev_blk_pawn_sqr, blk_pawn_sqr]])
+        allow(wht_pawn_55).to receive(:find_relative_square).with(chess_board, x: -1).and_return(square_45)
+        allow(wht_pawn_55).to receive(:find_relative_square).with(chess_board, x: 1).and_return(square_65)
+        allow(wht_pawn_55).to receive(:en_passantable?).and_return(false)
       end
 
       it 'returns empty array' do
-        expect(wht_pawn.en_passant_move(en_passant_board, 1)).to be_empty
+        result = wht_pawn_55.en_passant_move(chess_board, 1)
+        expect(result).to be_empty
+      end
+    end
+  end
+
+  describe '#en_passantable?' do
+    subject(:wht_pawn) { described_class.new(nil, :white) }
+    let(:enemy_square) { instance_double(Square) }
+    let(:last_move) { [enemy_square] }
+
+    context 'when given #enemy_pawn? is true, #move_difference_is_two? is true, and that piece is the last move' do
+      it 'returns true' do
+        allow(wht_pawn).to receive(:enemy_pawn?).and_return(true)
+        allow(wht_pawn).to receive(:move_difference_is_two?).and_return(true)
+        result = wht_pawn.en_passantable?(enemy_square, last_move)
+        expect(result).to be true
       end
     end
 
-    context 'when given white Pawn { x: 5, y: 5 } and black Piece (not Pawn) { x: 6, y: 5 } that has just moved from { x: 6, y: 7 }' do
-      let(:en_passant_board) { double('board', board: position_array) }
-      let(:blk_piece) { instance_double(Piece, color: :black) }
-      let(:blk_piece_sqr) { instance_double(Square, position: { x: 6, y: 5 }, piece: blk_piece) }
-      let(:prev_blk_piece_sqr) { instance_double(Square, position: { x: 6, y: 7 }) }
-      let(:start_square) { instance_double(Square, position: { x: 5, y: 5 }) }
-      subject(:wht_pawn) { described_class.new(start_square, :white) }
-
-      before do
-        en_passant_board.board.map! do |sqr|
-          if sqr == [6, 5]
-            instance_double(Square, position: { x: sqr.first, y: sqr.last }, piece: blk_piece)
-          else
-            instance_double(Square, position: { x: sqr.first, y: sqr.last }, piece: '   ')
-          end
-        end
-
-        allow(en_passant_board).to receive(:square_taken?).with({ x: 4, y: 5 }).and_return(false)
-        allow(en_passant_board).to receive(:square_taken?).with({ x: 6, y: 5 }).and_return(true)
-        allow(en_passant_board).to receive(:get_square).with({ x: 6, y: 5 }).and_return(blk_piece_sqr)
-        allow(blk_piece).to receive(:is_a?).and_return(false)
-        allow(en_passant_board).to receive(:recorded_moves).and_return([[prev_blk_piece_sqr, blk_piece_sqr]])
-      end
-
-      it 'returns empty array' do
-        expect(wht_pawn.en_passant_move(en_passant_board, 1)).to be_empty
+    context 'when #enemy_pawn? is false' do
+      it 'return false' do
+        allow(wht_pawn).to receive(:enemy_pawn?).and_return(false)
+        result = wht_pawn.en_passantable?(enemy_square, last_move)
+        expect(result).to be false
       end
     end
 
-    context 'when given white Pawn { x: 5, y: 4 } and another white Pawn { x: 6, y: 4 } that has just moved from { x: 6, y: 2 }' do
-      let(:en_passant_board) { double('board', board: position_array) }
-      let(:wht_pawn_dbl) { instance_double(Pawn, color: :white) }
-      let(:wht_pawn_dbl_sqr) { instance_double(Square, position: { X: 6, y: 4 }, piece: wht_pawn_dbl) }
-      let(:prev_wht_pawn_dbl_sqr) { instance_double(Square, position: { x: 6, y: 2 }) }
-      let(:start_square) { instance_double(Square, position: { x: 5, y: 4 }) }
-      subject(:wht_pawn) { described_class.new(start_square, :white) }
+    context 'when last_move ary doesn\'t include enemy square' do
+      let(:last_move) { [nil] }
+      it 'returns false' do
+        allow(wht_pawn).to receive(:enemy_pawn?).and_return(true)
+        result = wht_pawn.en_passantable?(enemy_square, last_move)
+        expect(result).to be false
+      end
+    end
 
-      before do
-        en_passant_board.board.map! do |sqr|
-          if sqr == [6, 4]
-            instance_double(Square, position: { x: sqr.first, y: sqr.last }, piece: wht_pawn_dbl)
-          else
-            instance_double(Square, position: { x: sqr.first, y: sqr.last }, piece: '   ')
-          end
+    context 'when #move_difference_is_two? is false' do
+      it 'return false' do
+        allow(wht_pawn).to receive(:enemy_pawn?).and_return(true)
+        allow(wht_pawn).to receive(:move_difference_is_two?).and_return(false)
+        result = wht_pawn.en_passantable?(enemy_square, last_move)
+        expect(result).to be false
+      end
+    end
+  end
+
+  describe '#enemy_pawn?' do
+    context 'when invoked on white Pawn' do
+      subject(:wht_pawn) { described_class.new(nil, :white) }
+      context 'when given black Pawn' do
+        let(:enemy_pawn) { instance_double(Pawn, color: :black) }
+        let(:enemy_square) { instance_double(Square, piece: enemy_pawn) }
+
+        it 'returns true' do
+          allow(enemy_pawn).to receive(:is_a?).and_return(true)
+          result = wht_pawn.enemy_pawn?(enemy_square)
+          expect(result).to be true
         end
-
-        allow(en_passant_board).to receive(:square_taken?).with({ x: 4, y: 4 }).and_return(false)
-        allow(en_passant_board).to receive(:square_taken?).with({ x: 6, y: 4 }).and_return(true)
-        allow(en_passant_board).to receive(:get_square).with({ x: 6, y: 4 }).and_return(wht_pawn_dbl_sqr)
-        allow(wht_pawn_dbl).to receive(:is_a?).and_return(true)
-        allow(en_passant_board).to receive(:recorded_moves).and_return([[prev_wht_pawn_dbl_sqr, wht_pawn_dbl_sqr]])
       end
 
-      it 'doesn\' work with pieces of the same color' do
-        expect(wht_pawn.en_passant_move(en_passant_board, 1)).to be_empty
+      context 'when given black Piece (not Pawn)' do
+        let(:enemy_piece) { instance_double(Piece, color: :black) }
+        let(:enemy_square) { instance_double(Square, piece: enemy_piece) }
+
+        it 'returns false' do
+          allow(enemy_piece).to receive(:is_a?).and_return(false)
+          result = wht_pawn.enemy_pawn?(enemy_square)
+          expect(result).to be false
+        end
+      end
+
+      context 'when given white Pawn' do
+        let(:friendly_pawn) { instance_double(Pawn, color: :white) }
+        let(:friendly_square) { instance_double(Square, piece: friendly_pawn) }
+
+        it 'returns false' do
+          allow(friendly_pawn).to receive(:is_a?).and_return(true)
+          result = wht_pawn.enemy_pawn?(friendly_square)
+          expect(result).to be false
+        end
+      end
+    end
+  end
+
+  describe '#enemy_pawn_square' do
+    let(:chess_board) { double('Board') }
+
+    context 'when given square { x: 4, y: 6 } with white Pawn' do
+      subject(:wht_pawn) { described_class.new(nil, :white) }
+      let(:given_square) { instance_double(Square, position: { x: 4, y: 6 }) }
+      let(:expected_square) { instance_double(Square, position: { x: 4, y: 5 }) }
+
+      it 'returns square { x: 4, y: 5 } with enemy Pawn on it' do
+        allow(wht_pawn).to receive(:find_relative_square).with(chess_board, y: -1, initial_square: given_square).and_return(expected_square)
+        result = wht_pawn.enemy_pawn_square(given_square, chess_board)
+        expect(result).to eq(expected_square)
+      end
+    end
+  end
+
+  describe '#take_enemy_piece' do
+    let(:chess_board) { double('Board') }
+
+    context 'when given square { x: 3, y: 6 }' do
+      subject(:wht_pawn) { described_class.new(nil, :white) }
+      let(:square_36) { instance_double(Square, position: { x: 3, y: 6 }) }
+      let(:square_35) { instance_double(Square, position: { x: 3, y: 5 }) }
+
+      it 'sends :update_piece message to { x: 3, y: 5}' do
+        allow(wht_pawn).to receive(:enemy_pawn_square).with(square_36, chess_board).and_return(square_35)
+        expect(square_35).to receive(:update_piece)
+        wht_pawn.take_enemy_piece(square_36, chess_board)
       end
     end
   end
