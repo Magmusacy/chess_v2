@@ -113,135 +113,85 @@ describe Pawn do
 
   describe '#diagonal_move' do
     context 'when given white Pawn object with square position: { x: 2, y: 2 }' do
-      let(:start_square) { instance_double(Square, position: { x: 2, y: 2 }) }
-      subject(:wht_pawn) { described_class.new(start_square, :white) }
+      let(:start_square_22) { instance_double(Square, position: { x: 2, y: 2 }) }
+      subject(:wht_pawn_22) { described_class.new(start_square_22, :white) }
 
       context 'when two white Pieces are on squares { x: 1, y: 3 }, { x: 3, y: 3 }' do
-        let(:my_piece) { instance_double(Piece, color: :white) }
-        let(:board_zero) { double('board', board: position_array) }
+        let(:wht_piece_13) { instance_double(Piece, color: :white) }
+        let(:wht_piece_33) { instance_double(Piece, color: :white) }
+        let(:square_13) { instance_double(Square, position: { x: 1, y: 3 }, taken?: true, piece: wht_piece_13) }
+        let(:square_33) { instance_double(Square, position: { x: 3, y: 3 }, taken?: true, piece: wht_piece_33) }
 
         before do
-          board_zero.board.map! do |sqr|
-            if [[1, 3], [3, 3]].include?(sqr)
-              instance_double(Square, position: { x: sqr.first, y: sqr.last }, piece: my_piece)
-            else
-              instance_double(Square, position: { x: sqr.first, y: sqr.last }, piece: '   ')
-            end
-          end
-
-          allow(board_zero).to receive(:square_taken?)
-          allow(board_zero).to receive(:square_taken?).with({ x: 1, y: 3 }).and_return(true)
-          allow(board_zero).to receive(:square_taken?).with({ x: 3, y: 3 }).and_return(true)
+          allow(wht_pawn_22).to receive(:find_relative_square).with(chess_board, x: -1, y: 1).and_return(square_13)
+          allow(wht_pawn_22).to receive(:find_relative_square).with(chess_board, x: 1, y: 1).and_return(square_33)
         end
 
         it 'returns empty array' do
-          exp_sqrs = board_zero.board.select do |sqr|
-            [{ x: 1, y: 3 },
-             { x: 3, y: 3 }].include?(sqr.position)
-          end
-
-          allow(board_zero).to receive(:get_square)
-          allow(board_zero).to receive(:get_square).with(exp_sqrs[0].position).and_return(exp_sqrs[0])
-          allow(board_zero).to receive(:get_square).with(exp_sqrs[1].position).and_return(exp_sqrs[1])
-          result = wht_pawn.diagonal_move(board_zero, 1)
+          exp_sqrs = [square_13, square_33]
+          result = wht_pawn_22.diagonal_move(chess_board, 1)
           expect(result).to be_empty
         end
       end
 
       context 'when only black piece is on square with position: { x: 1, y: 3 }' do
-        let(:enemy_piece) { instance_double(Piece, color: :black) }
-        let(:board_y3) { double('board', board: position_array) }
+        let(:blk_piece_13) { instance_double(Piece, color: :black) }
+        let(:square_13) { instance_double(Square, position: { x: 1, y: 3 }, taken?: true, piece: blk_piece_13) }
+        let(:square_33) { instance_double(Square, position: { x: 3, y: 3 }, taken?: false) }
 
         before do
-          board_y3.board.map! do |sqr|
-            if sqr == [1, 3]
-              instance_double(Square, position: { x: sqr.first, y: sqr.last }, piece: enemy_piece)
-            else
-              instance_double(Square, position: { x: sqr.first, y: sqr.last }, piece: ' ')
-            end
-          end
-
-          allow(board_y3).to receive(:square_taken?)
-          allow(board_y3).to receive(:square_taken?).with({ x: 1, y: 3 }).and_return(true)
+          allow(wht_pawn_22).to receive(:find_relative_square).with(chess_board, x: -1, y: 1).and_return(square_13)
+          allow(wht_pawn_22).to receive(:find_relative_square).with(chess_board, x: 1, y: 1).and_return(square_33)
         end
 
         it 'returns 1 square with position: { x: 1, y: 3}' do
-          exp_sqrs = board_y3.board.select do |sqr|
-            [{ x: 1, y: 3 }].include?(sqr.position)
-          end
-
-          allow(board_y3).to receive(:get_square).with(exp_sqrs[0].position).and_return(exp_sqrs[0])
-          result = wht_pawn.diagonal_move(board_y3, 1)
+          exp_sqrs = [square_13]
+          result = wht_pawn_22.diagonal_move(chess_board, 1)
           expect(result).to match_array(exp_sqrs)
         end
       end
 
       context 'when only two black pieces are on squares with position: { x: 1, y: 3 } and { x: 3, y: 3 }' do
-        let(:enemy_piece) { instance_double(Piece, color: :black) }
-        let(:board_x1_x3) { double('board', board: position_array) }
+        let(:blk_piece_13) { instance_double(Piece, color: :black) }
+        let(:blk_piece_33) { instance_double(Piece, color: :black) }
+        let(:square_13) { instance_double(Square, position: { x: 1, y: 3 }, taken?: true, piece: blk_piece_13) }
+        let(:square_33) { instance_double(Square, position: { x: 3, y: 3 }, taken?: true, piece: blk_piece_33) }
 
         before do
-          board_x1_x3.board.map! do |sqr|
-            if [[1, 3], [3, 3]].include?(sqr)
-              instance_double(Square, position: { x: sqr.first, y: sqr.last }, piece: enemy_piece)
-            else
-              instance_double(Square, position: { x: sqr.first, y: sqr.last }, piece: ' ')
-            end
-          end
-
-          allow(board_x1_x3).to receive(:square_taken?).with({ x: 1, y: 3 }).and_return(true)
-          allow(board_x1_x3).to receive(:square_taken?).with({ x: 3, y: 3 }).and_return(true)
+          allow(wht_pawn_22).to receive(:find_relative_square).with(chess_board, x: -1, y: 1).and_return(square_13)
+          allow(wht_pawn_22).to receive(:find_relative_square).with(chess_board, x: 1, y: 1).and_return(square_33)
         end
 
         it 'returns 2 squares with positions: { x: 1, y: 3}, { x: 3, y: 3 }' do
-          exp_sqrs = board_x1_x3.board.select do |sqr|
-            [{ x: 1, y: 3 },
-             { x: 3, y: 3 }].include?(sqr.position)
-          end
-
-          allow(board_x1_x3).to receive(:get_square).with(exp_sqrs[0].position).and_return(exp_sqrs[0])
-          allow(board_x1_x3).to receive(:get_square).with(exp_sqrs[1].position).and_return(exp_sqrs[1])
-          result = wht_pawn.diagonal_move(board_x1_x3, 1)
+          exp_sqrs = [square_13, square_33]
+          result = wht_pawn_22.diagonal_move(chess_board, 1)
           expect(result).to match_array(exp_sqrs)
         end
       end
     end
 
     context 'when given black Pawn on square: { x: 1, y: 7 }' do
-      let(:start_square) { double('Square', position: { x: 1, y: 7 }) }
-      let(:blk_pawn) { described_class.new(start_square, :black) }
+      let(:start_square_17) { double('Square', position: { x: 1, y: 7 }) }
+      let(:blk_pawn_17) { described_class.new(start_square_17, :black) }
 
       context 'when given white enemy Piece on square: { x: 2, y: 6 }' do
-        let(:enemy_piece) { double('Piece', color: :white) }
-        let(:board_x2y6) { double('board', board: position_array) }
+        let(:wht_piece_26) { instance_double(Piece, color: :white) }
+        let(:square_26) { instance_double(Square, position: { x: 2, y: 6 }, taken?: true, piece: wht_piece_26) }
+        let(:square_06) { nil }
 
         before do
-          board_x2y6.board.map! do |sqr|
-            if sqr == [2, 6]
-              instance_double(Square, position: { x: sqr.first, y: sqr.last }, piece: enemy_piece)
-            else
-              instance_double(Square, position: { x: sqr.first, y: sqr.last }, piece: '   ')
-            end
-          end
-
-          allow(board_x2y6).to receive(:square_taken?).and_return(false)
-          allow(board_x2y6).to receive(:square_taken?).with({ x: 2, y: 6 }).and_return(true)
+          allow(blk_pawn_17).to receive(:find_relative_square).with(chess_board, x: -1, y: -1).and_return(square_26)
+          allow(blk_pawn_17).to receive(:find_relative_square).with(chess_board, x: 1, y: -1).and_return(square_06)
         end
 
         it 'returns square: { x: 2, y: 6 }' do
-          exp_sqrs = board_x2y6.board.select do |sqr|
-            [{ x: 2, y: 6 }].include?(sqr.position)
-          end
-
-          allow(board_x2y6).to receive(:get_square).with(exp_sqrs[0].position).and_return(exp_sqrs[0])
-          result = blk_pawn.diagonal_move(board_x2y6, -1)
+          exp_sqrs = [square_26]
+          result = blk_pawn_17.diagonal_move(chess_board, -1)
           expect(result).to match_array(exp_sqrs)
         end
       end
     end
   end
-
-  # refator those tests because they are toooooo long
 
   describe '#en_passant_move' do
     context 'when given white Pawn { x: 5, y: 5 } and black Pawn { x: 6, y: 5 } that has just moved from { x: 6, y: 7 }' do
