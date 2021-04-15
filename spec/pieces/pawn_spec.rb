@@ -6,7 +6,7 @@ require_relative '../../lib/pieces/pawn'
 require_relative '../../lib/pieces/square'
 
 describe Pawn do
-  let(:position_array) { Array(1..8).product(Array(1..8)) }
+  let(:chess_board) { double('chess board') }
 
   context 'when Pawn is a child class of Piece' do
     subject(:pawn) { described_class.new(nil, nil) }
@@ -40,104 +40,71 @@ describe Pawn do
 
   describe '#y_axis_move' do
     context 'when given Pawn object with square position: { x: 2, y: 2 }' do
-      let(:start_square) { instance_double(Square, position: { x: 2, y: 2 }) }
-      subject(:wht_pawn) { described_class.new(start_square, :white) }
+      let(:start_square_22) { instance_double(Square, position: { x: 2, y: 2 }) }
+      subject(:wht_pawn_22) { described_class.new(start_square_22, :white) }
 
       context 'when squares { x: 2, y: 3 } and { x: 2, y: 4 } are empty' do
-        let(:board_y3_y4) { double('board', board: position_array) }
-        before do
-          board_y3_y4.board.map! do |sqr|
-            instance_double(Square, position: { x: sqr.first, y: sqr.last }, piece: '   ')
-          end
+        let(:square_23) { instance_double(Square, position: { x: 2, y: 3 }, taken?: false) }
+        let(:square_24) { instance_double(Square, position: { x: 2, y: 4 }, taken?: false) }
 
-          allow(board_y3_y4).to receive(:square_taken?).and_return(false)
+        before do
+          allow(wht_pawn_22).to receive(:find_relative_square).with(chess_board, y: 1).and_return(square_23)
+          allow(wht_pawn_22).to receive(:find_relative_square).with(chess_board, y: 2).and_return(square_24)
         end
 
         it 'returns array with two square objects with position: { x: 2, y: 3 } and with position: { x: 2, y: 4 }' do
-          exp_sqrs = board_y3_y4.board.select do |sqr|
-            [{ x: 2, y: 3 }, { x: 2, y: 4 }].include?(sqr.position)
-          end
-
-          allow(board_y3_y4).to receive(:get_square).with(exp_sqrs[0].position).and_return(exp_sqrs[0])
-          allow(board_y3_y4).to receive(:get_square).with(exp_sqrs[1].position).and_return(exp_sqrs[1])
-          result = wht_pawn.y_axis_move(board_y3_y4, 1)
+          exp_sqrs = [square_23, square_24]
+          result = wht_pawn_22.y_axis_move(chess_board, 1)
           expect(result).to match_array(exp_sqrs)
         end
       end
 
       context 'when square with position: { x: 2, y: 4 } is taken by enemy' do
-        let(:enemy_piece) { instance_double(Piece, color: :black) }
-        let(:board_y4) { double('board', board: position_array) }
+        let(:square_23) { instance_double(Square, position: { x: 2, y: 3 }, taken?: false) }
+        let(:square_24) { instance_double(Square, position: { x: 2, y: 4 }, taken?: true) }
 
         before do
-          board_y4.board.map! do |sqr|
-            if sqr == [2, 4]
-              instance_double(Square, position: { x: sqr.first, y: sqr.last }, piece: enemy_piece)
-            else
-              instance_double(Square, position: { x: sqr.first, y: sqr.last }, piece: '   ')
-            end
-          end
-
-          allow(board_y4).to receive(:square_taken?).and_return(false)
-          allow(board_y4).to receive(:square_taken?).with({ x: 2, y: 4 }).and_return(true)
+          allow(wht_pawn_22).to receive(:find_relative_square).with(chess_board, y: 1).and_return(square_23)
+          allow(wht_pawn_22).to receive(:find_relative_square).with(chess_board, y: 2).and_return(square_24)
         end
 
         it 'returns square with position: { x: 2, y: 3 }' do
-          exp_sqrs = board_y4.board.select do |sqr|
-            [{ x: 2, y: 3 }].include?(sqr.position)
-          end
-
-          allow(board_y4).to receive(:get_square).with(exp_sqrs[0].position).and_return(exp_sqrs[0])
-          result = wht_pawn.y_axis_move(board_y4, 1)
+          exp_sqrs = [square_23]
+          result = wht_pawn_22.y_axis_move(chess_board, 1)
           expect(result).to match_array(exp_sqrs)
         end
       end
 
-      context 'when square with position: { x: 2, y: 3 } is taken' do
-        let(:enemy_piece) { instance_double(Piece, color: :black) }
-        let(:board_zero) { double('board', board: position_array) }
+      context 'when only square with position: { x: 2, y: 3 } is taken' do
+        let(:square_23) { instance_double(Square, position: { x: 2, y: 3 }, taken?: true) }
+        let(:square_24) { instance_double(Square, position: { x: 2, y: 4 }, taken?: false) }
 
         before do
-          board_zero.board.map! do |sqr|
-            if sqr == [2, 3]
-              instance_double(Square, position: { x: sqr.first, y: sqr.last }, piece: enemy_piece)
-            else
-              instance_double(Square, position: { x: sqr.first, y: sqr.last }, piece: ' ')
-            end
-          end
-
-          allow(board_zero).to receive(:square_taken?).and_return(false)
-          allow(board_zero).to receive(:square_taken?).with({ x: 2, y: 3 }).and_return(true)
+          allow(wht_pawn_22).to receive(:find_relative_square).with(chess_board, y: 1).and_return(square_23)
+          allow(wht_pawn_22).to receive(:find_relative_square).with(chess_board, y: 2).and_return(square_24)
         end
 
         it 'returns empty array' do
-          result = wht_pawn.y_axis_move(board_zero, 1)
+          result = wht_pawn_22.y_axis_move(chess_board, 1)
           expect(result).to be_empty
         end
       end
     end
 
     context 'when given white Pawn object with square position: { x: 2, y: 5 }' do
-      let(:start_square) { instance_double(Square, position: { x: 2, y: 5 }) }
-      subject(:wht_pawn) { described_class.new(start_square, :white) }
+      let(:start_square_25) { instance_double(Square, position: { x: 2, y: 5 }) }
+      subject(:wht_pawn_25) { described_class.new(start_square_25, :white) }
 
       context 'when square: { x: 2, y: 6 } has default @piece' do
-        let(:board_y6) { double('board', board: position_array) }
-        before do
-          board_y6.board.map! do |sqr|
-            instance_double(Square, position: { x: sqr.first, y: sqr.last }, piece: '   ')
-          end
+        let(:square_26) { instance_double(Square, position: { x: 2, y: 6 }, taken?: false) }
 
-          allow(board_y6).to receive(:square_taken?).and_return(false)
+        before do
+          allow(wht_pawn_25).to receive(:find_relative_square).with(chess_board, y: 1).and_return(square_26)
         end
 
         it 'returns square with position: { x: 2,  y: 6 }' do
-          exp_sqrs = board_y6.board.select do |sqr|
-            [{ x: 2, y: 6 }].include?(sqr.position)
-          end
-
-          allow(board_y6).to receive(:get_square).with(exp_sqrs[0].position).and_return(exp_sqrs[0])
-          result = wht_pawn.y_axis_move(board_y6, 1)
+          exp_sqrs = [square_26]
+          result = wht_pawn_25.y_axis_move(chess_board, 1)
           expect(result).to match_array(exp_sqrs)
         end
       end
