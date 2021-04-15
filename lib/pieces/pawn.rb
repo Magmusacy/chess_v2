@@ -7,30 +7,34 @@ require_relative '../modules/en_passant_move'
 class Pawn < Piece
   include EnPassantMove
   def legal_moves(board)
-    y_axis_move(board)
-    diagonal_move(board)
-    en_passant_move(board)
+    ary = []
+    ary << y_axis_move(board)
+    ary << diagonal_move(board)
+    ary << en_passant_move(board)
+    ary.compact
   end
 
   def y_axis_move(board, y_shift = y_axis_shift)
     ary = []
-    new_pos = clone_position(y: y_shift)
-    ary << board.get_square(new_pos) unless board.square_taken?(new_pos)
+    new_pos = find_relative_square(board, y: y_shift)
+    ary << new_pos unless new_pos.taken?
     if [2, 7].include?(location.position[:y]) && !ary.empty?
-      new_pos[:y] += y_shift
-      ary << board.get_square(new_pos) unless board.square_taken?(new_pos)
+      # refactor
+      new_pos = find_relative_square(board, y: y_shift*2)
+      ary << new_pos unless new_pos.taken?
     end
+
     ary
   end
 
   def diagonal_move(board, y_shift = y_axis_shift)
     ary = []
-    new_positions = [clone_position(x: -1, y: y_shift), clone_position(x: 1, y: y_shift)]
-    2.times do |i|
-      next unless board.square_taken?(new_positions[i])
+    # refactor
+    new_positions = [find_relative_square(board, x: -1, y: y_shift), find_relative_square(board, x: 1, y: y_shift)].compact
+    new_positions.length.times do |i|
+      next unless new_positions[i].taken?
 
-      new_sqr = board.get_square(new_positions[i])
-      ary << new_sqr unless new_sqr.piece.color == color
+      ary << new_positions[i] unless new_positions[i].piece.color == color
     end
     ary
   end
