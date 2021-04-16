@@ -12,4 +12,8 @@ class Square
   def update_piece(new_piece = '   ')
     @piece = new_piece
   end
+
+  def taken?
+    !piece.is_a?(String)
+  end
 end
