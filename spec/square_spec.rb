@@ -25,4 +25,21 @@ describe Square do
       end
     end
   end
+
+  describe '#taken?' do
+    context 'when @piece attr is not a string' do
+      subject(:taken_square) { described_class.new([1, 1], nil) }
+
+      it 'returns true if @piece attr is not string' do
+        expect(taken_square.taken?).to be true
+      end
+    end
+    context 'when @piece attr is a string' do
+      subject(:free_square) { described_class.new([1, 1]) }
+
+      it 'returns false if @piece attr is a string' do
+        expect(free_square.taken?).to be false
+      end
+    end
+  end
 end
