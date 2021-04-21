@@ -10,6 +10,10 @@ class Piece
     @icon = icon
   end
 
+  def to_s
+    " #{icon} "
+  end
+
   def legal_moves(board); end
 
   # this is violating single responsibility principle i think
