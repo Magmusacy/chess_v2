@@ -20,6 +20,10 @@ class Piece
     board.get_square(new_position)
   end
 
+  def reject_related_squares(squares)
+    squares.reject { |sqr| sqr.taken? && sqr.piece.color == color }
+  end
+
   def move(square, board)
     board.add_new_move([location, square])
     square.update_piece(self)
