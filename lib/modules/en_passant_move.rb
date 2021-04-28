@@ -4,13 +4,13 @@
 module EnPassantMove
   def en_passant_move(board, y_shift = y_axis_shift)
     ary = []
-    new_positions = [find_relative_square(board, x: -1), find_relative_square(board, x: 1)].compact
+    new_positions = [board.get_relative_square(location, x: -1), board.get_relative_square(location, x: 1)].compact
 
     new_positions.length.times do |i|
       next unless new_positions[i].taken?
 
       if en_passantable?(new_positions[i], board.recorded_moves.last)
-        ary << find_relative_square(board, y: y_shift, initial_square: new_positions[i])
+        ary << board.get_relative_square(location, y: y_shift, initial_square: new_positions[i])
       end
     end
     ary
@@ -33,7 +33,7 @@ module EnPassantMove
   end
 
   def enemy_pawn_square(chosen_square, board)
-    find_relative_square(board, y: -y_axis_shift, initial_square: chosen_square)
+    board.get_relative_square(chosen_square, y: -y_axis_shift)
   end
 
   def take_enemy_piece(chosen_square, board)
