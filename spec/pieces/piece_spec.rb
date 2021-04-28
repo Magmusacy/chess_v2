@@ -4,32 +4,6 @@ require_relative '../../lib/square'
 describe Piece do
   let(:board) { double('board') }
 
-  describe '#find_relative_square' do
-    context 'when given x: 1, y: 1 and initial_square: square with position { x: 2, y: 2 }' do
-      let(:initial_square_22) { instance_double(Square, position: { x: 2, y: 2 }) }
-      let(:expected_square_33) { instance_double(Square, position: { x: 3, y: 3 }) }
-      subject(:piece) { described_class.new }
-
-      it 'returns square { x: 3, y: 3 }' do
-        allow(board).to receive(:get_square).with({ x: 3, y: 3 }).and_return(expected_square_33)
-        result = piece.find_relative_square(board, x: 1, y: 1, initial_square: initial_square_22)
-        expect(result).to eq(expected_square_33)
-      end
-    end
-
-    context 'when given x: 4, y: 2 and Piece is located on square { x: 1, y: 4 }' do
-      let(:start_square_14) { instance_double(Square, position: { x: 1, y: 4 }) }
-      let(:expected_square_56) { instance_double(Square, position: { x: 5, y: 6 }) }
-      subject(:piece) { described_class.new(start_square_14) }
-
-      it 'returns square { x: 5, y: 6 }' do
-        allow(board).to receive(:get_square).with({ x: 5, y: 6 }).and_return(expected_square_56)
-        result = piece.find_relative_square(board, x: 4, y: 2)
-        expect(result).to eq(expected_square_56)
-      end
-    end
-  end
-
   describe '#move' do
     let(:start_square) { instance_double(Square) }
     subject(:piece) { described_class.new(start_square) }
