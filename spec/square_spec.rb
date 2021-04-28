@@ -18,26 +18,27 @@ describe Square do
     context 'when given no argument' do
       subject(:default_piece) { described_class.new([1, 1]) }
 
-      it 'changes @piece attribute to \'   \'' do
+      it 'changes @piece attribute to nil' do
         default_piece.update_piece
         updated_piece = default_piece.piece
-        expect(updated_piece).to eq('   ')
+        expect(updated_piece).to be nil
       end
     end
   end
 
   describe '#taken?' do
-    context 'when @piece attr is not a string' do
-      subject(:taken_square) { described_class.new([1, 1], nil) }
+    context 'when @piece attr is not nil' do
+      let(:dummy_piece) { double('Piece') }
+      subject(:taken_square) { described_class.new([1, 1], dummy_piece) }
 
-      it 'returns true if @piece attr is not string' do
+      it 'returns true' do
         expect(taken_square.taken?).to be true
       end
     end
-    context 'when @piece attr is a string' do
-      subject(:free_square) { described_class.new([1, 1]) }
+    context 'when @piece attr is nil' do
+      subject(:free_square) { described_class.new([1, 1], nil) }
 
-      it 'returns false if @piece attr is a string' do
+      it 'returns false' do
         expect(free_square.taken?).to be false
       end
     end
