@@ -12,14 +12,7 @@ class Piece
 
   def legal_moves(board); end
 
-  # this is violating single responsibility principle i think
-  def find_relative_square(board, x: 0, y: 0, initial_square: location)
-    new_position = initial_square.position.clone
-    new_position[:x] += x
-    new_position[:y] += y
-    board.get_square(new_position)
-  end
-
+  # this method is 100% not supposed to be there. It violates SRP
   def reject_related_squares(squares)
     squares.reject { |sqr| sqr.taken? && sqr.piece.color == color }
   end
