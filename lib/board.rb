@@ -1,7 +1,10 @@
 # frozen_string_literal: true
 
+require_relative 'modules/square_accessor'
+
 # Creating board that keeps track of individual squares
 class Board
+  include SquareAccessor
   attr_accessor :board
 
   def initialize(board = nil)
@@ -28,10 +31,6 @@ class Board
       square.update_piece(piece)
       piece.update_position(square)
     end
-  end
-
-  def get_square(square_position)
-    board.find { |square| square.position == square_position }
   end
 
   def square_taken?(square_position)
