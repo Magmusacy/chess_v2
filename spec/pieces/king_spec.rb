@@ -78,7 +78,7 @@ describe King do
       let(:square_63) { instance_double(Square, position: { x: 6, y: 3 }, taken?: false) }
 
       before do
-        allow(king_53).to receive(:find_relative_square).with(chess_board, x: 1).and_return(square_63)
+        allow(chess_board).to receive(:get_relative_square).with(start_square_53, x: 1).and_return(square_63)
         allow(king_53).to receive(:reject_related_squares).and_return([square_63])
       end
 
@@ -95,7 +95,7 @@ describe King do
       let(:square_43) { instance_double(Square, position: { x: 6, y: 3 }, taken?: false) }
 
       before do
-        allow(king_53).to receive(:find_relative_square).with(chess_board, x: -1).and_return(square_43)
+        allow(chess_board).to receive(:get_relative_square).with(start_square_53, x: -1).and_return(square_43)
         allow(king_53).to receive(:reject_related_squares).and_return([square_43])
       end
 
@@ -114,7 +114,7 @@ describe King do
         let(:square_44) { instance_double(Square, position: { x: 4, y: 4 }, piece: white_piece, taken?: true) }
 
         before do
-          allow(wht_king_54).to receive(:find_relative_square).with(chess_board, x: -1).and_return(square_44)
+          allow(chess_board).to receive(:get_relative_square).with(start_square_54, x: -1).and_return(square_44)
           allow(wht_king_54).to receive(:reject_related_squares).with([square_44]).and_return([])
         end
 
@@ -134,7 +134,7 @@ describe King do
         let(:square_53) { instance_double(Square, position: { x: 5, y: 3 }, piece: white_piece, taken?: true) }
 
         before do
-          allow(blk_king_63).to receive(:find_relative_square).with(chess_board, x: -1).and_return(square_53)
+          allow(chess_board).to receive(:get_relative_square).with(start_square_63, x: -1).and_return(square_53)
           allow(blk_king_63).to receive(:reject_related_squares).and_return([square_53])
         end
 
@@ -152,7 +152,7 @@ describe King do
       let(:square_02) { nil }
 
       before do
-        allow(king_12).to receive(:find_relative_square).with(chess_board, x: -1).and_return(square_02)
+        allow(chess_board).to receive(:get_relative_square).with(start_square_12, x: -1).and_return(square_02)
         allow(king_12).to receive(:reject_related_squares).with([]).and_return([])
       end
 
@@ -171,7 +171,7 @@ describe King do
       let(:square_54) { instance_double(Square, position: { x: 5, y: 4 }, taken?: false) }
 
       before do
-        allow(king_53).to receive(:find_relative_square).with(chess_board, y: 1).and_return(square_54)
+        allow(chess_board).to receive(:get_relative_square).with(start_square_53, y: 1).and_return(square_54)
         allow(king_53).to receive(:reject_related_squares).and_return([square_54])
       end
 
@@ -188,7 +188,7 @@ describe King do
       let(:square_52) { instance_double(Square, position: { x: 5, y: 2 }, taken?: false) }
 
       before do
-        allow(king_53).to receive(:find_relative_square).with(chess_board, y: -1).and_return(square_52)
+        allow(chess_board).to receive(:get_relative_square).with(start_square_53, y: -1).and_return(square_52)
         allow(king_53).to receive(:reject_related_squares).and_return([square_52])
       end
 
@@ -207,7 +207,7 @@ describe King do
         let(:square_53) { instance_double(Square, position: { x: 5, y: 3 }, piece: white_piece, taken?: true) }
 
         before do
-          allow(wht_king_54).to receive(:find_relative_square).with(chess_board, y: -1).and_return(square_53)
+          allow(chess_board).to receive(:get_relative_square).with(start_square_54, y: -1).and_return(square_53)
           allow(wht_king_54).to receive(:reject_related_squares).with([square_53]).and_return([])
         end
 
@@ -224,7 +224,7 @@ describe King do
       subject(:king_51) { described_class.new(start_square_51, nil, nil) }
 
       before do
-        allow(king_51).to receive(:find_relative_square).with(chess_board, y: -1).and_return(nil)
+        allow(chess_board).to receive(:get_relative_square).with(start_square_51, y: -1).and_return(nil)
         allow(king_51).to receive(:reject_related_squares).with([]).and_return([])
       end
 
@@ -245,7 +245,7 @@ describe King do
         let(:square55) { instance_double(Square, position: { x: 5, y: 5 }) }
 
         before do
-          allow(diagonal_king_44).to receive(:find_relative_square).with(chess_board, x: 1, y: 1).and_return(square55)
+          allow(chess_board).to receive(:get_relative_square).with(start_square_44, x: 1, y: 1).and_return(square55)
           allow(diagonal_king_44).to receive(:reject_related_squares).and_return([square55])
         end
 
@@ -259,8 +259,8 @@ describe King do
       context 'when x = 1, y = -1' do
         let(:square53) { instance_double(Square, position: { x: 5, y: 3 }) }
 
-        before do
-          allow(diagonal_king_44).to receive(:find_relative_square).with(chess_board, x: 1, y: -1).and_return(square53)
+        before do # square53 -> square_53
+          allow(chess_board).to receive(:get_relative_square).with(start_square_44, x: 1, y: -1).and_return(square53)
           allow(diagonal_king_44).to receive(:reject_related_squares).and_return([square53])
         end
 
@@ -275,7 +275,7 @@ describe King do
         let(:square35) { instance_double(Square, position: { x: 3, y: 5 }) }
 
         before do
-          allow(diagonal_king_44).to receive(:find_relative_square).with(chess_board, x: -1, y: 1).and_return(square35)
+          allow(chess_board).to receive(:get_relative_square).with(start_square_44, x: -1, y: 1).and_return(square35)
           allow(diagonal_king_44).to receive(:reject_related_squares).and_return([square35])
         end
 
@@ -290,7 +290,7 @@ describe King do
         let(:square33) { instance_double(Square, position: { x: 3, y: 3 }) }
 
         before do
-          allow(diagonal_king_44).to receive(:find_relative_square).with(chess_board, x: -1, y: -1).and_return(square33)
+          allow(chess_board).to receive(:get_relative_square).with(start_square_44, x: -1, y: -1).and_return(square33)
           allow(diagonal_king_44).to receive(:reject_related_squares).and_return([square33])
         end
 
@@ -311,7 +311,7 @@ describe King do
         let(:square22) { instance_double(Square, position: { x: 2, y: 2 }, piece: blk_piece, taken?: true) }
 
         before do
-          allow(wht_king_33).to receive(:find_relative_square).with(chess_board, x: -1, y: -1).and_return(square22)
+          allow(chess_board).to receive(:get_relative_square).with(start_square_33, x: -1, y: -1).and_return(square22)
           allow(wht_king_33).to receive(:reject_related_squares).with([square22]).and_return([square22])
         end
 
@@ -327,7 +327,7 @@ describe King do
         let(:square22) { instance_double(Square, position: { x: 2, y: 2 }, piece: wht_piece, taken?: true) }
 
         before do
-          allow(wht_king_33).to receive(:find_relative_square).with(chess_board, x: -1, y: -1).and_return(square22)
+          allow(chess_board).to receive(:get_relative_square).with(start_square_33, x: -1, y: -1).and_return(square22)
           allow(wht_king_33).to receive(:reject_related_squares).with([square22]).and_return([])
         end
 
