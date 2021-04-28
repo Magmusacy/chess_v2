@@ -131,29 +131,4 @@ describe Board do
       end
     end
   end
-
-  describe '#square_taken?' do
-    context 'when given square with position: { x: 2, y: 2 } has @piece attribute not equal to String object' do
-      let(:piece) { double('piece') }
-      let(:taken_square) { instance_double(Square, position: { x: 2, y: 2 }, piece: piece) }
-
-      it 'returns true' do
-        allow(chess_board).to receive(:get_square).and_return(taken_square)
-        position = { x: 2, y: 2 }
-        result = chess_board.square_taken?(position)
-        expect(result).to be true
-      end
-    end
-
-    context 'when given square with position: { x: 2, y: 3 } has @piece attr equal to String object' do
-      let(:free_square) { instance_double(Square, position: { x: 2, y: 2 }, piece: ' ') }
-
-      it 'returns false' do
-        allow(chess_board).to receive(:get_square).and_return(free_square)
-        position = { x: 2, y: 3 }
-        result = chess_board.square_taken?(position)
-        expect(result).to be false
-      end
-    end
-  end
 end
