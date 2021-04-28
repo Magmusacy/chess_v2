@@ -9,17 +9,17 @@ class King < Piece
   end
 
   def horizontal_move(board, x)
-    move_square = [find_relative_square(board, x: x)].compact
+    move_square = [board.get_relative_square(location, x: x)].compact
     reject_related_squares(move_square)
   end
 
   def vertical_move(board, y)
-    move_square = [find_relative_square(board, y: y)].compact
+    move_square = [board.get_relative_square(location, y: y)].compact
     reject_related_squares(move_square)
   end
 
   def diagonal_move(board, x, y)
-    move_square = [find_relative_square(board, x: x, y: y)]
+    move_square = [board.get_relative_square(location, x: x, y: y)]
     reject_related_squares(move_square)
   end
 end
