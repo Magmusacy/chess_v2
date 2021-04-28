@@ -16,11 +16,11 @@ class Pawn < Piece
 
   def y_axis_move(board, y_shift = y_axis_shift)
     ary = []
-    new_pos = find_relative_square(board, y: y_shift)
+    new_pos = board.get_relative_square(location, y: y_shift)
     ary << new_pos unless new_pos.taken?
     if [2, 7].include?(location.position[:y]) && !ary.empty?
       # refactor
-      new_pos = find_relative_square(board, y: y_shift*2)
+      new_pos = board.get_relative_square(location, y: y_shift*2)
       ary << new_pos unless new_pos.taken?
     end
 
@@ -30,7 +30,7 @@ class Pawn < Piece
   def diagonal_move(board, y_shift = y_axis_shift)
     ary = []
     # refactor
-    new_positions = [find_relative_square(board, x: -1, y: y_shift), find_relative_square(board, x: 1, y: y_shift)].compact
+    new_positions = [board.get_relative_square(location, x: -1, y: y_shift), board.get_relative_square(location, x: 1, y: y_shift)].compact
     new_positions.length.times do |i|
       next unless new_positions[i].taken?
 
