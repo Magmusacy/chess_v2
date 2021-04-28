@@ -3,7 +3,7 @@
 require_relative 'shared_piece_spec'
 require_relative '../../lib/pieces/pawn'
 # require_relative '../../lib/board'
-require_relative '../../lib/pieces/square'
+require_relative '../../lib/square'
 
 describe Pawn do
   let(:chess_board) { double('chess board') }
@@ -48,8 +48,8 @@ describe Pawn do
         let(:square_24) { instance_double(Square, position: { x: 2, y: 4 }, taken?: false) }
 
         before do
-          allow(wht_pawn_22).to receive(:find_relative_square).with(chess_board, y: 1).and_return(square_23)
-          allow(wht_pawn_22).to receive(:find_relative_square).with(chess_board, y: 2).and_return(square_24)
+          allow(chess_board).to receive(:get_relative_square).with(start_square_22, y: 1).and_return(square_23)
+          allow(chess_board).to receive(:get_relative_square).with(start_square_22, y: 2).and_return(square_24)
         end
 
         it 'returns array with two square objects with position: { x: 2, y: 3 } and with position: { x: 2, y: 4 }' do
@@ -64,8 +64,8 @@ describe Pawn do
         let(:square_24) { instance_double(Square, position: { x: 2, y: 4 }, taken?: true) }
 
         before do
-          allow(wht_pawn_22).to receive(:find_relative_square).with(chess_board, y: 1).and_return(square_23)
-          allow(wht_pawn_22).to receive(:find_relative_square).with(chess_board, y: 2).and_return(square_24)
+          allow(chess_board).to receive(:get_relative_square).with(start_square_22, y: 1).and_return(square_23)
+          allow(chess_board).to receive(:get_relative_square).with(start_square_22, y: 2).and_return(square_24)
         end
 
         it 'returns square with position: { x: 2, y: 3 }' do
@@ -80,8 +80,8 @@ describe Pawn do
         let(:square_24) { instance_double(Square, position: { x: 2, y: 4 }, taken?: false) }
 
         before do
-          allow(wht_pawn_22).to receive(:find_relative_square).with(chess_board, y: 1).and_return(square_23)
-          allow(wht_pawn_22).to receive(:find_relative_square).with(chess_board, y: 2).and_return(square_24)
+          allow(chess_board).to receive(:get_relative_square).with(start_square_22, y: 1).and_return(square_23)
+          allow(chess_board).to receive(:get_relative_square).with(start_square_22, y: 2).and_return(square_24)
         end
 
         it 'returns empty array' do
@@ -99,7 +99,7 @@ describe Pawn do
         let(:square_26) { instance_double(Square, position: { x: 2, y: 6 }, taken?: false) }
 
         before do
-          allow(wht_pawn_25).to receive(:find_relative_square).with(chess_board, y: 1).and_return(square_26)
+          allow(chess_board).to receive(:get_relative_square).with(start_square_25, y: 1).and_return(square_26)
         end
 
         it 'returns square with position: { x: 2,  y: 6 }' do
@@ -123,8 +123,8 @@ describe Pawn do
         let(:square_33) { instance_double(Square, position: { x: 3, y: 3 }, taken?: true, piece: wht_piece_33) }
 
         before do
-          allow(wht_pawn_22).to receive(:find_relative_square).with(chess_board, x: -1, y: 1).and_return(square_13)
-          allow(wht_pawn_22).to receive(:find_relative_square).with(chess_board, x: 1, y: 1).and_return(square_33)
+          allow(chess_board).to receive(:get_relative_square).with(start_square_22, x: -1, y: 1).and_return(square_13)
+          allow(chess_board).to receive(:get_relative_square).with(start_square_22, x: 1, y: 1).and_return(square_33)
         end
 
         it 'returns empty array' do
@@ -140,8 +140,8 @@ describe Pawn do
         let(:square_33) { instance_double(Square, position: { x: 3, y: 3 }, taken?: false) }
 
         before do
-          allow(wht_pawn_22).to receive(:find_relative_square).with(chess_board, x: -1, y: 1).and_return(square_13)
-          allow(wht_pawn_22).to receive(:find_relative_square).with(chess_board, x: 1, y: 1).and_return(square_33)
+          allow(chess_board).to receive(:get_relative_square).with(start_square_22, x: -1, y: 1).and_return(square_13)
+          allow(chess_board).to receive(:get_relative_square).with(start_square_22, x: 1, y: 1).and_return(square_33)
         end
 
         it 'returns 1 square with position: { x: 1, y: 3}' do
@@ -158,8 +158,8 @@ describe Pawn do
         let(:square_33) { instance_double(Square, position: { x: 3, y: 3 }, taken?: true, piece: blk_piece_33) }
 
         before do
-          allow(wht_pawn_22).to receive(:find_relative_square).with(chess_board, x: -1, y: 1).and_return(square_13)
-          allow(wht_pawn_22).to receive(:find_relative_square).with(chess_board, x: 1, y: 1).and_return(square_33)
+          allow(chess_board).to receive(:get_relative_square).with(start_square_22, x: -1, y: 1).and_return(square_13)
+          allow(chess_board).to receive(:get_relative_square).with(start_square_22, x: 1, y: 1).and_return(square_33)
         end
 
         it 'returns 2 squares with positions: { x: 1, y: 3}, { x: 3, y: 3 }' do
@@ -179,8 +179,8 @@ describe Pawn do
         let(:square_26) { instance_double(Square, position: { x: 2, y: 6 }, taken?: true, piece: wht_piece_26) }
 
         before do
-          allow(blk_pawn_17).to receive(:find_relative_square).with(chess_board, x: -1, y: -1).and_return(square_26)
-          allow(blk_pawn_17).to receive(:find_relative_square).with(chess_board, x: 1, y: -1).and_return(nil)
+          allow(chess_board).to receive(:get_relative_square).with(start_square_17, x: -1, y: -1).and_return(square_26)
+          allow(chess_board).to receive(:get_relative_square).with(start_square_17, x: 1, y: -1).and_return(nil)
         end
 
         it 'returns square: { x: 2, y: 6 }' do
@@ -203,9 +203,9 @@ describe Pawn do
       subject(:wht_pawn_55) { described_class.new(start_square_55, :white) }
 
       before do
-        allow(wht_pawn_55).to receive(:find_relative_square).with(chess_board, x: -1).and_return(square_45)
-        allow(wht_pawn_55).to receive(:find_relative_square).with(chess_board, x: 1).and_return(square_65)
-        allow(wht_pawn_55).to receive(:find_relative_square).with(chess_board, y: 1, initial_square: square_65).and_return(square_66)
+        allow(chess_board).to receive(:get_relative_square).with(start_square_55, x: -1).and_return(square_45)
+        allow(chess_board).to receive(:get_relative_square).with(start_square_55, x: 1).and_return(square_65)
+        allow(chess_board).to receive(:get_relative_square).with(start_square_55, y: 1, initial_square: square_65).and_return(square_66)
         allow(wht_pawn_55).to receive(:en_passantable?).and_return(true)
       end
 
@@ -225,9 +225,9 @@ describe Pawn do
 
 
       before do
-        allow(wht_pawn_55).to receive(:find_relative_square).with(chess_board, x: -1).and_return(square_45)
-        allow(wht_pawn_55).to receive(:find_relative_square).with(chess_board, x: 1).and_return(square_65)
-        allow(wht_pawn_55).to receive(:find_relative_square).with(chess_board, y: 1, initial_square: square_45).and_return(square_46)
+        allow(chess_board).to receive(:get_relative_square).with(start_square_55, x: -1).and_return(square_45)
+        allow(chess_board).to receive(:get_relative_square).with(start_square_55, x: 1).and_return(square_65)
+        allow(chess_board).to receive(:get_relative_square).with(start_square_55, y: 1, initial_square: square_45).and_return(square_46)
         allow(wht_pawn_55).to receive(:en_passantable?).and_return(true)
       end
 
@@ -245,9 +245,9 @@ describe Pawn do
       let(:square_23) { instance_double(Square, position: { x: 2, y: 3 }, taken?: false) }
 
       before do
-        allow(blk_pawn_14).to receive(:find_relative_square).with(chess_board, x: -1).and_return(nil)
-        allow(blk_pawn_14).to receive(:find_relative_square).with(chess_board, x: 1).and_return(square_24)
-        allow(blk_pawn_14).to receive(:find_relative_square).with(chess_board, y: -1, initial_square: square_24).and_return(square_23)
+        allow(chess_board).to receive(:get_relative_square).with(start_square_14, x: -1).and_return(nil)
+        allow(chess_board).to receive(:get_relative_square).with(start_square_14, x: 1).and_return(square_24)
+        allow(chess_board).to receive(:get_relative_square).with(start_square_14, y: -1, initial_square: square_24).and_return(square_23)
         allow(blk_pawn_14).to receive(:en_passantable?).and_return(true)
       end
 
@@ -265,8 +265,8 @@ describe Pawn do
       subject(:wht_pawn_55) { described_class.new(start_square_55, :black) }
 
       before do
-        allow(wht_pawn_55).to receive(:find_relative_square).with(chess_board, x: -1).and_return(square_45)
-        allow(wht_pawn_55).to receive(:find_relative_square).with(chess_board, x: 1).and_return(square_65)
+        allow(chess_board).to receive(:get_relative_square).with(start_square_55, x: -1).and_return(square_45)
+        allow(chess_board).to receive(:get_relative_square).with(start_square_55, x: 1).and_return(square_65)
         allow(wht_pawn_55).to receive(:en_passantable?).and_return(false)
       end
 
@@ -365,7 +365,7 @@ describe Pawn do
       let(:expected_square) { instance_double(Square, position: { x: 4, y: 5 }) }
 
       it 'returns square { x: 4, y: 5 } with enemy Pawn on it' do
-        allow(wht_pawn).to receive(:find_relative_square).with(chess_board, y: -1, initial_square: given_square).and_return(expected_square)
+        allow(chess_board).to receive(:get_relative_square).with(given_square, y: -1).and_return(expected_square)
         result = wht_pawn.enemy_pawn_square(given_square, chess_board)
         expect(result).to eq(expected_square)
       end
