@@ -1,6 +1,8 @@
+require_relative '../pieces/king'
+
 module SquareAccessor
   def get_square(square_position)
-    board.find { |square| square.position == square_position }
+    @board.find { |square| square.position == square_position }
   end
 
   def get_relative_square(initial_square, x: 0, y: 0)
@@ -11,6 +13,10 @@ module SquareAccessor
   end
 
   def squares_taken_by(color)
-    board.select { |sqr| !sqr.piece.is_a?(String) && sqr.piece.color == color }
+    @board.select { |sqr| !sqr.piece.is_a?(String) && sqr.piece.color == color }
+  end
+
+  def get_king_square(color)
+    @board.find { |sqr| sqr.is_a?(King) && sqr.color == color }
   end
 end
