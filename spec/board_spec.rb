@@ -131,4 +131,32 @@ describe Board do
       end
     end
   end
+
+  describe '#get_king_square' do
+    let(:black_king) { double('King', color: :black) }
+    let(:white_king) { double('King', color: :white) }
+    let(:board) { [black_king, white_king] }
+    subject(:chess_board) { described_class.new(board) }
+    context 'when given :black color' do
+      before do
+        allow(black_king).to receive(:is_a?).and_return(true)
+      end
+
+      it 'returns square with :black King piece on it' do
+        result = chess_board.get_king_square(:black)
+        expect(result).to eq(black_king)
+      end
+    end
+
+    context 'when given :white color' do
+      before do
+        allow(white_king).to receive(:is_a?).and_return(true)
+      end
+
+      it 'returns square with :white King piece on it' do
+        result = chess_board.get_king_square(:white)
+        expect(result).to eq(white_king)
+      end
+    end
+  end
 end
