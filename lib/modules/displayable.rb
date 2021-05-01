@@ -2,9 +2,9 @@
 
 # Displays the board and the Pieces on it
 module Displayable
-  def display_board(legal_moves = [])
+  def display(legal_moves = [])
     row_colors = [45, 43, 45, 43, 45, 43, 45, 43]
-    board_copy = chess_board.board.clone.reverse
+    board_copy = @board.clone.reverse
     8.times do |i|
       print "#{(i - 8).abs} "
       display_row(board_copy.shift(8), row_colors.rotate!)
