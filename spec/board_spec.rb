@@ -159,4 +159,15 @@ describe Board do
       end
     end
   end
+
+  describe '#display' do
+    let(:board) do
+      Array(1..8).product(Array(1..8)).map{ |x| double('square', position: { x: x[0], y: x[1] }, piece: double('piece', icon: '♞')) }
+    end
+
+    subject(:display_board) { described_class.new(board) }
+    it 'displays board' do
+      result = display_board.display
+    end
+  end
 end
