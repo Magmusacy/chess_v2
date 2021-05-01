@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require_relative '../lib/player'
+require_relative '../lib/square'
+require_relative '../lib/board'
 
 describe Player do
   subject(:player_human) { described_class.new(:black, :human) }
@@ -85,16 +87,16 @@ describe Player do
   describe '#ai_pick_square' do
     subject(:player_ai) { described_class.new(:black, :ai) }
     let(:ai_board) { Array(1..8).product(Array(1..8)) }
-    let(:chess_board) { double('Board') }
+    let(:chess_board) { instance_double(Board) }
 
     context 'when player\'s only piece #legal_moves is not empty' do
-      let(:black_piece) { double('Piece', color: :black) }
+      let(:black_piece) { instance_double(Piece, color: :black) }
       before do
         pick_sqr_brd = ai_board.map do |pos|
-          if [[7, 7]].include?(pos)
-            double('Square', position: { x: pos.first, y: pos.last }, piece: black_piece)
+          if [[7, 7]].include?(pos) # what the fuck is this  thing doing???
+            instance_double(Square, position: { x: pos.first, y: pos.last }, piece: black_piece)
           else
-            double('Square', position: { x: pos.first, y: pos.last }, piece: '   ')
+            instance_double(Square, position: { x: pos.first, y: pos.last }, piece: '   ')
           end
         end
 
@@ -112,13 +114,13 @@ describe Player do
     end
 
     context 'when player\'s only piece #legal_moves is empty' do
-      let(:black_piece) { double('Piece', color: :black) }
+      let(:black_piece) { instance_double(Piece, color: :black) }
       before do
         pick_sqr_brd = ai_board.map do |pos|
           if [1, 7].include?(pos)
-            double('Square', position: { x: pos.first, y: pos.last }, piece: black_piece)
+            instance_double(Square, position: { x: pos.first, y: pos.last }, piece: black_piece)
           else
-            double('Square', position: { x: pos.first, y: pos.last }, piece: '   ')
+            instance_double(Square, position: { x: pos.first, y: pos.last }, piece: '   ')
           end
         end
 
@@ -137,7 +139,7 @@ describe Player do
     subject(:player_ai) { described_class.new(:black, :ai) }
 
     context 'when given not empty #legal_moves array' do
-      let(:legal_moves) { [double('square1'), double('square2'), double('square3')] }
+      let(:legal_moves) { [instance_double(Square), instance_double(Square), instance_double(Square)] }
 
       it 'returns square from #legal_moves' do
         expect(legal_moves).to include(player_ai.ai_pick_legal_move(legal_moves))

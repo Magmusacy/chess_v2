@@ -1,13 +1,14 @@
 require_relative '../lib/game'
 require_relative '../lib/player'
-#require_relative '../lib/board'
+require_relative '../lib/board'
+require_relative '../lib/square'
 
 describe Game do
   describe '#player_move' do
     subject(:player_game) { described_class.new }
 
     context 'when given player is :human' do
-      let(:human_player) { double('Player', type: :human) }
+      let(:human_player) { instance_double(Player, type: :human) }
 
       before do
         allow(player_game).to receive(:human_move).with(human_player)
@@ -20,7 +21,7 @@ describe Game do
     end
 
     context 'when given player is :ai' do
-      let(:ai_player) { double('Player', type: :ai) }
+      let(:ai_player) { instance_double(Player, type: :ai) }
 
       before do
         allow(player_game).to receive(:ai_move).with(ai_player)
@@ -34,12 +35,12 @@ describe Game do
   end
 
   describe '#correct_input?' do
-    let(:chess_board) { double('Board') }
+    let(:chess_board) { instance_double(Board) }
     subject(:move_game) { described_class.new(nil, nil, chess_board) }
     context 'when player color is :white' do
-      let(:wht_player) { double('player', color: :white) }
-      let(:wht_square1) { double('square', position: { x: 4, y: 4 }) }
-      let(:wht_square2) { double('square', position: { x: 5, y: 4 }) }
+      let(:wht_player) { instance_double(Player, color: :white) }
+      let(:wht_square1) { instance_double(Square, position: { x: 4, y: 4 }) }
+      let(:wht_square2) { instance_double(Square, position: { x: 5, y: 4 }) }
       context 'when square with given input position has :white Piece' do
         it 'returns true' do
           allow(chess_board).to receive(:get_player_squares).with(wht_player).and_return([wht_square1, wht_square2])
@@ -49,7 +50,7 @@ describe Game do
       end
 
       context 'when square with given input position has :black Piece' do
-        let(:blk_square) { double('square', position: { x: 2, y: 6 }) }
+        let(:blk_square) { instance_double(Square, position: { x: 2, y: 6 }) }
         it 'returns false' do
           allow(chess_board).to receive(:get_player_squares).with(wht_player).and_return([wht_square1, wht_square2])
           result = move_game.correct_input?(wht_player, blk_square)
@@ -60,10 +61,10 @@ describe Game do
   end
 
   describe '#correct_move?' do
-    let(:given_move) { double('square') }
-    let(:square_piece) { double('piece') }
-    let(:curr_square) { double('square', piece: square_piece) }
-    let(:chess_board) { double('Board') }
+    let(:given_move) { instance_double(Square) }
+    let(:square_piece) { instance_double(Piece) }
+    let(:curr_square) { instance_double(Square, piece: square_piece) }
+    let(:chess_board) { instance_double(Board) }
     subject(:move_game) { described_class.new(nil, nil, chess_board) }
 
     context 'when given square\'s Piece #legal_moves include given move' do
@@ -86,12 +87,12 @@ describe Game do
   end
 
   describe '#get_correct_square' do
-    let(:chess_board) { double('Board') }
+    let(:chess_board) { instance_double(Board) }
     subject(:get_game) { described_class.new(nil, nil, chess_board) }
 
     context 'when given given correct input for :white Player' do
-      let(:wht_player) { double('player', color: :white) }
-      let(:square_input) { double('square', position: { x: 4, y: 4 }) }
+      let(:wht_player) { instance_double(Player, color: :white) }
+      let(:square_input) { instance_double(Square, position: { x: 4, y: 4 }) }
 
       before do
         input = { x: 4, y: 4 }
@@ -107,8 +108,8 @@ describe Game do
     end
 
     context 'when given wrong input 2 times for :black Player' do
-      let(:blk_player) { double('player', color: :black) }
-      let(:square_input) { double('square', position: { x: 6, y: 4 }) }
+      let(:blk_player) { instance_double(Player, color: :black) }
+      let(:square_input) { instance_double(Square, position: { x: 6, y: 4 }) }
 
       before do
         input = { x: 6, y: 4 }
@@ -125,8 +126,8 @@ describe Game do
     end
 
     context 'when given wrong input 1 time for :white Player' do
-      let(:wht_player) { double('player', color: :white) }
-      let(:square_input) { double('square', position: { x: 6, y: 4 }) }
+      let(:wht_player) { instance_double(Player, color: :white) }
+      let(:square_input) { instance_double(Square, position: { x: 6, y: 4 }) }
 
       before do
         input = { x: 6, y: 4 }
@@ -145,11 +146,11 @@ describe Game do
 
   describe '#human_move' do
 
-    let(:piece) { double('piece') }
-    let(:initial_square) { double('square', piece: piece) }
-    let(:square_move) { double('square', position: { x: 6, y: 4 }) }
-    let(:human_player) { double('player') }
-    let(:chess_board) { double('board') }
+    let(:piece) { instance_double(Piece) }
+    let(:initial_square) { instance_double(Piece, piece: piece) }
+    let(:square_move) { instance_double(Square, position: { x: 6, y: 4 }) }
+    let(:human_player) { instance_double(Player) }
+    let(:chess_board) { instance_double(Board) }
     subject(:human_game) { described_class.new(nil, nil, chess_board) }
 
     context 'when specified correct move input' do
@@ -190,10 +191,10 @@ describe Game do
   describe '#ai_move' do # contains logic for player movement if type == :ai
     let(:chess_board) { double('chess_board') }
     let(:ai_game) { described_class.new(nil, nil, chess_board) }
-    let(:ai_player) { double('player_ai', type: :ai) }
-    let(:ai_piece) { double('piece') }
-    let(:ai_picked_square) { double('square', piece: ai_piece) }
-    let(:legal_moves) { [ double('square') ] }
+    let(:ai_player) { instance_double(Player, type: :ai) }
+    let(:ai_piece) { instance_double(Piece) }
+    let(:ai_picked_square) { instance_double(Square, piece: ai_piece) }
+    let(:legal_moves) { [ instance_double(Square) ] }
 
     before do
       allow(ai_player).to receive(:ai_pick_square).and_return(ai_picked_square)

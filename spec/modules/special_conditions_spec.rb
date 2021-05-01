@@ -1,21 +1,25 @@
 require_relative '../../lib/modules/special_conditions'
+require_relative '../../lib/pieces/piece'
+require_relative '../../lib/pieces/king'
 require_relative '../../lib/player'
+require_relative '../../lib/board'
+require_relative '../../lib/square'
 
 RSpec.configure do |c|
   c.include SpecialConditions
 end
 
 describe '#check?' do
-  let(:chess_board) { double('Board') }
+  let(:chess_board) { instance_double(Board) }
   context 'when checked_player is :white player, and opponent is :black player' do
     let(:checked_player_color) { :white }
     let(:opponent_color) { :black }
 
     context 'when any :black player\'s pieces attack :white player\'s king' do
-      let(:wht_king) { double('King') }
-      let(:wht_square) { double('Square', piece: wht_king) }
-      let(:blk_piece) { double('Piece') }
-      let(:blk_square) { double('Square', piece: blk_piece) }
+      let(:wht_king) { instance_double(King) }
+      let(:wht_square) { instance_double(Square, piece: wht_king) }
+      let(:blk_piece) { instance_double(Piece) }
+      let(:blk_square) { instance_double(Square, piece: blk_piece) }
 
       before do
         allow(blk_piece).to receive(:legal_moves).with(chess_board).and_return([wht_square])
@@ -33,10 +37,10 @@ describe '#check?' do
   context 'when checked_player is :black player, and opponent is :white player' do
     let(:checked_player_color) {:black }
     let(:opponent_color) { :white }
-    let(:blk_king) { double('King') }
-    let(:wht_piece) { double('Piece') }
-    let(:blk_square) { double('Square', piece: blk_king) }
-    let(:wht_square) { double('Square', piece: wht_piece) }
+    let(:blk_king) { instance_double(King) }
+    let(:wht_piece) { instance_double(Piece) }
+    let(:blk_square) { instance_double(Square, piece: blk_king) }
+    let(:wht_square) { instance_double(Square, piece: wht_piece) }
 
     context 'when any :white player\'s pieces attack :black player\'s king' do
       before do
@@ -68,13 +72,13 @@ describe '#check?' do
 end
 
 describe '#mate?' do
-  let(:chess_board) { double('Board') }
+  let(:chess_board) { instance_double(Board) }
 
   context 'when mated_player is :black player, and opponent is :white player' do
     let(:checked_player_color) { :black }
     let(:opponent_color) { :white }
-    let(:blk_piece) { double('Piece') }
-    let(:blk_square) { double('Square', piece: blk_piece) }
+    let(:blk_piece) { instance_double(Piece) }
+    let(:blk_square) { instance_double(Square, piece: blk_piece) }
 
     context 'when :black player is in check, and all of his pieces have no legal moves' do
       before do
@@ -103,7 +107,7 @@ describe '#mate?' do
     end
 
     context 'when :black player is in check, and some of his pieces have legal moves' do
-      let(:move_square) { double('Square') }
+      let(:move_square) { instance_double(Square) }
 
       before do
         allow(self).to receive(:check?).with(chess_board, checked_player_color, opponent_color).and_return(true)
@@ -120,13 +124,13 @@ describe '#mate?' do
 end
 
 describe '#stalemate?' do
-  let(:chess_board) { double('Board') }
+  let(:chess_board) { instance_double(Board) }
 
   context 'when stalemated_player is :black player, and opponent is :white player' do
     let(:stalemated_player_color) { :black }
     let(:opponent_color) { :white }
-    let(:blk_piece) { double('Piece') }
-    let(:blk_square) { double('Square', piece: blk_piece) }
+    let(:blk_piece) { instance_double(Piece) }
+    let(:blk_square) { instance_double(Square, piece: blk_piece) }
 
     context 'when :black player is not in check, and all of his pieces have no legal moves' do
       before do
@@ -155,7 +159,7 @@ describe '#stalemate?' do
     end
 
     context 'when :black player is not in check, and all some of his pieces have legal moves' do
-      let(:move_square) { double('Square') }
+      let(:move_square) { instance_double(Square) }
 
       before do
         allow(self).to receive(:check?).with(chess_board, stalemated_player_color, opponent_color).and_return(false)

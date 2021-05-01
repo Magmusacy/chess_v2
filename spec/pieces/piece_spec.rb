@@ -1,8 +1,9 @@
 require_relative '../../lib/pieces/piece'
 require_relative '../../lib/square'
+require_relative '../../lib/board'
 
 describe Piece do
-  let(:board) { double('board') }
+  let(:board) { instance_double(Board) }
 
   describe '#move' do
     let(:start_square) { instance_double(Square) }
@@ -40,8 +41,8 @@ describe Piece do
     context 'when given an array of squares' do
       subject(:piece) { described_class.new(nil, :white, nil) }
 
-      let(:piece_wht) { double('Piece', color: :white) }
-      let(:piece_blk) { double('Piece', color: :black) }
+      let(:piece_wht) { instance_double(Piece, color: :white) }
+      let(:piece_blk) { instance_double(Piece, color: :black) }
       let(:square_wht1) { instance_double(Square, piece: piece_wht, taken?: true) }
       let(:square_wht2) { instance_double(Square, piece: piece_wht, taken?: true) }
       let(:square_blk1) { instance_double(Square, piece: piece_blk, taken?: true) }

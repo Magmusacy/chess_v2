@@ -31,8 +31,8 @@ describe Board do
 
   describe '#assign_pieces' do
     context 'when initialized board with black_pieces' do
-      let(:white_piece) { double('Piece', position: { x: 2, y: 2 }) }
-      let(:black_piece) { double('Piece', position: { x: 7, y: 2 }) }
+      let(:white_piece) { instance_double(Piece, position: { x: 2, y: 2 }) }
+      let(:black_piece) { instance_double(Piece, position: { x: 7, y: 2 }) }
       let(:blk_square) { instance_double(Square, position: { x: 7, y: 2 }) }
 
       before do
@@ -133,8 +133,8 @@ describe Board do
   end
 
   describe '#get_king_square' do
-    let(:black_king) { double('King', color: :black) }
-    let(:white_king) { double('King', color: :white) }
+    let(:black_king) { instance_double(King, color: :black) }
+    let(:white_king) { instance_double(King, color: :white) }
     let(:board) { [black_king, white_king] }
     subject(:chess_board) { described_class.new(board) }
     context 'when given :black color' do

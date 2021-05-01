@@ -2,11 +2,11 @@
 
 require_relative 'shared_piece_spec'
 require_relative '../../lib/pieces/pawn'
-# require_relative '../../lib/board'
+require_relative '../../lib/board'
 require_relative '../../lib/square'
 
 describe Pawn do
-  let(:chess_board) { double('chess board') }
+  let(:chess_board) { instance_double(Board) }
 
   context 'when Pawn is a child class of Piece' do
     subject(:pawn) { described_class.new(nil, nil) }
@@ -171,7 +171,7 @@ describe Pawn do
     end
 
     context 'when given black Pawn on square: { x: 1, y: 7 }' do
-      let(:start_square_17) { double('Square', position: { x: 1, y: 7 }) }
+      let(:start_square_17) { instance_double(Square, position: { x: 1, y: 7 }) }
       let(:blk_pawn_17) { described_class.new(start_square_17, :black) }
 
       context 'when given white enemy Piece on square: { x: 2, y: 6 }' do
@@ -193,7 +193,7 @@ describe Pawn do
   end
 
   describe '#en_passant_move' do
-    let(:chess_board) { double('chess board', recorded_moves: []) }
+    let(:chess_board) { instance_double(Board, recorded_moves: []) }
 
     context 'when given white Pawn { x: 5, y: 5 } and black Pawn { x: 6, y: 5 } that has just moved from { x: 6, y: 7 }' do
       let(:square_65) { instance_double(Square, position: { x: 6, y: 5 }, taken?: true) }
@@ -357,7 +357,7 @@ describe Pawn do
   end
 
   describe '#enemy_pawn_square' do
-    let(:chess_board) { double('Board') }
+    let(:chess_board) { instance_double(Board) }
 
     context 'when given square { x: 4, y: 6 } with white Pawn' do
       subject(:wht_pawn) { described_class.new(nil, :white) }
@@ -373,7 +373,7 @@ describe Pawn do
   end
 
   describe '#take_enemy_piece' do
-    let(:chess_board) { double('Board') }
+    let(:chess_board) { instance_double(Board) }
 
     context 'when given square { x: 3, y: 6 }' do
       subject(:wht_pawn) { described_class.new(nil, :white) }
