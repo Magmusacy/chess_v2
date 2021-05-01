@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
 require_relative 'modules/square_accessor'
+require_relative 'modules/displayable'
 
 # Creating board that keeps track of individual squares
 class Board
+  include Displayable
   include SquareAccessor
   attr_accessor :board
 

@@ -8,7 +8,6 @@ require_relative 'player'
 
 # Class that is responsible game loop
 class Game
-  include Displayable
   include PiecesCreator
   include PlayerCreator
 
