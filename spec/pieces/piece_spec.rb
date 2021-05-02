@@ -15,6 +15,7 @@ describe Piece do
       allow(square).to receive(:update_piece).with(piece)
       allow(start_square).to receive(:update_piece)
       allow(board).to receive(:add_new_move).with(move_array)
+      allow(piece).to receive(:update_location)
     end
 
     it 'sends :add_new_move message to Board with [location, square] argument' do
@@ -32,8 +33,20 @@ describe Piece do
       piece.move(square, board)
     end
 
-    it 'changes @location to given square' do
-      expect { piece.move(square, board) }.to change { piece.location }.to(square)
+    it 'calls #update_location method with given square as an argument' do
+      expect(piece).to receive(:update_location).with(square)
+      piece.move(square, board)
+    end
+  end
+
+  describe '#update_location' do
+    context 'when given square object' do
+      subject(:piece) { described_class.new }
+      let(:new_square) { instance_double(Square) }
+
+      it 'updates @location variable to that given square' do
+        expect { piece.update_location(new_square) }.to change { piece.location }.to(new_square)
+      end
     end
   end
 
