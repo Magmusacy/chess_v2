@@ -29,6 +29,20 @@ describe Board do
     end
   end
 
+  describe '#add_move' do
+    context 'when given moves array' do
+      let(:moves) { [instance_double(Square), instance_double(Square)] }
+      let(:new_moves) { [instance_double(Square), instance_double(Square)] }
+
+      it 'adds that array to @recorded_moves instance variable' do
+        start_moves = [moves]
+        expected_array = [moves, new_moves]
+        chess_board.instance_variable_set(:@recorded_moves, start_moves)
+        expect { chess_board.add_move(new_moves) }.to change { chess_board.recorded_moves }.from(start_moves).to (expected_array)
+      end
+    end
+  end
+
   describe '#assign_pieces' do
     context 'when initialized board with black_pieces' do
       let(:white_piece) { instance_double(Piece, location: { x: 2, y: 2 }) }
