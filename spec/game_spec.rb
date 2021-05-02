@@ -43,7 +43,7 @@ describe Game do
       let(:wht_square2) { instance_double(Square, position: { x: 5, y: 4 }) }
       context 'when square with given input position has :white Piece' do
         it 'returns true' do
-          allow(chess_board).to receive(:get_player_squares).with(wht_player).and_return([wht_square1, wht_square2])
+          allow(chess_board).to receive(:squares_taken_by).with(wht_player.color).and_return([wht_square1, wht_square2])
           result = move_game.correct_input?(wht_player, wht_square1)
           expect(result).to be true
         end
@@ -52,7 +52,7 @@ describe Game do
       context 'when square with given input position has :black Piece' do
         let(:blk_square) { instance_double(Square, position: { x: 2, y: 6 }) }
         it 'returns false' do
-          allow(chess_board).to receive(:get_player_squares).with(wht_player).and_return([wht_square1, wht_square2])
+          allow(chess_board).to receive(:squares_taken_by).with(wht_player.color).and_return([wht_square1, wht_square2])
           result = move_game.correct_input?(wht_player, blk_square)
           expect(result).to be false
         end
@@ -147,7 +147,7 @@ describe Game do
   describe '#human_move' do
 
     let(:piece) { instance_double(Piece) }
-    let(:initial_square) { instance_double(Piece, piece: piece) }
+    let(:initial_square) { instance_double(Square, piece: piece) }
     let(:square_move) { instance_double(Square, position: { x: 6, y: 4 }) }
     let(:human_player) { instance_double(Player) }
     let(:chess_board) { instance_double(Board) }
@@ -156,7 +156,7 @@ describe Game do
     context 'when specified correct move input' do
       before do
         input = { x: 6, y: 4 }
-        allow(human_game).to receive(:display_board)
+        allow(chess_board).to receive(:display)
         allow(human_game).to receive(:get_correct_square).with(human_player).and_return(initial_square)
         allow(human_game).to receive(:correct_move?).with(initial_square, square_move).and_return(true)
         allow(human_player).to receive(:input).and_return(input)
@@ -164,15 +164,15 @@ describe Game do
       end
 
       it 'sends :move message with correct square to Piece on given square' do
-        expect(piece).to receive(:move).with(square_move)
+        expect(piece).to receive(:move).with(square_move, chess_board)
         human_game.human_move(human_player)
       end
     end
 
     context 'when specified wrong move input 2 times' do
-      before do
+      before do # refactor
         input = { x: 6, y: 4 }
-        allow(human_game).to receive(:display_board)
+        allow(chess_board).to receive(:display)
         allow(human_player).to receive(:input).and_return(input)
         allow(piece).to receive(:move)
         allow(human_game).to receive(:get_correct_square).with(human_player).and_return(initial_square)
@@ -197,13 +197,13 @@ describe Game do
     let(:legal_moves) { [ instance_double(Square) ] }
 
     before do
-      allow(ai_player).to receive(:ai_pick_square).and_return(ai_picked_square)
+      allow(ai_player).to receive(:ai_pick_square).with(chess_board).and_return(ai_picked_square)
       allow(ai_piece).to receive(:legal_moves).with(chess_board).and_return(legal_moves)
       allow(ai_player).to receive(:ai_pick_legal_move).with(legal_moves).and_return(legal_moves[0])
     end
 
     it 'sends :move message to random piece with random legal move' do
-      expect(ai_piece).to receive(:move).with(legal_moves[0])
+      expect(ai_piece).to receive(:move).with(legal_moves[0], chess_board)
       ai_game.ai_move(ai_player)
     end
   end
