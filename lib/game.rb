@@ -34,20 +34,20 @@ class Game
 
   def human_move(player)
     loop do
-      display_board
+      chess_board.display
       chosen_square = get_correct_square(player)
       move_square = chess_board.get_square(player.input)
-      return chosen_square.piece.move(move_square) if correct_move?(chosen_square, move_square)
+      return chosen_square.piece.move(move_square, chess_board) if correct_move?(chosen_square, move_square)
 
       puts 'Wrong move!'
     end
   end
 
   def ai_move(player)
-    square = player.ai_pick_square
+    square = player.ai_pick_square(chess_board)
     legal_moves = square.piece.legal_moves(chess_board)
     move_square = player.ai_pick_legal_move(legal_moves)
-    square.piece.move(move_square)
+    square.piece.move(move_square, chess_board)
   end
 
   def get_correct_square(player)
@@ -60,7 +60,7 @@ class Game
   end
 
   def correct_input?(player, input_square)
-    chess_board.get_player_squares(player).include?(input_square)
+    chess_board.squares_taken_by(player.color).include?(input_square)
   end
 
   def correct_move?(square, input_move)
