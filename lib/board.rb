@@ -8,9 +8,11 @@ class Board
   include Displayable
   include SquareAccessor
   attr_accessor :board
+  attr_reader :recorded_moves
 
   def initialize(board = nil)
     @board = board
+    @recorded_moves = []
   end
 
   def setup_board(white_pieces, black_pieces)
@@ -25,6 +27,10 @@ class Board
 
   def create_square_array(array)
     array.map { |pos| create_square(pos) }
+  end
+
+  def add_move(move_array)
+    @recorded_moves << move_array
   end
 
   def assign_pieces(pieces)
