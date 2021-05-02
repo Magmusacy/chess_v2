@@ -17,10 +17,14 @@ class Piece
     squares.reject { |sqr| sqr.taken? && sqr.piece.color == color }
   end
 
-  def move(square, board)
-    board.add_new_move([location, square])
-    square.update_piece(self)
+  def update_location(new_square)
+    @location = new_square
+  end
+
+  def move(new_square, board)
+    board.add_new_move([location, new_square])
+    new_square.update_piece(self)
     location.update_piece
-    @location = square
+    update_location(new_square)
   end
 end
