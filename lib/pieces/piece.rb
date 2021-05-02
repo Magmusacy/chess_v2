@@ -10,10 +10,6 @@ class Piece
     @icon = icon
   end
 
-  def to_s
-    " #{icon} "
-  end
-
   def legal_moves(board); end
 
   # this method is 100% not supposed to be there. It violates SRP
