@@ -29,9 +29,9 @@ class Board
 
   def assign_pieces(pieces)
     pieces.each do |piece|
-      square = get_square(piece.position)
+      square = get_square(piece.location)
       square.update_piece(piece)
-      piece.update_position(square)
+      piece.update_location(square)
     end
   end
 end
