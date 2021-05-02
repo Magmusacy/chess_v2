@@ -31,14 +31,14 @@ describe Board do
 
   describe '#assign_pieces' do
     context 'when initialized board with black_pieces' do
-      let(:white_piece) { instance_double(Piece, position: { x: 2, y: 2 }) }
-      let(:black_piece) { instance_double(Piece, position: { x: 7, y: 2 }) }
+      let(:white_piece) { instance_double(Piece, location: { x: 2, y: 2 }) }
+      let(:black_piece) { instance_double(Piece, location: { x: 7, y: 2 }) }
       let(:blk_square) { instance_double(Square, position: { x: 7, y: 2 }) }
 
       before do
         allow(chess_board).to receive(:get_square).with({ x: 7, y: 2 }).and_return(blk_square)
         allow(blk_square).to receive(:update_piece).with(black_piece)
-        allow(black_piece).to receive(:update_position)
+        allow(black_piece).to receive(:update_location)
         chess_board.board = [blk_square]
       end
 
@@ -47,8 +47,8 @@ describe Board do
         chess_board.assign_pieces([black_piece])
       end
 
-      it 'sends :update_position message with Square object for Piece that is being assigned to the Square' do
-        expect(black_piece).to receive(:update_position).with(blk_square)
+      it 'sends :update_location message with Square object for Piece that is being assigned to the Square' do
+        expect(black_piece).to receive(:update_location).with(blk_square)
         chess_board.assign_pieces([black_piece])
       end
     end
