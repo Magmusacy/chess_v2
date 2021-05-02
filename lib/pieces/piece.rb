@@ -22,7 +22,7 @@ class Piece
   end
 
   def move(new_square, board)
-    board.add_new_move([location, new_square])
+    board.add_move([location, new_square])
     new_square.update_piece(self)
     location.update_piece
     update_location(new_square)

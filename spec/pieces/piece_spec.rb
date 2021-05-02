@@ -14,12 +14,12 @@ describe Piece do
     before do
       allow(square).to receive(:update_piece).with(piece)
       allow(start_square).to receive(:update_piece)
-      allow(board).to receive(:add_new_move).with(move_array)
+      allow(board).to receive(:add_move).with(move_array)
       allow(piece).to receive(:update_location)
     end
 
-    it 'sends :add_new_move message to Board with [location, square] argument' do
-      expect(board).to receive(:add_new_move).with(move_array)
+    it 'sends :add_move message to Board with [location, square] argument' do
+      expect(board).to receive(:add_move).with(move_array)
       piece.move(square, board)
     end
 
