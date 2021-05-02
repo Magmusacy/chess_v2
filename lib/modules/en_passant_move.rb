@@ -10,7 +10,7 @@ module EnPassantMove
       next unless new_positions[i].taken?
 
       if en_passantable?(new_positions[i], board.recorded_moves.last)
-        ary << board.get_relative_square(location, y: y_shift, initial_square: new_positions[i])
+        ary << board.get_relative_square(location, y: y_shift)
       end
     end
     ary

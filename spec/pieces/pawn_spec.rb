@@ -205,7 +205,7 @@ describe Pawn do
       before do
         allow(chess_board).to receive(:get_relative_square).with(start_square_55, x: -1).and_return(square_45)
         allow(chess_board).to receive(:get_relative_square).with(start_square_55, x: 1).and_return(square_65)
-        allow(chess_board).to receive(:get_relative_square).with(start_square_55, y: 1, initial_square: square_65).and_return(square_66)
+        allow(chess_board).to receive(:get_relative_square).with(start_square_55, y: 1).and_return(square_66)
         allow(wht_pawn_55).to receive(:en_passantable?).and_return(true)
       end
 
@@ -227,7 +227,7 @@ describe Pawn do
       before do
         allow(chess_board).to receive(:get_relative_square).with(start_square_55, x: -1).and_return(square_45)
         allow(chess_board).to receive(:get_relative_square).with(start_square_55, x: 1).and_return(square_65)
-        allow(chess_board).to receive(:get_relative_square).with(start_square_55, y: 1, initial_square: square_45).and_return(square_46)
+        allow(chess_board).to receive(:get_relative_square).with(start_square_55, y: 1).and_return(square_46)
         allow(wht_pawn_55).to receive(:en_passantable?).and_return(true)
       end
 
@@ -247,7 +247,7 @@ describe Pawn do
       before do
         allow(chess_board).to receive(:get_relative_square).with(start_square_14, x: -1).and_return(nil)
         allow(chess_board).to receive(:get_relative_square).with(start_square_14, x: 1).and_return(square_24)
-        allow(chess_board).to receive(:get_relative_square).with(start_square_14, y: -1, initial_square: square_24).and_return(square_23)
+        allow(chess_board).to receive(:get_relative_square).with(start_square_14, y: -1).and_return(square_23)
         allow(blk_pawn_14).to receive(:en_passantable?).and_return(true)
       end
 
