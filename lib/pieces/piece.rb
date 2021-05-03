@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
+require_relative '../modules/discard_illegal_moves'
+
 # Superclass of each piece, contains logic for movement and finding relative square
 class Piece
   attr_reader :color, :icon, :location
+  include DiscardIllegalMoves
 
   def initialize(location = nil, color = nil, icon = nil)
     @location = location
