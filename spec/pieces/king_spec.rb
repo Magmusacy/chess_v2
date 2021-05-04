@@ -1,3 +1,4 @@
+require_relative 'shared_piece_spec'
 require_relative '../../lib/pieces/king'
 require_relative '../../lib/pieces/piece'
 require_relative '../../lib/board'
@@ -5,6 +6,16 @@ require_relative '../../lib/square'
 
 describe King do
   let(:chess_board) { instance_double(Board) }
+
+  context 'when King is a child class of Piece' do
+    subject(:king) { described_class.new }
+    include_examples 'base class methods names'
+  end
+
+  context 'when King has the same method name' do
+    subject(:king) { described_class.new }
+    include_examples 'shared method names'
+  end
 
   describe '#legal_moves' do
     context 'when given King { x: 4, y: 4 }' do
