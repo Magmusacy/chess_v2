@@ -15,18 +15,47 @@ describe Rook do
   end
 
   describe '#legal_moves' do
-    subject(:rook_moves) { described_class.new }
-    let(:legal) { [double('square')] }
+    subject(:rook_moves) { described_class.new(nil, :white) }
+    let(:moves) { [double('square'), double('square')] }
+    let(:enemy_color) { :black }
+    let(:illegal) { [moves.first] }
+    let(:legal) { [moves.last] }
 
     before do
       allow(rook_moves).to receive(:vertical_move).and_return([])
       allow(rook_moves).to receive(:horizontal_move).and_return([])
     end
 
+    context 'when all move methods returned 2 moves and only 1 of them is legal' do
+      before do
+        allow(rook_moves).to receive(:horizontal_move).with(chess_board, 1).and_return(illegal)
+        allow(rook_moves).to receive(:vertical_move).with(chess_board, -1).and_return(legal)
+        allow(rook_moves).to receive(:discard_illegal_moves).with(chess_board, enemy_color, moves).and_return(legal)
+      end
+
+      it 'returns only that 1 legal move' do
+        result = rook_moves.legal_moves(chess_board)
+        expect(result).to match_array(legal)
+      end
+    end
+
+    context 'when all move methods returned 1 move and that move is not legal' do
+      before do
+        allow(rook_moves).to receive(:horizontal_move).with(chess_board, 1).and_return(illegal)
+        allow(rook_moves).to receive(:discard_illegal_moves).with(chess_board, enemy_color, illegal).and_return([])
+      end
+
+      it 'returns empty array' do
+        result = rook_moves.legal_moves(chess_board)
+        expect(result).to be_empty
+      end
+    end
+
     context 'when only #horizontal_move with x = 1 returns a possible and legal move' do
       before do
         x = 1
         allow(rook_moves).to receive(:horizontal_move).with(chess_board, x).and_return(legal)
+        allow(rook_moves).to receive(:discard_illegal_moves).and_return(legal)
       end
 
       it 'returns an array with 1 legal move' do
@@ -39,6 +68,7 @@ describe Rook do
       before do
         x = -1
         allow(rook_moves).to receive(:horizontal_move).with(chess_board, x).and_return(legal)
+        allow(rook_moves).to receive(:discard_illegal_moves).and_return(legal)
       end
 
       it 'returns an array with 1 legal move' do
@@ -51,6 +81,7 @@ describe Rook do
       before do
         y = 1
         allow(rook_moves).to receive(:vertical_move).with(chess_board, y).and_return(legal)
+        allow(rook_moves).to receive(:discard_illegal_moves).and_return(legal)
       end
 
       it 'returns an array with 1 legal move' do
@@ -63,6 +94,7 @@ describe Rook do
       before do
         y = -1
         allow(rook_moves).to receive(:vertical_move).with(chess_board, y).and_return(legal)
+        allow(rook_moves).to receive(:discard_illegal_moves).and_return(legal)
       end
 
       it 'returns an array with 1 legal move' do
