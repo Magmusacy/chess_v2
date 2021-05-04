@@ -8,71 +8,93 @@ describe King do
 
   describe '#legal_moves' do
     context 'when given King { x: 4, y: 4 }' do
-    let(:start_square_44) { instance_double(Square, position: { x: 4, y: 4 }) }
-    subject(:king) { described_class.new(start_square_44, nil, nil) }
+    subject(:king_moves) { described_class.new(nil, :white) }
+    let(:moves) { [instance_double(Square), instance_double(Square)] }
+    let(:enemy_color) { :black }
+    let(:illegal) { [moves.first] }
+    let(:legal) { [moves.last] }
 
     before do
-      allow(king).to receive(:horizontal_move).and_return([])
-      allow(king).to receive(:vertical_move).and_return([])
-      allow(king).to receive(:diagonal_move).and_return([])
+      allow(king_moves).to receive(:horizontal_move).and_return([])
+      allow(king_moves).to receive(:vertical_move).and_return([])
+      allow(king_moves).to receive(:diagonal_move).and_return([])
     end
 
-      context 'when all horizontal moves are available' do
-        let(:sqr_left) { instance_double(Square, position: { x: 3, y: 4 }) }
-        let(:sqr_right) { instance_double(Square, position: { x: 5, y: 4 }) }
+    context 'when all move methods returned 2 moves and only 1 of them is legal' do
+      before do
+        allow(king_moves).to receive(:diagonal_move).with(chess_board, 1, 1).and_return(illegal)
+        allow(king_moves).to receive(:diagonal_move).with(chess_board, -1, -1).and_return(legal)
+        allow(king_moves).to receive(:discard_illegal_moves).with(chess_board, enemy_color, moves).and_return(legal)
+      end
+
+      it 'returns only that 1 legal move' do
+        result = king_moves.legal_moves(chess_board)
+        expect(result).to match_array(legal)
+      end
+    end
+
+    context 'when all move methods returned only 1 possible move and that move is not legal' do
+      before do
+        allow(king_moves).to receive(:diagonal_move).with(chess_board, 1, 1).and_return(illegal)
+        allow(king_moves).to receive(:discard_illegal_moves).with(chess_board, enemy_color, illegal).and_return([])
+      end
+
+      it 'returns empty array' do
+        result = king_moves.legal_moves(chess_board)
+        expect(result).to be_empty
+      end
+    end
+
+      context 'when all horizontal moves are possible' do
+        let(:legal_moves) { [legal, legal] }
 
         before do
-          allow(king).to receive(:horizontal_move).with(chess_board, -1).and_return([sqr_left])
-          allow(king).to receive(:horizontal_move).with(chess_board, 1).and_return([sqr_right])
+          allow(king_moves).to receive(:horizontal_move).with(chess_board, -1).and_return(legal)
+          allow(king_moves).to receive(:horizontal_move).with(chess_board, 1).and_return(legal)
+          allow(king_moves).to receive(:discard_illegal_moves).and_return(legal_moves)
         end
 
-        it 'returns array of 2 different horizontal squares' do
-          result = king.legal_moves(chess_board)
-          expected = [sqr_left, sqr_right]
-          expect(result).to match_array(expected)
+        it 'returns array of 2 legal horizontal moves' do
+          result = king_moves.legal_moves(chess_board)
+          expect(result).to match_array(legal_moves)
         end
       end
 
-      context 'when all vertical moves are available' do
-        let(:sqr_up) { instance_double(Square, position: { x: 4, y: 5 }) }
-        let(:sqr_down) { instance_double(Square, position: { x: 4, y: 3 }) }
+      context 'when all vertical moves are possible' do
+        let(:legal_moves) { [legal, legal] }
 
         before do
-          allow(king).to receive(:vertical_move).with(chess_board, -1).and_return([sqr_down])
-          allow(king).to receive(:vertical_move).with(chess_board, 1).and_return([sqr_up])
+          allow(king_moves).to receive(:vertical_move).with(chess_board, -1).and_return(legal)
+          allow(king_moves).to receive(:vertical_move).with(chess_board, 1).and_return(legal)
+          allow(king_moves).to receive(:discard_illegal_moves).and_return(legal_moves)
         end
 
-        it 'returns array of 2 different vertical squares' do
-          result = king.legal_moves(chess_board)
-          expected = [sqr_up, sqr_down]
-          expect(result).to match_array(expected)
+        it 'returns array of 2 legal vertical moves' do
+          result = king_moves.legal_moves(chess_board)
+          expect(result).to match_array(legal_moves)
         end
       end
 
-      context 'when all diagonal moves are available' do
-        let(:sqr_left_up) { instance_double(Square, position: { x: 3, y: 5 }) }
-        let(:sqr_left_down) { instance_double(Square, position: { x: 3, y: 3 }) }
-        let(:sqr_right_up) { instance_double(Square, position: { x: 5, y: 5 }) }
-        let(:sqr_right_down) { instance_double(Square, position: { x: 5, y: 3 }) }
+      context 'when all diagonal moves are possible' do
+        let(:legal_moves) { [legal, legal, legal, legal] }
 
         before do
-          allow(king).to receive(:diagonal_move).with(chess_board, -1, -1).and_return([sqr_left_down])
-          allow(king).to receive(:diagonal_move).with(chess_board, 1, 1).and_return([sqr_right_up])
-          allow(king).to receive(:diagonal_move).with(chess_board, -1, 1).and_return([sqr_left_up])
-          allow(king).to receive(:diagonal_move).with(chess_board, 1, -1).and_return([sqr_right_down])
+          allow(king_moves).to receive(:diagonal_move).with(chess_board, -1, -1).and_return(legal)
+          allow(king_moves).to receive(:diagonal_move).with(chess_board, 1, 1).and_return(legal)
+          allow(king_moves).to receive(:diagonal_move).with(chess_board, -1, 1).and_return(legal)
+          allow(king_moves).to receive(:diagonal_move).with(chess_board, 1, -1).and_return(legal)
+          allow(king_moves).to receive(:discard_illegal_moves).and_return(legal_moves)
         end
 
-        it 'returns array of 4 different diagonal squares' do
-          result = king.legal_moves(chess_board)
-          expected = [sqr_left_up, sqr_left_down, sqr_right_up, sqr_right_down]
-          expect(result).to match_array(expected)
+        it 'returns array of 4 legal diagonal moves' do
+          result = king_moves.legal_moves(chess_board)
+          expect(result).to match_array(legal_moves)
         end
       end
     end
   end
 
   describe '#horizontal_move' do
-
     context 'when given only King on square { x: 5, y: 3 }' do
       let(:start_square_53) { instance_double(Square, position: { x: 5, y: 3 }) }
       subject(:king_53) { described_class.new(start_square_53, nil, nil) }
