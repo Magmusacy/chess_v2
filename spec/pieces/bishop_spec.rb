@@ -15,21 +15,51 @@ describe Bishop do
   end
 
   describe '#legal_moves' do
-    subject(:bishop_moves) { described_class.new }
-    let(:move_square) { double('square') }
+    subject(:bishop_moves) { described_class.new(nil, :white) }
+    let(:legal_moves) { [double('square'), double('square')] }
+    let(:opponent_color) { :black }
+
+    context 'when all move methods returned 2 possible moves and only 1 of them is legal' do
+      before do
+        allow(bishop_moves).to receive(:diagonal_move).and_return([])
+        allow(bishop_moves).to receive(:diagonal_move).with(chess_board, 1, 1).and_return([legal_moves[0]])
+        allow(bishop_moves).to receive(:diagonal_move).with(chess_board, -1, -1).and_return([legal_moves[1]])
+        allow(bishop_moves).to receive(:discard_illegal_moves).with(chess_board, opponent_color, legal_moves).and_return([legal_moves[1]])
+      end
+
+      it 'returns only that 1 legal move' do
+        result = bishop_moves.legal_moves(chess_board)
+        expect(result).to match_array([legal_moves[1]])
+      end
+    end
+
+    context 'when all move methods returned 1 possible moves and that move is not legal' do
+      before do
+        allow(bishop_moves).to receive(:diagonal_move).and_return([])
+        allow(bishop_moves).to receive(:diagonal_move).with(chess_board, 1, 1).and_return([legal_moves[1]])
+        allow(bishop_moves).to receive(:discard_illegal_moves).with(chess_board, opponent_color, [legal_moves[1]]).and_return([])
+      end
+
+      it 'returns empty array' do
+        result = bishop_moves.legal_moves(chess_board)
+        expect(result).to be_empty
+      end
+    end
+
 
     context 'when invoked #diagonal_move 2 times, with x = 1, y = 1 and x = -1, y = -1' do
       context 'when #diagonal_move returns 1 move square' do
 
         before do
           allow(bishop_moves).to receive(:diagonal_move).and_return([])
-          allow(bishop_moves).to receive(:diagonal_move).with(chess_board, 1, 1).and_return(move_square)
-          allow(bishop_moves).to receive(:diagonal_move).with(chess_board, -1, -1).and_return(move_square)
+          allow(bishop_moves).to receive(:diagonal_move).with(chess_board, 1, 1).and_return(legal_moves[0])
+          allow(bishop_moves).to receive(:diagonal_move).with(chess_board, -1, -1).and_return(legal_moves[1])
+          allow(bishop_moves).to receive(:discard_illegal_moves).and_return(legal_moves)
         end
 
         it 'returns an array with 2 move squares' do
           result = bishop_moves.legal_moves(chess_board)
-          expect(result).to match_array([move_square, move_square])
+          expect(result).to match_array(legal_moves)
         end
       end
     end
@@ -39,13 +69,14 @@ describe Bishop do
 
         before do
           allow(bishop_moves).to receive(:diagonal_move).and_return([])
-          allow(bishop_moves).to receive(:diagonal_move).with(chess_board, 1, -1).and_return(move_square)
-          allow(bishop_moves).to receive(:diagonal_move).with(chess_board, -1, 1).and_return(move_square)
+          allow(bishop_moves).to receive(:diagonal_move).with(chess_board, 1, -1).and_return(legal_moves[0])
+          allow(bishop_moves).to receive(:diagonal_move).with(chess_board, -1, 1).and_return(legal_moves[1])
+          allow(bishop_moves).to receive(:discard_illegal_moves).and_return(legal_moves)
         end
 
         it 'returns an array with 2 move squares' do
           result = bishop_moves.legal_moves(chess_board)
-          expect(result).to match_array([move_square, move_square])
+          expect(result).to match_array(legal_moves)
         end
       end
     end
