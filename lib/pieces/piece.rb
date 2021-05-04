@@ -30,4 +30,10 @@ class Piece
     location.update_piece
     update_location(new_square)
   end
+
+  private
+
+  def opponent_color
+    color == :white ? :black : :white
+  end
 end
