@@ -6,6 +6,7 @@ class King < Piece
              vertical_move(board, 1), vertical_move(board, -1),
              diagonal_move(board, 1, 1), diagonal_move(board, 1, -1),
              diagonal_move(board, -1, 1), diagonal_move(board, -1, -1)].flatten
+    discard_illegal_moves(board, opponent_color, moves)
   end
 
   def horizontal_move(board, x)
