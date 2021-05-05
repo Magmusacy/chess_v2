@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require_relative 'modules/displayable'
 require_relative 'modules/pieces_creator'
 require_relative 'modules/player_creator'
+require_relative 'modules/special_conditions'
 require_relative 'board'
 require_relative 'player'
 
@@ -10,6 +10,7 @@ require_relative 'player'
 class Game
   include PiecesCreator
   include PlayerCreator
+  include SpecialConditions
 
   attr_reader :player_white, :player_black, :chess_board
 
@@ -17,16 +18,34 @@ class Game
     @player_white = player_white
     @player_black = player_black
     @chess_board = chess_board
+    @players = nil
   end
 
   def play_game
     @player_white, @player_black = create_players
     white_pieces = create_pieces(player_white)
     black_pieces = create_pieces(player_black)
+    @players = [@player_white, @player_black]
     chess_board.setup_board(white_pieces, black_pieces)
+    game_loop
+    announce_winner
   end
 
-  def game_loop; end
+  def game_loop
+    loop do
+      color_1, color_2 = @players.map(&:color)
+      break if checkmate?(chess_board, color_1, color_2) == true || stalemate?(chess_board, color_1, color_2)
+      display_check(color_1) if check?(chess_board, color_1, color_2)
+      player_move(@players.first)
+      @players.rotate!
+    end
+  end
+
+  def announce_winner
+    color_1, color_2 = @players.map(&:color)
+    puts "#{color_2} player won by a checkmate!" if checkmate?(chess_board, color_1, color_2)
+    puts "#{color_1} player is in stalemate, the game is a draw!" if stalemate?(chess_board, color_1, color_2)
+  end
 
   def player_move(player)
     player.type == :human ? human_move(player) : ai_move(player)
@@ -65,5 +84,11 @@ class Game
 
   def correct_move?(square, input_move)
     square.piece.legal_moves(chess_board).include?(input_move)
+  end
+
+  private
+
+  def display_check(color)
+    puts "#{color} player is in check!"
   end
 end
