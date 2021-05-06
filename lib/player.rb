@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
 require_relative 'modules/ai'
+require_relative 'modules/special_conditions'
 
 # Contains logic for getting, veryfing and trasnlating player input
 class Player
   include AI
+  include SpecialConditions
   attr_reader :color, :type
 
   def initialize(color, type)

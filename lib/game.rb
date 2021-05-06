@@ -10,7 +10,6 @@ require_relative 'player'
 class Game
   include PiecesCreator
   include PlayerCreator
-  include SpecialConditions
 
   attr_reader :player_white, :player_black, :chess_board
 
@@ -33,18 +32,18 @@ class Game
 
   def game_loop
     loop do
-      color_1, color_2 = @players.map(&:color)
-      break if checkmate?(chess_board, color_1, color_2) == true || stalemate?(chess_board, color_1, color_2)
-      display_check(color_1) if check?(chess_board, color_1, color_2)
-      player_move(@players.first)
+      player = @players.first
+      break if player.in_checkmate?(chess_board) || player.in_stalemate?(chess_board)
+      display_check(player.color) if player.in_check?(chess_board)
+      player_move(player)
       @players.rotate!
     end
   end
 
   def announce_winner
-    color_1, color_2 = @players.map(&:color)
-    puts "#{color_2} player won by a checkmate!" if checkmate?(chess_board, color_1, color_2)
-    puts "#{color_1} player is in stalemate, the game is a draw!" if stalemate?(chess_board, color_1, color_2)
+    player = @players.first
+    puts "#{@players[1].color} player won by a checkmate!" if player.in_checkmate?(chess_board)
+    puts "#{@players[0].color} player is in stalemate, the game is a draw!" if player.in_stalemate?(chess_board)
   end
 
   def player_move(player)
@@ -55,6 +54,7 @@ class Game
     loop do
       chess_board.display
       chosen_square = get_correct_square(player)
+      #chess_board.display(chosen_square.piece.legal_moves(chess_board))
       move_square = chess_board.get_square(player.input)
       return chosen_square.piece.move(move_square, chess_board) if correct_move?(chosen_square, move_square)
 
@@ -63,10 +63,12 @@ class Game
   end
 
   def ai_move(player)
+    #chess_board.display
     square = player.ai_pick_square(chess_board)
     legal_moves = square.piece.legal_moves(chess_board)
     move_square = player.ai_pick_legal_move(legal_moves)
     square.piece.move(move_square, chess_board)
+    #puts `clear`
   end
 
   def get_correct_square(player)
