@@ -6,8 +6,14 @@ module DiscardIllegalMoves
   def discard_illegal_moves(chess_board, opponent_color, possible_moves)
     possible_moves.reject do |move_square|
       board_clone = clone_move(chess_board, self, move_square)
-      check?(board_clone, @color, opponent_color)
+      illegal?(board_clone, opponent_color)
     end
+  end
+
+  def illegal?(board_clone, opponent_color)
+    enemy_pieces = board_clone.squares_taken_by(opponent_color).map(&:piece)
+    king_square = board_clone.get_king_square(@color)
+    enemy_pieces.any? { |piece| piece.possible_moves(board_clone).include?(king_square) }
   end
 
   def clone_move(real_board, real_piece, real_square)
