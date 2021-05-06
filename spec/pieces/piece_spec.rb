@@ -93,6 +93,49 @@ describe Piece do
     end
   end
 
+  describe '#illegal?' do
+    context 'when Piece object has :white color' do
+      let(:opponent_color) { :black }
+      let(:piece_color) { :white }
+      let(:clone_board) { instance_double(Board) }
+      subject(:illegal_piece) { described_class.new(nil, piece_color, nil) }
+
+      context 'when given Board on which :white King is under attack' do
+        let(:wht_king) { double('King', color: :white, piece: nil) }
+        let(:enemy_piece1) { double('Piece') }
+        let(:enemy_squares) { [double('Square', taken?: true, piece: enemy_piece1)] }
+
+        before do
+          allow(enemy_piece1).to receive(:possible_moves).with(clone_board).and_return([wht_king])
+          allow(clone_board).to receive(:squares_taken_by).with(opponent_color).and_return(enemy_squares)
+          allow(clone_board).to receive(:get_king_square).with(piece_color).and_return(wht_king)
+        end
+
+        it 'returns true' do
+          result = illegal_piece.illegal?(clone_board, opponent_color)
+          expect(result).to be true
+        end
+      end
+
+      context 'when given Board on which :white King is not under attack' do
+        let(:wht_king) { double('King', color: :white, piece: nil) }
+        let(:enemy_piece1) { double('Piece') }
+        let(:enemy_squares) { [double('Square', taken?: true, piece: enemy_piece1)] }
+
+        before do
+          allow(enemy_piece1).to receive(:possible_moves).with(clone_board).and_return([])
+          allow(clone_board).to receive(:squares_taken_by).with(opponent_color).and_return(enemy_squares)
+          allow(clone_board).to receive(:get_king_square).with(piece_color).and_return(wht_king)
+        end
+
+        it 'returns false' do
+          result = illegal_piece.illegal?(clone_board, opponent_color)
+          expect(result).to be false
+        end
+      end
+    end
+  end
+
   describe '#discard_illegal_moves' do
     let(:opponent_color) { :black }
     let(:real_color) { :white }
@@ -100,14 +143,14 @@ describe Piece do
     subject(:real_piece) { described_class.new(nil, real_color, nil) }
 
     context 'when possible_moves has 1 move' do
-    let(:real_square1) { instance_double(Square, piece: nil) }
-    let(:possible_moves) { [real_square1] }
-    let(:clone_board1) { instance_double(Board) }
+    let(:real_square_1) { instance_double(Square, piece: nil) }
+    let(:possible_moves) { [real_square_1] }
+    let(:clone_board_1) { instance_double(Board) }
 
-      context 'when after that 1 move there is check condition' do
+      context 'when that move is illegal' do
         before do
-          allow(real_piece).to receive(:clone_move).with(real_board, real_piece, real_square1).and_return(clone_board1)
-          allow(real_piece).to receive(:check?).with(clone_board1, real_color, opponent_color).and_return(true)
+          allow(real_piece).to receive(:clone_move).with(real_board, real_piece, real_square_1).and_return(clone_board_1)
+          allow(real_piece).to receive(:illegal?).with(clone_board_1, opponent_color).and_return(true)
         end
 
         it 'returns empty array' do
@@ -118,23 +161,23 @@ describe Piece do
     end
 
     context 'when possible_moves has 2 moves' do
-      let(:real_square1) { instance_double(Square, piece: nil) }
-      let(:real_square2) { instance_double(Square, piece: nil) }
-      let(:clone_board1) { instance_double(Board) }
-      let(:clone_board2) { instance_double(Board) }
-      let(:possible_moves) { [real_square1, real_square2] }
+      let(:real_square_1) { instance_double(Square, piece: nil) }
+      let(:real_square_2) { instance_double(Square, piece: nil) }
+      let(:clone_board_1) { instance_double(Board) }
+      let(:clone_board_2) { instance_double(Board) }
+      let(:possible_moves) { [real_square_1, real_square_2] }
 
-      context 'when after first move there is a check condition, but after the second move there is not' do
+      context 'when only the first move is illegal' do
         before do
-          allow(real_piece).to receive(:clone_move).with(real_board, real_piece, real_square1).and_return(clone_board1)
-          allow(real_piece).to receive(:clone_move).with(real_board, real_piece, real_square2).and_return(clone_board2)
-          allow(real_piece).to receive(:check?).with(clone_board1, real_color, opponent_color).and_return(true)
-          allow(real_piece).to receive(:check?).with(clone_board2, real_color, opponent_color).and_return(false)
+          allow(real_piece).to receive(:clone_move).with(real_board, real_piece, real_square_1).and_return(clone_board_1)
+          allow(real_piece).to receive(:clone_move).with(real_board, real_piece, real_square_2).and_return(clone_board_2)
+          allow(real_piece).to receive(:illegal?).with(clone_board_1, opponent_color).and_return(true)
+          allow(real_piece).to receive(:illegal?).with(clone_board_2, opponent_color).and_return(false)
         end
 
         it 'returns array with only second move' do
           result = real_piece.discard_illegal_moves(real_board, opponent_color, possible_moves)
-          expect(result).to eq([real_square2])
+          expect(result).to eq([real_square_2])
         end
       end
     end
