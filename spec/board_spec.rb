@@ -110,20 +110,20 @@ describe Board do
     let(:blk_piece) { instance_double(Piece, color: :black) }
     let(:wht_squares) do
       [
-        instance_double(Square, piece: wht_piece),
-        instance_double(Square, piece: wht_piece)
+        instance_double(Square, piece: wht_piece, taken?: true),
+        instance_double(Square, piece: wht_piece, taken?: true)
       ]
     end
     let(:blk_squares) do
       [
-        instance_double(Square, piece: blk_piece),
-        instance_double(Square, piece: blk_piece)
+        instance_double(Square, piece: blk_piece, taken?: true),
+        instance_double(Square, piece: blk_piece, taken?: true)
       ]
     end
     let(:empty_squares) do
       [
-        instance_double(Square, piece: '   '),
-        instance_double(Square, piece: '   ')
+        instance_double(Square, piece: nil, taken?: false),
+        instance_double(Square, piece: nil, taken?: false)
       ]
     end
     let(:board) { [wht_squares, blk_squares, empty_squares].flatten }
@@ -171,17 +171,6 @@ describe Board do
         result = chess_board.get_king_square(:white)
         expect(result).to eq(white_king)
       end
-    end
-  end
-
-  describe '#display' do
-    let(:board) do
-      Array(1..8).product(Array(1..8)).map{ |x| double('square', position: { x: x[0], y: x[1] }, piece: double('piece', icon: '♞')) }
-    end
-
-    subject(:display_board) { described_class.new(board) }
-    it 'displays board' do
-      result = display_board.display
     end
   end
 end

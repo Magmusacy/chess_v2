@@ -13,7 +13,7 @@ module SquareAccessor
   end
 
   def squares_taken_by(color)
-    @board.select { |sqr| !sqr.piece.is_a?(String) && sqr.piece.color == color }
+    @board.select { |sqr| sqr.taken? && sqr.piece.color == color }
   end
 
   def get_king_square(color)
