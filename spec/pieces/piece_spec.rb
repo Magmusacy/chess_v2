@@ -58,11 +58,28 @@ describe Piece do
     let(:clone_piece) { instance_double(Piece) }
     subject(:real_piece) { described_class.new(nil, :white, nil) }
 
+    # self note:
+    # #clone method only changes the object itself without it's attributes,
+    # whereas Marshalling changes object and it's attributes
+
     before do
-      allow(real_piece).to receive(:clone).and_return(clone_piece)
-      allow(real_board).to receive(:clone).and_return(clone_board)
-      allow(real_square).to receive(:clone).and_return(clone_square)
+      allow(Marshal).to receive(:dump).with(real_piece).and_return(clone_piece)
+      allow(Marshal).to receive(:load).with(clone_piece).and_return(clone_piece)
+      allow(Marshal).to receive(:dump).with(real_square).and_return(clone_square)
+      allow(Marshal).to receive(:load).with(clone_square).and_return(clone_square)
+      allow(Marshal).to receive(:dump).with(real_board).and_return(clone_board)
+      allow(Marshal).to receive(:load).with(clone_board).and_return(clone_board)
       allow(clone_piece).to receive(:move).with(clone_square, clone_board)
+    end
+
+    it 'sends :dump message to Marshal class 3 times' do
+      expect(Marshal).to receive(:dump).exactly(3).times
+      real_piece.clone_move(real_board, real_piece, real_square)
+    end
+
+    it 'sends :load message to Marshal class 3 times' do
+      expect(Marshal).to receive(:load).exactly(3).times
+      real_piece.clone_move(real_board, real_piece, real_square)
     end
 
     it 'sends :move message to cloned piece, with cloned square and cloned board' do
@@ -119,26 +136,6 @@ describe Piece do
           result = real_piece.discard_illegal_moves(real_board, opponent_color, possible_moves)
           expect(result).to eq([real_square2])
         end
-      end
-    end
-  end
-
-  describe '#reject_related_squares' do
-    context 'when given an array of squares' do
-      subject(:piece) { described_class.new(nil, :white, nil) }
-
-      let(:piece_wht) { instance_double(Piece, color: :white) }
-      let(:piece_blk) { instance_double(Piece, color: :black) }
-      let(:square_wht1) { instance_double(Square, piece: piece_wht, taken?: true) }
-      let(:square_wht2) { instance_double(Square, piece: piece_wht, taken?: true) }
-      let(:square_blk1) { instance_double(Square, piece: piece_blk, taken?: true) }
-      let(:square_blk2) { instance_double(Square, piece: piece_blk, taken?: true) }
-
-      it 'returns modified array without squares that have the same @piece.color as the calling object' do
-        squares = [square_wht1, square_wht2, square_blk1, square_blk2]
-        result = piece.reject_related_squares(squares)
-        expected = [square_blk1, square_blk2]
-        expect(result).to match_array(expected)
       end
     end
   end
