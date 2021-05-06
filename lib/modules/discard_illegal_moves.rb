@@ -11,9 +11,9 @@ module DiscardIllegalMoves
   end
 
   def clone_move(real_board, real_piece, real_square)
-    clone_board = real_board.clone
-    clone_piece = real_piece.clone
-    clone_square = real_square.clone
+    clone_board = Marshal.load(Marshal.dump(real_board))
+    clone_piece = Marshal.load(Marshal.dump(real_piece))
+    clone_square = Marshal.load(Marshal.dump(real_square))
     clone_piece.move(clone_square, clone_board)
     clone_board
   end
