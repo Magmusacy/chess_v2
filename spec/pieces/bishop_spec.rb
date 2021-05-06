@@ -109,10 +109,6 @@ describe Bishop do
   end
 
   describe '#diagonal_move' do
-    before do
-      allow(chess_board).to receive(:get_relative_square)
-    end
-
     context 'when given :white Bishop on square { x: 4, y: 4 }' do
       let(:start_sqr_44) { double('Square', position: { x: 4, y: 4 }) }
       subject(:wht_bishop_44) { described_class.new(start_sqr_44, :white) }
@@ -136,6 +132,7 @@ describe Bishop do
             allow(chess_board).to receive(:get_relative_square).with(start_sqr_44, x: 2, y: 2).and_return(exp_sqr[1])
             allow(chess_board).to receive(:get_relative_square).with(start_sqr_44, x: 3, y: 3).and_return(exp_sqr[2])
             allow(chess_board).to receive(:get_relative_square).with(start_sqr_44, x: 4, y: 4).and_return(exp_sqr[3])
+            allow(chess_board).to receive(:get_relative_square).with(start_sqr_44, x: 5, y: 5)
           end
 
           it 'returns 4 squares { x: 5, y: 5 }, { x: 6, y: 6 }, { x: 7, y: 7 }, { x: 8, y: 8 }' do
@@ -162,6 +159,7 @@ describe Bishop do
             allow(chess_board).to receive(:get_relative_square).with(start_sqr_44, x: -1, y: 1).and_return(exp_sqr[0])
             allow(chess_board).to receive(:get_relative_square).with(start_sqr_44, x: -2, y: 2).and_return(exp_sqr[1])
             allow(chess_board).to receive(:get_relative_square).with(start_sqr_44, x: -3, y: 3).and_return(exp_sqr[2])
+            allow(chess_board).to receive(:get_relative_square).with(start_sqr_44, x: -4, y: 4)
           end
 
           it 'returns 3 squares { x: 3, y: 5 }, { x: 2, y: 6 }, { x: 1, y: 7 }' do
@@ -187,6 +185,7 @@ describe Bishop do
             allow(chess_board).to receive(:get_relative_square).with(start_sqr_44, x: 1, y: -1).and_return(exp_sqr[0])
             allow(chess_board).to receive(:get_relative_square).with(start_sqr_44, x: 2, y: -2).and_return(exp_sqr[1])
             allow(chess_board).to receive(:get_relative_square).with(start_sqr_44, x: 3, y: -3).and_return(exp_sqr[2])
+            allow(chess_board).to receive(:get_relative_square).with(start_sqr_44, x: 4, y: -4)
           end
 
           it 'returns 3 squares { x: 5, y: 3 }, { x: 6, y: 2 }, { x: 7, y: 1 }' do
@@ -212,6 +211,7 @@ describe Bishop do
             allow(chess_board).to receive(:get_relative_square).with(start_sqr_44, x: -1, y: -1).and_return(exp_sqr[0])
             allow(chess_board).to receive(:get_relative_square).with(start_sqr_44, x: -2, y: -2).and_return(exp_sqr[1])
             allow(chess_board).to receive(:get_relative_square).with(start_sqr_44, x: -3, y: -3).and_return(exp_sqr[2])
+            allow(chess_board).to receive(:get_relative_square).with(start_sqr_44, x: -4, y: -4)
           end
 
           it 'returns 3 squares { x: 3, y: 3 }, { x: 2, y: 2 }, { x: 1, y: 1 }' do
@@ -221,7 +221,9 @@ describe Bishop do
         end
       end
 
-      context 'when there is :black Piece on square that Bishop can pass through' do
+      context 'when there is :black Piece on a square that Bishop can pass through' do
+        let(:x) { 1 }
+        let(:y) { 1 }
         let(:blk_piece) { double('piece', color: :black) }
         let(:exp_sqr) do
           [
@@ -238,36 +240,32 @@ describe Bishop do
         end
 
         it 'returns an array of squares passed by Bishop until it encountered :black Piece, including it' do
-          x = 1
-          y = 1
           expected = exp_sqr
           result = wht_bishop_44.diagonal_move(chess_board, x, y)
           expect(result).to match_array(expected)
         end
       end
 
-      context 'when there is another :white Piece on square that Bishop can pass through' do
+      context 'when there is another :white Piece on a square that Bishop can pass through' do
         let(:wht_piece) { double('piece', color: :white) }
+        let(:x) { 1 }
+        let(:y) { 1 }
 
         context 'when Bishop has already passed a few squares' do
           let(:exp_sqr) do
             [
               double('Square', position: { x: 5, y: 5 }, taken?: false, piece: nil),
-              double('Square', position: { x: 6, y: 6 }, taken?: false, piece: nil),
-              double('Square', position: { x: 7, y: 7 }, taken?: true, piece: wht_piece)
+              double('Square', position: { x: 6, y: 6 }, taken?: true, piece: wht_piece)
             ]
           end
 
           before do
             allow(chess_board).to receive(:get_relative_square).with(start_sqr_44, x: 1, y: 1).and_return(exp_sqr[0])
             allow(chess_board).to receive(:get_relative_square).with(start_sqr_44, x: 2, y: 2).and_return(exp_sqr[1])
-            allow(chess_board).to receive(:get_relative_square).with(start_sqr_44, x: 3, y: 3).and_return(exp_sqr[2])
           end
 
           it 'returns an array of squares passed by Bishop until it encountered another :white Piece, excluding it' do
-            x = 1
-            y = 1
-            expected = exp_sqr.first(2)
+            expected = exp_sqr.first
             result = wht_bishop_44.diagonal_move(chess_board, x, y)
             expect(result).to match_array(expected)
           end
@@ -285,8 +283,6 @@ describe Bishop do
           end
 
           it 'returns an empty array' do
-            x = 1
-            y = 1
             result = wht_bishop_44.diagonal_move(chess_board, x, y)
             expect(result).to be_empty
           end
