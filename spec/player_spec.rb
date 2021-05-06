@@ -86,52 +86,45 @@ describe Player do
   end
 
   describe '#ai_pick_square' do
-    subject(:player_ai) { described_class.new(:black, :ai) }
-    let(:ai_board) { Array(1..8).product(Array(1..8)) }
     let(:chess_board) { instance_double(Board) }
 
-    context 'when player\'s only piece #legal_moves is not empty' do
-      let(:black_piece) { instance_double(Piece, color: :black) }
-      before do
-        pick_sqr_brd = ai_board.map do |pos|
-          if [[7, 7]].include?(pos) # what the fuck is this  thing doing???
-            instance_double(Square, position: { x: pos.first, y: pos.last }, piece: black_piece)
-          else
-            instance_double(Square, position: { x: pos.first, y: pos.last }, piece: '   ')
-          end
+    context 'when AI player color is :black' do
+      let(:color) { :black }
+      let(:black_piece) { instance_double(Piece, color: color) }
+      let(:black_square) { double('square', piece: black_piece) }
+      let(:move_squares) { [double('square')] }
+      subject(:player_ai) { described_class.new(color, :ai) }
+
+      context 'when AI has only one Piece with legal moves' do
+        before do
+          allow(chess_board).to receive(:squares_taken_by).with(color).and_return([black_square])
+          allow(black_piece).to receive(:legal_moves).and_return(move_squares)
         end
 
-        allow(chess_board).to receive(:board).and_return(pick_sqr_brd)
-
-        # since we only check if legal_moves is empty or not
-        allow(black_piece).to receive(:legal_moves).and_return([:not_empty_array])
-      end
-
-      xit 'returns random square with piece that has legal_moves and has the same color as this AI player' do
-        board = chess_board.board
-        expected_square = board.find { |sqr| sqr.position == { x: 7, y: 7 } }
-        expect(player_ai.ai_pick_square(board)).to eq(expected_square)
+        it 'returns square with that Piece' do
+          result = player_ai.ai_pick_square(chess_board)
+          expect(result).to eq(black_square)
+        end
       end
     end
 
-    context 'when player\'s only piece #legal_moves is empty' do
-      let(:black_piece) { instance_double(Piece, color: :black) }
-      before do
-        pick_sqr_brd = ai_board.map do |pos|
-          if [1, 7].include?(pos)
-            instance_double(Square, position: { x: pos.first, y: pos.last }, piece: black_piece)
-          else
-            instance_double(Square, position: { x: pos.first, y: pos.last }, piece: '   ')
-          end
+    context 'when AI player color is :white' do
+      let(:color) { :white }
+      let(:white_piece) { instance_double(Piece, color: color) }
+      let(:white_square) { double('square', piece: white_piece) }
+      let(:move_squares) { [double('square')] }
+      subject(:player_ai) { described_class.new(color, :ai) }
+
+      context 'when AI has only one Piece with legal moves' do
+        before do
+          allow(chess_board).to receive(:squares_taken_by).with(color).and_return([white_square])
+          allow(white_piece).to receive(:legal_moves).and_return(move_squares)
         end
 
-        allow(chess_board).to receive(:board).and_return(pick_sqr_brd)
-        allow(black_piece).to receive(:legal_moves).and_return([])
-      end
-
-      xit 'returns nil' do
-        board = chess_board.board
-        expect(player_ai.ai_pick_square(board)).to be_nil
+        it 'returns square with that Piece' do
+          result = player_ai.ai_pick_square(chess_board)
+          expect(result).to eq(white_square)
+        end
       end
     end
   end
