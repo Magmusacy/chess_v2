@@ -18,26 +18,6 @@ describe Pawn do
     include_examples 'shared method names'
   end
 
-  describe '#y_axis_shift' do
-    context 'when @color is :black' do
-      subject(:pawn) { described_class.new(nil, :black) }
-
-      it 'returns -1' do
-        result = pawn.y_axis_shift
-        expect(result).to eq(-1)
-      end
-    end
-
-    context 'when @color is :white' do
-      subject(:pawn) { described_class.new(nil, :white) }
-
-      it 'returns 1' do
-        result = pawn.y_axis_shift
-        expect(result).to eq(1)
-      end
-    end
-  end
-
   describe '#y_axis_move' do
     context 'when given Pawn object with square position: { x: 2, y: 2 }' do
       let(:start_square_22) { instance_double(Square, position: { x: 2, y: 2 }) }
@@ -54,7 +34,7 @@ describe Pawn do
 
         it 'returns array with two square objects with position: { x: 2, y: 3 } and with position: { x: 2, y: 4 }' do
           exp_sqrs = [square_23, square_24]
-          result = wht_pawn_22.y_axis_move(chess_board, 1)
+          result = wht_pawn_22.y_axis_move(chess_board)
           expect(result).to match_array(exp_sqrs)
         end
       end
@@ -70,7 +50,7 @@ describe Pawn do
 
         it 'returns square with position: { x: 2, y: 3 }' do
           exp_sqrs = [square_23]
-          result = wht_pawn_22.y_axis_move(chess_board, 1)
+          result = wht_pawn_22.y_axis_move(chess_board)
           expect(result).to match_array(exp_sqrs)
         end
       end
@@ -85,12 +65,12 @@ describe Pawn do
         end
 
         it 'returns empty array' do
-          result = wht_pawn_22.y_axis_move(chess_board, 1)
+          result = wht_pawn_22.y_axis_move(chess_board)
           expect(result).to be_empty
         end
       end
     end
-
+# dbl move
     context 'when given white Pawn object with square position: { x: 2, y: 5 }' do
       let(:start_square_25) { instance_double(Square, position: { x: 2, y: 5 }) }
       subject(:wht_pawn_25) { described_class.new(start_square_25, :white) }
@@ -104,7 +84,7 @@ describe Pawn do
 
         it 'returns square with position: { x: 2,  y: 6 }' do
           exp_sqrs = [square_26]
-          result = wht_pawn_25.y_axis_move(chess_board, 1)
+          result = wht_pawn_25.y_axis_move(chess_board)
           expect(result).to match_array(exp_sqrs)
         end
       end
@@ -129,7 +109,7 @@ describe Pawn do
 
         it 'returns empty array' do
           exp_sqrs = [square_13, square_33]
-          result = wht_pawn_22.diagonal_move(chess_board, 1)
+          result = wht_pawn_22.diagonal_move(chess_board)
           expect(result).to be_empty
         end
       end
@@ -146,7 +126,7 @@ describe Pawn do
 
         it 'returns 1 square with position: { x: 1, y: 3}' do
           exp_sqrs = [square_13]
-          result = wht_pawn_22.diagonal_move(chess_board, 1)
+          result = wht_pawn_22.diagonal_move(chess_board)
           expect(result).to match_array(exp_sqrs)
         end
       end
@@ -164,7 +144,7 @@ describe Pawn do
 
         it 'returns 2 squares with positions: { x: 1, y: 3}, { x: 3, y: 3 }' do
           exp_sqrs = [square_13, square_33]
-          result = wht_pawn_22.diagonal_move(chess_board, 1)
+          result = wht_pawn_22.diagonal_move(chess_board)
           expect(result).to match_array(exp_sqrs)
         end
       end
@@ -185,7 +165,7 @@ describe Pawn do
 
         it 'returns square: { x: 2, y: 6 }' do
           exp_sqrs = [square_26]
-          result = blk_pawn_17.diagonal_move(chess_board, -1)
+          result = blk_pawn_17.diagonal_move(chess_board)
           expect(result).to match_array(exp_sqrs)
         end
       end
@@ -205,13 +185,13 @@ describe Pawn do
       before do
         allow(chess_board).to receive(:get_relative_square).with(start_square_55, x: -1).and_return(square_45)
         allow(chess_board).to receive(:get_relative_square).with(start_square_55, x: 1).and_return(square_65)
-        allow(chess_board).to receive(:get_relative_square).with(start_square_55, y: 1).and_return(square_66)
+        allow(chess_board).to receive(:get_relative_square).with(start_square_55, x: 1, y: 1).and_return(square_66)
         allow(wht_pawn_55).to receive(:en_passantable?).and_return(true)
       end
 
       it 'returns square { x: 6, y: 6 }' do
         exp_sqrs = [square_66]
-        result = wht_pawn_55.en_passant_move(chess_board, 1)
+        result = wht_pawn_55.en_passant_move(chess_board)
         expect(result).to match_array(exp_sqrs)
       end
     end
@@ -227,13 +207,13 @@ describe Pawn do
       before do
         allow(chess_board).to receive(:get_relative_square).with(start_square_55, x: -1).and_return(square_45)
         allow(chess_board).to receive(:get_relative_square).with(start_square_55, x: 1).and_return(square_65)
-        allow(chess_board).to receive(:get_relative_square).with(start_square_55, y: 1).and_return(square_46)
+        allow(chess_board).to receive(:get_relative_square).with(start_square_55, x: -1, y: 1).and_return(square_46)
         allow(wht_pawn_55).to receive(:en_passantable?).and_return(true)
       end
 
       it 'returns square { x: 4, y: 6 }' do
         exp_sqrs = [square_46]
-        result = wht_pawn_55.en_passant_move(chess_board, 1)
+        result = wht_pawn_55.en_passant_move(chess_board)
         expect(result).to match_array(exp_sqrs)
       end
     end
@@ -247,13 +227,13 @@ describe Pawn do
       before do
         allow(chess_board).to receive(:get_relative_square).with(start_square_14, x: -1).and_return(nil)
         allow(chess_board).to receive(:get_relative_square).with(start_square_14, x: 1).and_return(square_24)
-        allow(chess_board).to receive(:get_relative_square).with(start_square_14, y: -1).and_return(square_23)
+        allow(chess_board).to receive(:get_relative_square).with(start_square_14, x: 1, y: -1).and_return(square_23)
         allow(blk_pawn_14).to receive(:en_passantable?).and_return(true)
       end
 
       it 'returns square { x: 2, y: 3 }' do
         exp_sqrs = [square_23]
-        result = blk_pawn_14.en_passant_move(chess_board, -1)
+        result = blk_pawn_14.en_passant_move(chess_board)
         expect(result).to match_array(exp_sqrs)
       end
     end
@@ -271,7 +251,7 @@ describe Pawn do
       end
 
       it 'returns empty array' do
-        result = wht_pawn_55.en_passant_move(chess_board, 1)
+        result = wht_pawn_55.en_passant_move(chess_board)
         expect(result).to be_empty
       end
     end
