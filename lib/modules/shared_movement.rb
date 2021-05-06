@@ -13,7 +13,8 @@ module SharedMovement
 
     def horizontal_move(board, x, ary = [])
       move_square = [board.get_relative_square(location, x: x)].compact
-      return [] if move_square.empty?
+      return [] if move_square.empty? || reject_related_squares(move_square).empty?
+      return ary << move_square if move_square.first.taken?
       ary << move_square
       horizontal_move(board, next_value(x), ary)
       reject_related_squares(ary.flatten)
@@ -21,7 +22,8 @@ module SharedMovement
 
     def vertical_move(board, y, ary = [])
       move_square = [board.get_relative_square(location, y: y)].compact
-      return [] if move_square.empty?
+      return [] if move_square.empty? || reject_related_squares(move_square).empty?
+      return ary << move_square if move_square.first.taken?
       ary << move_square
       vertical_move(board, next_value(y), ary)
       reject_related_squares(ary.flatten)
@@ -33,7 +35,8 @@ module SharedMovement
 
     def diagonal_move(board, x, y, ary = [])
       move_square = [board.get_relative_square(location, x: x, y: y)].compact
-      return [] if move_square.empty?
+      return [] if move_square.empty? || reject_related_squares(move_square).empty?
+      return ary << move_square if move_square.first.taken?
       ary << move_square
       diagonal_move(board, next_value(x), next_value(y), ary)
       reject_related_squares(ary.flatten)
