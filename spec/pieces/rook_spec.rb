@@ -105,10 +105,6 @@ describe Rook do
   end
 
   describe '#horizontal_move' do
-    before do
-      allow(chess_board).to receive(:get_relative_square)
-    end
-
     context 'when :white Rook is on square { x: 4, y: 4 }' do
       let(:start_square_44) { double('square', position: { x: 4, y: 4 }) }
       subject(:wht_rook_44) { described_class.new(start_square_44, :white) }
@@ -131,6 +127,7 @@ describe Rook do
             allow(chess_board).to receive(:get_relative_square).with(start_square_44, x: 2).and_return(exp_sqr[1])
             allow(chess_board).to receive(:get_relative_square).with(start_square_44, x: 3).and_return(exp_sqr[2])
             allow(chess_board).to receive(:get_relative_square).with(start_square_44, x: 4).and_return(exp_sqr[3])
+            allow(chess_board).to receive(:get_relative_square).with(start_square_44, x: 5)
           end
 
           it 'returns 4 squares { x: 5, y: 4 }, { x: 6, y: 4 }, { x: 7, y: 4 }, { x: 8, y: 4 }' do
@@ -157,6 +154,7 @@ describe Rook do
             allow(chess_board).to receive(:get_relative_square).with(start_square_44, x: -1).and_return(exp_sqr[0])
             allow(chess_board).to receive(:get_relative_square).with(start_square_44, x: -2).and_return(exp_sqr[1])
             allow(chess_board).to receive(:get_relative_square).with(start_square_44, x: -3).and_return(exp_sqr[2])
+            allow(chess_board).to receive(:get_relative_square).with(start_square_44, x: -4)
           end
 
           it 'returns 4 squares { x: 3, y: 4 }, { x: 2, y: 4 }, { x: 1, y: 4 }' do
@@ -238,10 +236,6 @@ describe Rook do
   end
 
   describe '#vertical_move' do
-    before do
-      allow(chess_board).to receive(:get_relative_square)
-    end
-
     context 'when :white Rook is on square { x: 4, y: 4 }' do
       let(:start_square_44) { double('square', position: { x: 4, y: 4 }) }
       subject(:wht_rook_44) { described_class.new(start_square_44, :white) }
@@ -264,6 +258,7 @@ describe Rook do
             allow(chess_board).to receive(:get_relative_square).with(start_square_44, y: 2).and_return(exp_sqr[1])
             allow(chess_board).to receive(:get_relative_square).with(start_square_44, y: 3).and_return(exp_sqr[2])
             allow(chess_board).to receive(:get_relative_square).with(start_square_44, y: 4).and_return(exp_sqr[3])
+            allow(chess_board).to receive(:get_relative_square).with(start_square_44, y: 5)
           end
 
           it 'returns 4 squares with x: 4 and y: { 5, 6, 7, 8 } respectively' do
@@ -289,6 +284,7 @@ describe Rook do
             allow(chess_board).to receive(:get_relative_square).with(start_square_44, y: -1).and_return(exp_sqr[0])
             allow(chess_board).to receive(:get_relative_square).with(start_square_44, y: -2).and_return(exp_sqr[1])
             allow(chess_board).to receive(:get_relative_square).with(start_square_44, y: -3).and_return(exp_sqr[2])
+            allow(chess_board).to receive(:get_relative_square).with(start_square_44, y: -4)
           end
 
           it 'returns 3 squares with x: 4 and y: { 3, 2, 1 } respectively' do
