@@ -507,4 +507,290 @@ describe Pawn do
       end
     end
   end
+
+  describe '#promotion_move' do
+    context 'when called on :white Pawn { x: 2, y: 7 }' do
+      let(:start_square_27) { instance_double(Square, position: { x: 2, y: 7 }) }
+      subject(:wht_pawn_27) { described_class.new(start_square_27, :white) }
+      let(:black_piece) { instance_double(Piece, color: :black) }
+
+      context 'when x = 0' do
+        let(:x) { 0 }
+
+        context 'when square { x: 2, y: 8 } isn\'t taken' do
+          let(:square_28) { instance_double(Square, position: { x: 2, y: 8 }, taken?: false) }
+
+          it 'returns square { x: 2, y: 8 }' do
+            allow(chess_board).to receive(:get_relative_square).with(start_square_27, y: 1).and_return(square_28)
+            result = wht_pawn_27.promotion_move(chess_board, x)
+            expect(result).to match_array([square_28])
+          end
+        end
+
+        context 'when square { x: 2, y: 8 } is taken' do
+          let(:square_28) { instance_double(Square, position: { x: 2, y: 8 }, taken?: true) }
+
+          it 'returns empty array' do
+            allow(chess_board).to receive(:get_relative_square).with(start_square_27, y: 1).and_return(square_28)
+            result = wht_pawn_27.promotion_move(chess_board, x)
+            expect(result).to be_empty
+          end
+        end
+      end
+
+      context 'when x = 1' do
+        let(:x) { 1 }
+
+        context 'when square { x: 3, y: 8 } is taken by enemy' do
+          let(:square_38) { instance_double(Square, position: { x: 3, y: 8 }, taken?: true, piece: black_piece) }
+
+          it 'returns square { x: 2, y: 8 }' do
+            allow(chess_board).to receive(:get_relative_square).with(start_square_27, x: 1, y: 1).and_return(square_38)
+            result = wht_pawn_27.promotion_move(chess_board, x)
+            expect(result).to match_array([square_38])
+          end
+        end
+
+        context 'when square { x: 3, y: 8 } isn\'t taken' do
+          let(:square_38) { instance_double(Square, position: { x: 3, y: 8 }, taken?: false) }
+
+          it 'returns square { x: 2, y: 8 }' do
+            allow(chess_board).to receive(:get_relative_square).with(start_square_27, x: 1, y: 1).and_return(square_38)
+            result = wht_pawn_27.promotion_move(chess_board, x)
+            expect(result).to be_empty
+          end
+        end
+      end
+
+      context 'when x = -1' do
+        let(:x) { -1 }
+
+        context 'when square { x: 1, y: 8 } is taken by enemy' do
+          let(:square_18) { instance_double(Square, position: { x: 1, y: 8 }, taken?: true, piece: black_piece) }
+
+          it 'returns square { x: 2, y: 8 }' do
+            allow(chess_board).to receive(:get_relative_square).with(start_square_27, x: -1, y: 1).and_return(square_18)
+            result = wht_pawn_27.promotion_move(chess_board, x)
+            expect(result).to match_array([square_18])
+          end
+        end
+
+        context 'when square { x: 1, y: 8 } isn\'t taken' do
+          let(:square_18) { instance_double(Square, position: { x: 1, y: 8 }, taken?: false) }
+
+          it 'returns empty array' do
+            allow(chess_board).to receive(:get_relative_square).with(start_square_27, x: -1, y: 1).and_return(square_18)
+            result = wht_pawn_27.promotion_move(chess_board, x)
+            expect(result).to be_empty
+          end
+        end
+      end
+    end
+
+    context 'when x = 1 and obtained square is occupied by Piece with the same color as Pawn' do
+      let(:start_square_27) { instance_double(Square, position: { x: 2, y: 7 }) }
+      subject(:wht_pawn_27) { described_class.new(start_square_27, :white) }
+      let(:white_piece) { instance_double(Piece, color: :white) }
+      let(:square_38) { instance_double(Square, position: { x: 3, y: 8 }, taken?: true, piece: white_piece) }
+
+      it 'returns empty array' do
+        allow(chess_board).to receive(:get_relative_square).with(start_square_27, x: 1, y: 1).and_return(square_38)
+        result = wht_pawn_27.promotion_move(chess_board, 1)
+        expect(result).to be_empty
+      end
+    end
+  end
+
+  describe '#promote' do
+    let(:color) { :white }
+    let(:start_square_27) { instance_double(Square, position: { x: 2, y: 7 }) }
+    subject(:wht_pawn_27) { described_class.new(start_square_27, color) }
+    let(:attributes) { [start_square_27, color] }
+    let(:new_piece) { instance_double(Piece) }
+    let(:chosen_square) { instance_double(Square) }
+
+    before do
+      allow(wht_pawn_27).to receive(:create_instance).and_return(new_piece)
+      allow(start_square_27).to receive(:update_piece)
+      allow(new_piece).to receive(:move)
+    end
+
+    let(:bishop) { :bishop }
+
+    it 'calls #create_instance with new piece symbol and Pawn\'s location and color in array' do
+      expect(wht_pawn_27).to receive(:create_instance).with(bishop, attributes)
+      wht_pawn_27.promote(bishop, chosen_square, chess_board)
+    end
+
+    it 'sends :update_piece message to Pawn\'s location with returned new piece object from #create_instance' do
+      expect(start_square_27).to receive(:update_piece).with(new_piece)
+      wht_pawn_27.promote(bishop, chosen_square, chess_board)
+    end
+
+    it 'sends :move message to new piece object with chosen_square and board arguments' do
+      expect(new_piece).to receive(:move).with(chosen_square, chess_board)
+      wht_pawn_27.promote(bishop, chosen_square, chess_board)
+    end
+  end
+
+  describe '#move' do
+    let(:start_square) { instance_double(Square) }
+    subject(:pawn) { described_class.new(start_square) }
+    let(:square) { instance_double(Square) }
+    let(:move_array) { [start_square, square] }
+
+    before do
+      allow(pawn).to receive(:promotion_move)
+    end
+
+    context 'when promotion is available' do
+      let(:input_piece) { :bishop }
+
+      before do
+        allow(pawn).to receive(:promotion_input).and_return(input_piece)
+        allow(pawn).to receive(:promote)
+      end
+
+      context 'when specified move square is in array returned by #promotion_move with x = 0' do
+
+        before do
+          allow(pawn).to receive(:promotion_move).with(chess_board, 0).and_return(square)
+        end
+
+        after do
+          pawn.move(square, chess_board)
+        end
+
+        it 'calls #promote with returned value from #promotion_input' do
+          expect(pawn).to receive(:promote).with(input_piece, square, chess_board)
+        end
+
+        it 'doesn\'t send :add_move message to Board' do
+          expect(chess_board).not_to receive(:add_move).with(move_array)
+        end
+
+        it 'doesn\'t send :update_piece message given square' do
+          expect(square).not_to receive(:update_piece).with(pawn)
+        end
+
+        it 'doesn\'t send :update_piece message to self location' do
+          expect(start_square).not_to receive(:update_piece).with(no_args)
+        end
+
+        it 'doesn\'t call #update_location ' do
+          expect(pawn).not_to receive(:update_location)
+        end
+      end
+
+      context 'when specified move square is in array returned by #promotion_move with x = 1' do
+
+        before do
+          allow(pawn).to receive(:promotion_move).with(chess_board, 1).and_return(square)
+        end
+
+        after do
+          pawn.move(square, chess_board)
+        end
+
+        it 'calls #promote with returned value from #promotion_input and returns' do
+          expect(pawn).to receive(:promote).with(input_piece, square, chess_board)
+        end
+
+        it 'doesn\'t send :add_move message to Board' do
+          expect(chess_board).not_to receive(:add_move).with(move_array)
+        end
+
+        it 'doesn\'t send :update_piece message given square' do
+          expect(square).not_to receive(:update_piece).with(pawn)
+        end
+
+        it 'doesn\'t send :update_piece message to self location' do
+          expect(start_square).not_to receive(:update_piece).with(no_args)
+        end
+
+        it 'doesn\'t call #update_location ' do
+          expect(pawn).not_to receive(:update_location)
+        end
+      end
+
+      context 'when specified move square is in array returned by #promotion_move with x = -1' do
+
+        before do
+          allow(pawn).to receive(:promotion_move).with(chess_board, 1).and_return(square)
+        end
+
+        after do
+          pawn.move(square, chess_board)
+        end
+
+        it 'calls #promote with returned value from #promotion_input and returns' do
+          expect(pawn).to receive(:promote).with(input_piece, square, chess_board)
+        end
+
+        it 'doesn\'t send :add_move message to Board' do
+          expect(chess_board).not_to receive(:add_move).with(move_array)
+        end
+
+        it 'doesn\'t send :update_piece message given square' do
+          expect(square).not_to receive(:update_piece).with(pawn)
+        end
+
+        it 'doesn\'t send :update_piece message to self location' do
+          expect(start_square).not_to receive(:update_piece).with(no_args)
+        end
+
+        it 'doesn\'t call #update_location ' do
+          expect(pawn).not_to receive(:update_location)
+        end
+      end
+    end
+
+    context 'when promotion is unavailable' do
+
+      before do
+        allow(square).to receive(:update_piece).with(pawn)
+        allow(start_square).to receive(:update_piece)
+        allow(chess_board).to receive(:add_move).with(move_array)
+        allow(pawn).to receive(:update_location)
+        allow(pawn).to receive(:take_enemy_pawn)
+        allow(pawn).to receive(:en_passant_move)
+      end
+
+      context 'when specified move square is in array returned by #en_passant_move with x = 1' do
+        it 'calls #take_enemy_pawn with that square and board argument' do
+          allow(pawn).to receive(:en_passant_move).with(chess_board, 1).and_return(square)
+          expect(pawn).to receive(:take_enemy_pawn).with(square, chess_board)
+          pawn.move(square, chess_board)
+        end
+      end
+
+      context 'when specified move square is in array returned by #en_passant_move with x = -1' do
+        it 'calls #take_enemy_pawn with that square and board argument' do
+          allow(pawn).to receive(:en_passant_move).with(chess_board, -1).and_return(square)
+          expect(pawn).to receive(:take_enemy_pawn).with(square, chess_board)
+          pawn.move(square, chess_board)
+        end
+      end
+
+      it 'sends :add_move message to Board with [location, square] argument' do
+        expect(chess_board).to receive(:add_move).with(move_array)
+        pawn.move(square, chess_board)
+      end
+
+      it 'sends :update_piece message with self to given square' do
+        expect(square).to receive(:update_piece).with(pawn)
+        pawn.move(square, chess_board)
+      end
+
+      it 'sends :update_piece message without any args to self location' do
+        expect(start_square).to receive(:update_piece).with(no_args)
+        pawn.move(square, chess_board)
+      end
+
+      it 'calls #update_location method with given square as an argument' do
+        expect(pawn).to receive(:update_location).with(square)
+        pawn.move(square, chess_board)
+      end
+    end
+  end
 end
