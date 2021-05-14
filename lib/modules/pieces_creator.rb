@@ -2,8 +2,7 @@ module PiecesCreator
   def create_pieces(player)
     color = player.color
     y_pos = select_y_positions(color)
-    icons = select_icons(color)
-    attributes = select_attributes(color, y_pos, icons)
+    attributes = select_attributes(color, y_pos)
     create_instances(attributes)
   end
 
@@ -11,23 +10,17 @@ module PiecesCreator
     color == :white ? [1, 2] : [8, 7]
   end
 
-  def select_icons(color)
-    return ['♖', '♘', '♗', '♕', '♔', '♗', '♘', '♖', '♙'] if color == :white
-
-    ['♜', '♞', '♝', '♛', '♚', '♝', '♞', '♜', '♟︎']
-  end
-
-  def select_attributes(color, y_pos, icons)
+  def select_attributes(color, y_pos)
     ary = []
-    8.times { |i| ary << [ { x: i + 1, y: y_pos.first }, color, icons[i] ] }
-    8.times { |i| ary << [ { x: i + 1, y: y_pos.last }, color, icons.last ] }
+    8.times { |i| ary << [ { x: i + 1, y: y_pos.first }, color ] }
+    8.times { |i| ary << [ { x: i + 1, y: y_pos.last }, color ] }
     ary
   end
 
   def create_instance(piece, attributes)
-    position, color, icon = attributes
+    position, color = attributes
     pieces_hash = { rook: Rook, knight: Knight, bishop: Bishop, king: King, queen: Queen, pawn: Pawn }
-    pieces_hash[piece].new(position, color, icon)
+    pieces_hash[piece].new(position, color)
   end
 
   def create_instances(attributes)
