@@ -36,30 +36,6 @@ describe '#select_y_positions' do
   end
 end
 
-describe '#select_icons' do
-  context 'when player color is :white' do
-    let(:player_wht) { instance_double(Player, color: :white) }
-
-    it 'returns array [♖, ♘, ♗, ♕, ♔, ♗, ♘, ♖, ♙]' do
-      color = player_wht.color
-      result = select_icons(color)
-      expected = %w[♖ ♘ ♗ ♕ ♔ ♗ ♘ ♖ ♙]
-      expect(result).to match_array(expected)
-    end
-  end
-
-  context 'when player color is :black' do
-    let(:player_blk) { instance_double(Player, color: :black) }
-
-    it 'returns array [♜, ♞, ♝, ♛, ♚, ♝, ♞, ♜, ♟︎]' do
-      color = player_blk.color
-      result = select_icons(color)
-      expected = %w[♜ ♞ ♝ ♛ ♚ ♝ ♞ ♜ ♟︎]
-      expect(result).to match_array(expected)
-    end
-  end
-end
-
 describe '#select_attributes' do
   context 'when player color is :white' do
     let(:player_wht) { instance_double(Player, color: :white) }
@@ -67,17 +43,16 @@ describe '#select_attributes' do
     it 'returns correct attributes for :white player' do
       color = player_wht.color
       y_pos = [1, 2]
-      icons = %w[♖ ♘ ♗ ♕ ♔ ♗ ♘ ♖ ♙]
-      result = select_attributes(color, y_pos, icons)
+      result = select_attributes(color, y_pos)
       expected = [
-                   [{ x: 1, y: 1 }, :white, '♖'], [{ x: 2, y: 1 }, :white, '♘'],
-                   [{ x: 3, y: 1 }, :white, '♗'], [{ x: 4, y: 1 }, :white, '♕'],
-                   [{ x: 5, y: 1 }, :white, '♔'], [{ x: 6, y: 1 }, :white, '♗'],
-                   [{ x: 7, y: 1 }, :white, '♘'], [{ x: 8, y: 1 }, :white, '♖'],
-                   [{ x: 1, y: 2 }, :white, '♙'], [{ x: 2, y: 2 }, :white, '♙'],
-                   [{ x: 3, y: 2 }, :white, '♙'], [{ x: 4, y: 2 }, :white, '♙'],
-                   [{ x: 5, y: 2 }, :white, '♙'], [{ x: 6, y: 2 }, :white, '♙'],
-                   [{ x: 7, y: 2 }, :white, '♙'], [{ x: 8, y: 2 }, :white, '♙']
+                   [{ x: 1, y: 1 }, :white], [{ x: 2, y: 1 }, :white],
+                   [{ x: 3, y: 1 }, :white], [{ x: 4, y: 1 }, :white],
+                   [{ x: 5, y: 1 }, :white], [{ x: 6, y: 1 }, :white],
+                   [{ x: 7, y: 1 }, :white], [{ x: 8, y: 1 }, :white],
+                   [{ x: 1, y: 2 }, :white], [{ x: 2, y: 2 }, :white],
+                   [{ x: 3, y: 2 }, :white], [{ x: 4, y: 2 }, :white],
+                   [{ x: 5, y: 2 }, :white], [{ x: 6, y: 2 }, :white],
+                   [{ x: 7, y: 2 }, :white], [{ x: 8, y: 2 }, :white]
                  ]
       expect(result).to match_array(expected)
     end
@@ -89,17 +64,16 @@ describe '#select_attributes' do
     it 'returns correct attributes for :black player' do
       color = player_blk.color
       y_pos = [8, 7]
-      icons = %w[♜ ♞ ♝ ♛ ♚ ♝ ♞ ♜ ♟︎]
-      result = select_attributes(color, y_pos, icons)
+      result = select_attributes(color, y_pos)
       expected = [
-                   [{ x: 1, y: 8 }, :black, '♜'], [{ x: 2, y: 8 }, :black, '♞'],
-                   [{ x: 3, y: 8 }, :black, '♝'], [{ x: 4, y: 8 }, :black, '♛'],
-                   [{ x: 5, y: 8 }, :black, '♚'], [{ x: 6, y: 8 }, :black, '♝'],
-                   [{ x: 7, y: 8 }, :black, '♞'], [{ x: 8, y: 8 }, :black, '♜'],
-                   [{ x: 1, y: 7 }, :black, '♟︎'], [{ x: 2, y: 7 }, :black, '♟︎'],
-                   [{ x: 3, y: 7 }, :black, '♟︎'], [{ x: 4, y: 7 }, :black, '♟︎'],
-                   [{ x: 5, y: 7 }, :black, '♟︎'], [{ x: 6, y: 7 }, :black, '♟︎'],
-                   [{ x: 7, y: 7 }, :black, '♟︎'], [{ x: 8, y: 7 }, :black, '♟︎']
+                   [{ x: 1, y: 8 }, :black], [{ x: 2, y: 8 }, :black],
+                   [{ x: 3, y: 8 }, :black], [{ x: 4, y: 8 }, :black],
+                   [{ x: 5, y: 8 }, :black], [{ x: 6, y: 8 }, :black],
+                   [{ x: 7, y: 8 }, :black], [{ x: 8, y: 8 }, :black],
+                   [{ x: 1, y: 7 }, :black], [{ x: 2, y: 7 }, :black],
+                   [{ x: 3, y: 7 }, :black], [{ x: 4, y: 7 }, :black],
+                   [{ x: 5, y: 7 }, :black], [{ x: 6, y: 7 }, :black],
+                   [{ x: 7, y: 7 }, :black], [{ x: 8, y: 7 }, :black]
                  ]
       expect(result).to match_array(expected)
     end
@@ -107,93 +81,93 @@ describe '#select_attributes' do
 end
 
 describe '#create_instance' do
-  context 'when given :rook and [{ x: 1, y: 1 }, :white, ♖] arguments' do
+  context 'when given :rook and [{ x: 1, y: 1 }, :white] arguments' do
     before do
-      allow(Rook).to receive(:new).with({ x: 1, y: 1 }, :white, '♖')
+      allow(Rook).to receive(:new).with({ x: 1, y: 1 }, :white)
     end
 
-    it 'sends :new message to Rook class with ({ x: 1, y: 1 }, :white, ♖) parameters' do
+    it 'sends :new message to Rook class with ({ x: 1, y: 1 }, :white) parameters' do
       piece = :rook
-      attributes = [{ x: 1, y: 1 }, :white, '♖']
-      expect(Rook).to receive(:new).with({ x: 1, y: 1 }, :white, '♖')
+      attributes = [{ x: 1, y: 1 }, :white]
+      expect(Rook).to receive(:new).with({ x: 1, y: 1 }, :white)
       create_instance(piece, attributes)
     end
   end
 
-  context 'when given :knight and [{ x: 2, y: 1 }, :white, ♘] arguments' do
+  context 'when given :knight and [{ x: 2, y: 1 }, :white] arguments' do
     before do
-      allow(Knight).to receive(:new).with({ x: 2, y: 1 }, :white, '♘')
+      allow(Knight).to receive(:new).with({ x: 2, y: 1 }, :white)
     end
 
-    it 'sends :new message to Knight class with ({ x: 1, y: 2 }, :white, ♘) parameters' do
+    it 'sends :new message to Knight class with ({ x: 1, y: 2 }, :white) parameters' do
       piece = :knight
-      attributes = [{ x: 2, y: 1 }, :white, '♘']
-      expect(Knight).to receive(:new).with({ x: 2, y: 1 }, :white, '♘')
+      attributes = [{ x: 2, y: 1 }, :white]
+      expect(Knight).to receive(:new).with({ x: 2, y: 1 }, :white)
       create_instance(piece, attributes)
     end
   end
 
-  context 'when given :bishop and [{ x: 3, y: 1 }, :white, ♗] arguments' do
+  context 'when given :bishop and [{ x: 3, y: 1 }, :white] arguments' do
     before do
-      allow(Bishop).to receive(:new).with({ x: 3, y: 1 }, :white, '♗')
+      allow(Bishop).to receive(:new).with({ x: 3, y: 1 }, :white)
     end
 
-    it 'sends :new message to Rook class with ({ x: 3, y: 1 }, :white, ♗) parameters' do
+    it 'sends :new message to Bishop class with ({ x: 3, y: 1 }, :white) parameters' do
       piece = :bishop
-      attributes = [{ x: 3, y: 1 }, :white, '♗']
-      expect(Bishop).to receive(:new).with({ x: 3, y: 1 }, :white, '♗')
+      attributes = [{ x: 3, y: 1 }, :white]
+      expect(Bishop).to receive(:new).with({ x: 3, y: 1 }, :white)
       create_instance(piece, attributes)
     end
   end
 
-  context 'when given :queen and [{ x: 4, y: 1 }, :white, ♕] arguments' do
+  context 'when given :queen and [{ x: 4, y: 1 }, :white] arguments' do
     before do
-      allow(Queen).to receive(:new).with({ x: 4, y: 1 }, :white, '♕')
+      allow(Queen).to receive(:new).with({ x: 4, y: 1 }, :white)
     end
 
-    it 'sends :new message to Rook class with ({ x: 4, y: 1 }, :white, ♕) parameters' do
+    it 'sends :new message to Queen class with ({ x: 4, y: 1 }, :white) parameters' do
       piece = :queen
-      attributes = [{ x: 4, y: 1 }, :white, '♕']
-      expect(Queen).to receive(:new).with({ x: 4, y: 1 }, :white, '♕')
+      attributes = [{ x: 4, y: 1 }, :white]
+      expect(Queen).to receive(:new).with({ x: 4, y: 1 }, :white)
       create_instance(piece, attributes)
     end
   end
 
-  context 'when given :king and [{ x: 5, y: 1 }, :white, ♔] arguments' do
+  context 'when given :king and [{ x: 5, y: 1 }, :white] arguments' do
     before do
-      allow(King).to receive(:new).with({ x: 5, y: 1 }, :white, '♔')
+      allow(King).to receive(:new).with({ x: 5, y: 1 }, :white)
     end
 
-    it 'sends :new message to Rook class with ({ x: 5, y: 1 }, :white, ♔) parameters' do
+    it 'sends :new message to King class with ({ x: 5, y: 1 }, :white) parameters' do
       piece = :king
-      attributes = [{ x: 5, y: 1 }, :white, '♔']
-      expect(King).to receive(:new).with({ x: 5, y: 1 }, :white, '♔')
+      attributes = [{ x: 5, y: 1 }, :white]
+      expect(King).to receive(:new).with({ x: 5, y: 1 }, :white)
       create_instance(piece, attributes)
     end
   end
 
-  context 'when given :pawn and [{ x: 1, y: 2 }, :white, ♙] arguments' do
+  context 'when given :pawn and [{ x: 1, y: 2 }, :white] arguments' do
     before do
-      allow(Pawn).to receive(:new).with({ x: 1, y: 2 }, :white, '♙')
+      allow(Pawn).to receive(:new).with({ x: 1, y: 2 }, :white)
     end
 
-    it 'sends :new message to Rook class with ({ x: 1, y: 2 }, :white, ♙) parameters' do
+    it 'sends :new message to Pawn class with ({ x: 1, y: 2 }, :white) parameters' do
       piece = :pawn
-      attributes = [{ x: 1, y: 2 }, :white, '♙']
-      expect(Pawn).to receive(:new).with({ x: 1, y: 2 }, :white, '♙')
+      attributes = [{ x: 1, y: 2 }, :white]
+      expect(Pawn).to receive(:new).with({ x: 1, y: 2 }, :white)
       create_instance(piece, attributes)
     end
   end
 
-  context 'when given :pawn and [{ x: 2, y: 7 }, :black, ♟︎] arguments' do
+  context 'when given :pawn and [{ x: 2, y: 7 }, :black] arguments' do
     before do
-      allow(Pawn).to receive(:new).with({ x: 2, y: 7 }, :black, '♟︎')
+      allow(Pawn).to receive(:new).with({ x: 2, y: 7 }, :black)
     end
 
-    it 'sends :new message to Pawn class with ({ x: 2, y: 7 }, :black, ♟︎) parameters' do
+    it 'sends :new message to Pawn class with ({ x: 2, y: 7 }, :black) parameters' do
       piece = :pawn
-      attributes = [{ x: 2, y: 7 }, :black, '♟︎']
-      expect(Pawn).to receive(:new).with({ x: 2, y: 7 }, :black, '♟︎')
+      attributes = [{ x: 2, y: 7 }, :black]
+      expect(Pawn).to receive(:new).with({ x: 2, y: 7 }, :black)
       create_instance(piece, attributes)
     end
   end
@@ -203,35 +177,35 @@ describe '#create_instances' do
   context 'when given attributes of :white player' do
     let(:wht_attributes) do
       [
-        [{ x: 1, y: 1 }, :white, '♖'], [{ x: 2, y: 1 }, :white, '♘'],
-        [{ x: 3, y: 1 }, :white, '♗'], [{ x: 4, y: 1 }, :white, '♕'],
-        [{ x: 5, y: 1 }, :white, '♔'], [{ x: 6, y: 1 }, :white, '♗'],
-        [{ x: 7, y: 1 }, :white, '♘'], [{ x: 8, y: 1 }, :white, '♖'],
-        [{ x: 1, y: 2 }, :white, '♙'], [{ x: 2, y: 2 }, :white, '♙'],
-        [{ x: 3, y: 2 }, :white, '♙'], [{ x: 4, y: 2 }, :white, '♙'],
-        [{ x: 5, y: 2 }, :white, '♙'], [{ x: 6, y: 2 }, :white, '♙'],
-        [{ x: 7, y: 2 }, :white, '♙'], [{ x: 8, y: 2 }, :white, '♙']
+        [{ x: 1, y: 1 }, :white], [{ x: 2, y: 1 }, :white],
+        [{ x: 3, y: 1 }, :white], [{ x: 4, y: 1 }, :white],
+        [{ x: 5, y: 1 }, :white], [{ x: 6, y: 1 }, :white],
+        [{ x: 7, y: 1 }, :white], [{ x: 8, y: 1 }, :white],
+        [{ x: 1, y: 2 }, :white], [{ x: 2, y: 2 }, :white],
+        [{ x: 3, y: 2 }, :white], [{ x: 4, y: 2 }, :white],
+        [{ x: 5, y: 2 }, :white], [{ x: 6, y: 2 }, :white],
+        [{ x: 7, y: 2 }, :white], [{ x: 8, y: 2 }, :white]
       ]
     end
 
     let(:piece_instance) do
       [
-        [instance_double(Rook, location: { x: 1, y: 1 }, color: :white, icon: '♖')],
-        [instance_double(Knight, location: { x: 2, y: 1 }, color: :white, icon: '♘')],
-        [instance_double(Bishop, location: { x: 3, y: 1 }, color: :white, icon: '♗')],
-        [instance_double(Queen, location: { x: 4, y: 1 }, color: :white, icon: '♕')],
-        [instance_double(King, location: { x: 5, y: 1 }, color: :white, icon: '♔')],
-        [instance_double(Bishop, location: { x: 6, y: 1 }, color: :white, icon: '♗')],
-        [instance_double(Knight, location: { x: 7, y: 1 }, color: :white, icon: '♘')],
-        [instance_double(Rook, location: { x: 8, y: 1 }, color: :white, icon: '♖')],
-        [instance_double(Pawn, location: { x: 1, y: 2 }, color: :white, icon: '♙')],
-        [instance_double(Pawn, location: { x: 2, y: 2 }, color: :white, icon: '♙')],
-        [instance_double(Pawn, location: { x: 3, y: 2 }, color: :white, icon: '♙')],
-        [instance_double(Pawn, location: { x: 4, y: 2 }, color: :white, icon: '♙')],
-        [instance_double(Pawn, location: { x: 5, y: 2 }, color: :white, icon: '♙')],
-        [instance_double(Pawn, location: { x: 6, y: 2 }, color: :white, icon: '♙')],
-        [instance_double(Pawn, location: { x: 7, y: 2 }, color: :white, icon: '♙')],
-        [instance_double(Pawn, location: { x: 8, y: 2 }, color: :white, icon: '♙')]
+        [instance_double(Rook, location: { x: 1, y: 1 }, color: :white)],
+        [instance_double(Knight, location: { x: 2, y: 1 }, color: :white)],
+        [instance_double(Bishop, location: { x: 3, y: 1 }, color: :white)],
+        [instance_double(Queen, location: { x: 4, y: 1 }, color: :white)],
+        [instance_double(King, location: { x: 5, y: 1 }, color: :white)],
+        [instance_double(Bishop, location: { x: 6, y: 1 }, color: :white)],
+        [instance_double(Knight, location: { x: 7, y: 1 }, color: :white)],
+        [instance_double(Rook, location: { x: 8, y: 1 }, color: :white)],
+        [instance_double(Pawn, location: { x: 1, y: 2 }, color: :white)],
+        [instance_double(Pawn, location: { x: 2, y: 2 }, color: :white)],
+        [instance_double(Pawn, location: { x: 3, y: 2 }, color: :white)],
+        [instance_double(Pawn, location: { x: 4, y: 2 }, color: :white)],
+        [instance_double(Pawn, location: { x: 5, y: 2 }, color: :white)],
+        [instance_double(Pawn, location: { x: 6, y: 2 }, color: :white)],
+        [instance_double(Pawn, location: { x: 7, y: 2 }, color: :white)],
+        [instance_double(Pawn, location: { x: 8, y: 2 }, color: :white)]
       ]
     end
 
@@ -255,35 +229,35 @@ describe '#create_instances' do
   context 'when given attributes of :black player' do
     let(:wht_attributes) do
       [
-        [{ x: 1, y: 8 }, :black, '♜'], [{ x: 2, y: 8 }, :black, '♞'],
-        [{ x: 3, y: 8 }, :black, '♝'], [{ x: 4, y: 8 }, :black, '♛'],
-        [{ x: 5, y: 8 }, :black, '♚'], [{ x: 6, y: 8 }, :black, '♝'],
-        [{ x: 7, y: 8 }, :black, '♞'], [{ x: 8, y: 8 }, :black, '♜'],
-        [{ x: 1, y: 7 }, :black, '♟︎'], [{ x: 2, y: 7 }, :black, '♟︎'],
-        [{ x: 3, y: 7 }, :black, '♟︎'], [{ x: 4, y: 7 }, :black, '♟︎'],
-        [{ x: 5, y: 7 }, :black, '♟︎'], [{ x: 6, y: 7 }, :black, '♟︎'],
-        [{ x: 7, y: 7 }, :black, '♟︎'], [{ x: 8, y: 7 }, :black, '♟︎']
+        [{ x: 1, y: 8 }, :black], [{ x: 2, y: 8 }, :black],
+        [{ x: 3, y: 8 }, :black], [{ x: 4, y: 8 }, :black],
+        [{ x: 5, y: 8 }, :black], [{ x: 6, y: 8 }, :black],
+        [{ x: 7, y: 8 }, :black], [{ x: 8, y: 8 }, :black],
+        [{ x: 1, y: 7 }, :black], [{ x: 2, y: 7 }, :black],
+        [{ x: 3, y: 7 }, :black], [{ x: 4, y: 7 }, :black],
+        [{ x: 5, y: 7 }, :black], [{ x: 6, y: 7 }, :black],
+        [{ x: 7, y: 7 }, :black], [{ x: 8, y: 7 }, :black]
       ]
     end
 
     let(:piece_instance) do
       [
-        [instance_double(Rook, location: { x: 1, y: 8 }, color: :white, icon: '♜')],
-        [instance_double(Knight, location: { x: 2, y: 8 }, color: :white, icon: '♞')],
-        [instance_double(Bishop, location: { x: 3, y: 8 }, color: :white, icon: '♝')],
-        [instance_double(Queen, location: { x: 4, y: 8 }, color: :white, icon: '♛')],
-        [instance_double(King, location: { x: 5, y: 8 }, color: :white, icon: '♚')],
-        [instance_double(Bishop, location: { x: 6, y: 8 }, color: :white, icon: '♝')],
-        [instance_double(Knight, location: { x: 7, y: 8 }, color: :white, icon: '♞')],
-        [instance_double(Rook, location: { x: 8, y: 8 }, color: :white, icon: '♜')],
-        [instance_double(Pawn, location: { x: 1, y: 7 }, color: :white, icon: '♟︎')],
-        [instance_double(Pawn, location: { x: 2, y: 7 }, color: :white, icon: '♟︎')],
-        [instance_double(Pawn, location: { x: 3, y: 7 }, color: :white, icon: '♟︎')],
-        [instance_double(Pawn, location: { x: 4, y: 7 }, color: :white, icon: '♟︎')],
-        [instance_double(Pawn, location: { x: 5, y: 7 }, color: :white, icon: '♟︎')],
-        [instance_double(Pawn, location: { x: 6, y: 7 }, color: :white, icon: '♟︎')],
-        [instance_double(Pawn, location: { x: 7, y: 7 }, color: :white, icon: '♟︎')],
-        [instance_double(Pawn, location: { x: 8, y: 7 }, color: :white, icon: '♟︎')]
+        [instance_double(Rook, location: { x: 1, y: 8 }, color: :white)],
+        [instance_double(Knight, location: { x: 2, y: 8 }, color: :white)],
+        [instance_double(Bishop, location: { x: 3, y: 8 }, color: :white)],
+        [instance_double(Queen, location: { x: 4, y: 8 }, color: :white)],
+        [instance_double(King, location: { x: 5, y: 8 }, color: :white)],
+        [instance_double(Bishop, location: { x: 6, y: 8 }, color: :white)],
+        [instance_double(Knight, location: { x: 7, y: 8 }, color: :white)],
+        [instance_double(Rook, location: { x: 8, y: 8 }, color: :white)],
+        [instance_double(Pawn, location: { x: 1, y: 7 }, color: :white)],
+        [instance_double(Pawn, location: { x: 2, y: 7 }, color: :white)],
+        [instance_double(Pawn, location: { x: 3, y: 7 }, color: :white)],
+        [instance_double(Pawn, location: { x: 4, y: 7 }, color: :white)],
+        [instance_double(Pawn, location: { x: 5, y: 7 }, color: :white)],
+        [instance_double(Pawn, location: { x: 6, y: 7 }, color: :white)],
+        [instance_double(Pawn, location: { x: 7, y: 7 }, color: :white)],
+        [instance_double(Pawn, location: { x: 8, y: 7 }, color: :white)]
       ]
     end
 
