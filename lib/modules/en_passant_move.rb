@@ -2,19 +2,20 @@
 
 # Contains logic for executing en passant move
 module EnPassantMove
-  def en_passant_move(board, y_shift = y_axis_shift)
-    ary = []
-    new_positions = [board.get_relative_square(location, x: -1), board.get_relative_square(location, x: 1)].compact
-
-    new_positions.length.times do |i|
-      next unless new_positions[i].taken?
-
-      if en_passantable?(new_positions[i], board.recorded_moves.last)
-        ary << board.get_relative_square(location, y: y_shift)
-      end
+  def en_passant_move(board, x)
+    adjacent_square = [board.get_relative_square(location, x: x)].compact
+    return [] if adjacent_square.empty? || !adjacent_square.first.taken?
+    if en_passantable?(adjacent_square.first, board.recorded_moves.last)
+      return [board.get_relative_square(location, x: x, y: y_shift)]
     end
-    ary
+    []
   end
+
+  def take_enemy_pawn(chosen_square, board)
+    enemy_pawn_square(chosen_square, board).update_piece
+  end
+
+  private
 
   def en_passantable?(square, last_move)
     return true if enemy_pawn?(square) && last_move.include?(square) && move_difference_is_two?(last_move)
@@ -33,16 +34,6 @@ module EnPassantMove
   end
 
   def enemy_pawn_square(chosen_square, board)
-    board.get_relative_square(chosen_square, y: -y_axis_shift)
-  end
-
-  def take_enemy_piece(chosen_square, board)
-    enemy_pawn_square(chosen_square, board).update_piece
-  end
-
-  def move(chosen_square, board)
-    take_enemy_piece(chosen_square, board) if en_passant_move(board).include?(chosen_square)
-
-    super
+    board.get_relative_square(chosen_square, y: -y_shift)
   end
 end
