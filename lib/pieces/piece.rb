@@ -10,14 +10,11 @@ class Piece
   def initialize(location = nil, color = nil, icon = nil)
     @location = location
     @color = color
-    @icon = icon
   end
 
-  def legal_moves(board); end
-
-  # this method is 100% not supposed to be there. It violates SRP
-  def reject_related_squares(squares)
-    squares.reject { |sqr| sqr.taken? && sqr.piece.color == color }
+  def legal_moves(board)
+    moves = possible_moves(board)
+    discard_illegal_moves(board, opponent_color, moves)
   end
 
   def update_location(new_square)
@@ -35,5 +32,9 @@ class Piece
 
   def opponent_color
     color == :white ? :black : :white
+  end
+
+  def reject_related_squares(squares)
+    squares.reject { |sqr| sqr.taken? && sqr.piece.color == color }
   end
 end
