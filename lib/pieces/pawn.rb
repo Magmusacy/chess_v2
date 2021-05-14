@@ -2,44 +2,61 @@
 
 require_relative 'piece'
 require_relative '../modules/en_passant_move'
+require_relative '../modules/promotion_move'
 
 # Contains logic for Pawn movement
 class Pawn < Piece
   include EnPassantMove
-  def legal_moves(board)
-    ary = []
-    ary << y_axis_move(board)
-    ary << diagonal_move(board)
-    ary << en_passant_move(board)
-    ary.compact
+  include PromotionMove
+
+  def possible_moves(board)
+    moves = [vertical_move(board), diagonal_move(board, 1), diagonal_move(board, -1),
+             en_passant_move(board, 1), en_passant_move(board, -1),
+             promotion_move(board, 0), promotion_move(board, 1),
+             promotion_move(board, -1)].flatten
+
+    reject_related_squares(moves)
   end
 
-  def y_axis_move(board, y_shift = y_axis_shift)
-    ary = []
-    new_pos = board.get_relative_square(location, y: y_shift)
-    ary << new_pos unless new_pos.taken?
-    if [2, 7].include?(location.position[:y]) && !ary.empty?
-      # refactor
-      new_pos = board.get_relative_square(location, y: y_shift*2)
-      ary << new_pos unless new_pos.taken?
+  def vertical_move(board)
+    moves = [board.get_relative_square(location, y: y_shift)]
+    return [] if moves.first.taken?
+    moves << double_vertical_move(board) if first_move?
+    moves.compact
+  end
+
+  def diagonal_move(board, x)
+    moves = [board.get_relative_square(location, x: x, y: y_shift)].compact
+    return [] if moves.empty? || !moves.first.taken?
+    moves
+  end
+
+  def move(chosen_square, board)
+    possible_promotion = [promotion_move(board, 1), promotion_move(board, 0), promotion_move(board, -1)].flatten
+    unless possible_promotion.include?(chosen_square)
+      possible_en_passant = [en_passant_move(board, 1), en_passant_move(board, -1)].flatten
+      take_enemy_pawn(chosen_square, board) if possible_en_passant.include?(chosen_square)
+
+      super
+    else
+      promote(promotion_input, chosen_square, board)
     end
-
-    ary
   end
 
-  def diagonal_move(board, y_shift = y_axis_shift)
-    ary = []
-    # refactor
-    new_positions = [board.get_relative_square(location, x: -1, y: y_shift), board.get_relative_square(location, x: 1, y: y_shift)].compact
-    new_positions.length.times do |i|
-      next unless new_positions[i].taken?
+  private
 
-      ary << new_positions[i] unless new_positions[i].piece.color == color
-    end
-    ary
+  def double_vertical_move(board)
+    square = board.get_relative_square(location, y: y_shift * 2)
+    return square unless square.taken?
   end
 
-  def y_axis_shift
+  def first_move?
+    y = location.position[:y]
+    return true if color == :white && y == 2
+    return true if color == :black && y == 7
+  end
+
+  def y_shift
     color == :white ? 1 : -1
   end
 end
