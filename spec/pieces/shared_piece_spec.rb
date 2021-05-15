@@ -79,28 +79,50 @@ RSpec.shared_examples '#horizontal_move method' do
         end
       end
 
-      context 'when there is taken square that Rook can pass through' do
-        let(:exp_sqr) do
-          [
-            double('Square', position: { x: 5, y: 4 }, taken?: false),
-            double('Square', position: { x: 6, y: 4 }, taken?: false),
-            double('Square', position: { x: 7, y: 4 }, taken?: true)
-          ]
+      context 'when there is taken square that Piece can pass through' do
+        context 'when that taken square is first square that Piece can pass through' do
+          let(:exp_sqr) do
+            [
+              double('Square', position: { x: 5, y: 4 }, taken?: true)
+            ]
+          end
+
+          before do
+            allow(chess_board).to receive(:get_relative_square).with(start_square_44, x: 1).and_return(exp_sqr[0])
+          end
+
+          it 'returns that first square' do
+            x = 1
+            expected = exp_sqr
+            result = piece_44.horizontal_move(chess_board, x)
+            expect(result).to match_array(expected)
+          end
         end
 
-        before do
-          allow(chess_board).to receive(:get_relative_square).with(start_square_44, x: 1).and_return(exp_sqr[0])
-          allow(chess_board).to receive(:get_relative_square).with(start_square_44, x: 2).and_return(exp_sqr[1])
-          allow(chess_board).to receive(:get_relative_square).with(start_square_44, x: 3).and_return(exp_sqr[2])
-        end
+        context 'when Piece has already passed the first square' do
+          let(:exp_sqr) do
+            [
+              double('Square', position: { x: 5, y: 4 }, taken?: false),
+              double('Square', position: { x: 6, y: 4 }, taken?: false),
+              double('Square', position: { x: 7, y: 4 }, taken?: true)
+            ]
+          end
 
-        it 'returns an array of squares passed by Rook until it encountered taken square, including it' do
-          x = 1
-          expected = exp_sqr
-          result = piece_44.horizontal_move(chess_board, x)
-          expect(result).to match_array(expected)
+          before do
+            allow(chess_board).to receive(:get_relative_square).with(start_square_44, x: 1).and_return(exp_sqr[0])
+            allow(chess_board).to receive(:get_relative_square).with(start_square_44, x: 2).and_return(exp_sqr[1])
+            allow(chess_board).to receive(:get_relative_square).with(start_square_44, x: 3).and_return(exp_sqr[2])
+          end
+
+          it 'returns an array of squares passed by Piece until it encountered taken square, including it' do
+            x = 1
+            expected = exp_sqr
+            result = piece_44.horizontal_move(chess_board, x)
+            expect(result).to match_array(expected)
+          end
         end
       end
+
     end
   end
 end
@@ -166,25 +188,46 @@ RSpec.shared_examples '#vertical_move method' do
       end
 
       context 'when there is taken square that Piece can pass through' do
-        let(:exp_sqr) do
-          [
-            double('Square', position: { x: 4, y: 5 }, taken?: false),
-            double('Square', position: { x: 4, y: 6 }, taken?: false),
-            double('Square', position: { x: 4, y: 7 }, taken?: true)
-          ]
+        context 'when that taken square is first square that Piece can pass through' do
+          let(:exp_sqr) do
+            [
+              double('Square', position: { x: 4, y: 5 }, taken?: true)
+            ]
+          end
+
+          before do
+            allow(chess_board).to receive(:get_relative_square).with(start_square_44, y: 1).and_return(exp_sqr[0])
+          end
+
+          it 'returns that first square' do
+            y = 1
+            expected = exp_sqr
+            result = piece_44.vertical_move(chess_board, y)
+            expect(result).to match_array(expected)
+          end
         end
 
-        before do
-          allow(chess_board).to receive(:get_relative_square).with(start_square_44, y: 1).and_return(exp_sqr[0])
-          allow(chess_board).to receive(:get_relative_square).with(start_square_44, y: 2).and_return(exp_sqr[1])
-          allow(chess_board).to receive(:get_relative_square).with(start_square_44, y: 3).and_return(exp_sqr[2])
-        end
+        context 'when Piece has already passed the first square' do
+          let(:exp_sqr) do
+            [
+              double('Square', position: { x: 4, y: 5 }, taken?: false),
+              double('Square', position: { x: 4, y: 6 }, taken?: false),
+              double('Square', position: { x: 4, y: 7 }, taken?: true)
+            ]
+          end
 
-        it 'returns an array of squares passed by Piece until it encountered taken square, including it' do
-          y = 1
-          expected = exp_sqr
-          result = piece_44.vertical_move(chess_board, y)
-          expect(result).to match_array(expected)
+          before do
+            allow(chess_board).to receive(:get_relative_square).with(start_square_44, y: 1).and_return(exp_sqr[0])
+            allow(chess_board).to receive(:get_relative_square).with(start_square_44, y: 2).and_return(exp_sqr[1])
+            allow(chess_board).to receive(:get_relative_square).with(start_square_44, y: 3).and_return(exp_sqr[2])
+          end
+
+          it 'returns an array of squares passed by Piece until it encountered taken square, including it' do
+            y = 1
+            expected = exp_sqr
+            result = piece_44.vertical_move(chess_board, y)
+            expect(result).to match_array(expected)
+          end
         end
       end
     end
@@ -308,27 +351,48 @@ RSpec.shared_examples '#diagonal_move method' do
       end
 
       context 'when there is taken square that Piece can pass through' do
-        let(:x) { 1 }
-        let(:y) { 1 }
-        let(:blk_piece) { double('piece', color: :black) }
-        let(:exp_sqr) do
-          [
-            double('Square', position: { x: 5, y: 5 }, taken?: false),
-            double('Square', position: { x: 6, y: 6 }, taken?: false),
-            double('Square', position: { x: 7, y: 7 }, taken?: true)
-          ]
+        context 'when that taken square is first square that Piece can pass through' do
+          let(:exp_sqr) do
+            [
+              double('Square', position: { x: 5, y: 5 }, taken?: true)
+            ]
+          end
+
+          before do
+            allow(chess_board).to receive(:get_relative_square).with(start_sqr_44, x: 1, y: 1).and_return(exp_sqr[0])
+          end
+
+          it 'returns that first square' do
+            x = 1
+            y = 1
+            expected = exp_sqr
+            result = piece_44.diagonal_move(chess_board, x, y)
+            expect(result).to match_array(expected)
+          end
         end
 
-        before do
-          allow(chess_board).to receive(:get_relative_square).with(start_sqr_44, x: 1, y: 1).and_return(exp_sqr[0])
-          allow(chess_board).to receive(:get_relative_square).with(start_sqr_44, x: 2, y: 2).and_return(exp_sqr[1])
-          allow(chess_board).to receive(:get_relative_square).with(start_sqr_44, x: 3, y: 3).and_return(exp_sqr[2])
-        end
+        context 'when Piece has already passed the first square' do
+          let(:exp_sqr) do
+            [
+              double('Square', position: { x: 5, y: 5 }, taken?: false),
+              double('Square', position: { x: 6, y: 6 }, taken?: false),
+              double('Square', position: { x: 7, y: 7 }, taken?: true)
+            ]
+          end
 
-        it 'returns an array of squares passed by Piece until it encountered taken square, including it' do
-          expected = exp_sqr
-          result = piece_44.diagonal_move(chess_board, x, y)
-          expect(result).to match_array(expected)
+          before do
+            allow(chess_board).to receive(:get_relative_square).with(start_sqr_44, x: 1, y: 1).and_return(exp_sqr[0])
+            allow(chess_board).to receive(:get_relative_square).with(start_sqr_44, x: 2, y: 2).and_return(exp_sqr[1])
+            allow(chess_board).to receive(:get_relative_square).with(start_sqr_44, x: 3, y: 3).and_return(exp_sqr[2])
+          end
+
+          it 'returns an array of squares passed by Piece until it encountered taken square, including it' do
+            x = 1
+            y = 1
+            expected = exp_sqr
+            result = piece_44.diagonal_move(chess_board, x, y)
+            expect(result).to match_array(expected)
+          end
         end
       end
     end
