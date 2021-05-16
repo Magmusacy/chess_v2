@@ -29,6 +29,7 @@ describe Pawn do
       allow(possible_pawn).to receive(:diagonal_move).and_return([])
       allow(possible_pawn).to receive(:en_passant_move).and_return([])
       allow(possible_pawn).to receive(:promotion_move).and_return([])
+      allow(possible_pawn).to receive(:discard_related_squares).with(possible_move).and_return(possible_move)
     end
 
     context 'when only #vertical_move returns a possible legal move' do
@@ -95,12 +96,24 @@ describe Pawn do
       end
     end
 
-    context 'when there are 2 possible moves but one of them has square with Piece the same color as given Pawn' do
+    context 'when there are 2 possible moves but one of them has square with Piece the same color as calling Pawn' do
       it 'returns an array with 1 possible legal move' do
+        returned_array = [possible_move, impossible_move].flatten
+        allow(possible_pawn).to receive(:discard_related_squares).with(returned_array).and_return(possible_move)
         allow(possible_pawn).to receive(:diagonal_move).with(chess_board, 1).and_return(possible_move)
         allow(possible_pawn).to receive(:diagonal_move).with(chess_board, -1).and_return(impossible_move)
         result = possible_pawn.possible_moves(chess_board)
         expect(result).to match_array(possible_move)
+      end
+    end
+
+    context 'when there is 1 possible move on square with Piece the same color as calling Pawn' do
+      it 'returns empty array' do
+        empty_array = []
+        allow(possible_pawn).to receive(:discard_related_squares).with(impossible_move).and_return(empty_array)
+        allow(possible_pawn).to receive(:vertical_move).with(chess_board).and_return(impossible_move)
+        result = possible_pawn.possible_moves(chess_board)
+        expect(result).to be_empty
       end
     end
   end
@@ -544,8 +557,9 @@ describe Pawn do
         context 'when square { x: 3, y: 8 } is taken by enemy' do
           let(:square_38) { instance_double(Square, position: { x: 3, y: 8 }, taken?: true, piece: black_piece) }
 
-          it 'returns square { x: 2, y: 8 }' do
+          it 'returns square { x: 3, y: 8 }' do
             allow(chess_board).to receive(:get_relative_square).with(start_square_27, x: 1, y: 1).and_return(square_38)
+            allow(wht_pawn_27).to receive(:discard_related_squares).with([square_38]).and_return([square_38])
             result = wht_pawn_27.promotion_move(chess_board, x)
             expect(result).to match_array([square_38])
           end
@@ -554,7 +568,7 @@ describe Pawn do
         context 'when square { x: 3, y: 8 } isn\'t taken' do
           let(:square_38) { instance_double(Square, position: { x: 3, y: 8 }, taken?: false) }
 
-          it 'returns square { x: 2, y: 8 }' do
+          it 'returns square empty array' do
             allow(chess_board).to receive(:get_relative_square).with(start_square_27, x: 1, y: 1).and_return(square_38)
             result = wht_pawn_27.promotion_move(chess_board, x)
             expect(result).to be_empty
@@ -568,8 +582,9 @@ describe Pawn do
         context 'when square { x: 1, y: 8 } is taken by enemy' do
           let(:square_18) { instance_double(Square, position: { x: 1, y: 8 }, taken?: true, piece: black_piece) }
 
-          it 'returns square { x: 2, y: 8 }' do
+          it 'returns square { x: 1, y: 8 }' do
             allow(chess_board).to receive(:get_relative_square).with(start_square_27, x: -1, y: 1).and_return(square_18)
+            allow(wht_pawn_27).to receive(:discard_related_squares).with([square_18]).and_return([square_18])
             result = wht_pawn_27.promotion_move(chess_board, x)
             expect(result).to match_array([square_18])
           end
@@ -595,6 +610,7 @@ describe Pawn do
 
       it 'returns empty array' do
         allow(chess_board).to receive(:get_relative_square).with(start_square_27, x: 1, y: 1).and_return(square_38)
+        allow(wht_pawn_27).to receive(:discard_related_squares).with([square_38]).and_return([])
         result = wht_pawn_27.promotion_move(chess_board, 1)
         expect(result).to be_empty
       end

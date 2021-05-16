@@ -28,6 +28,7 @@ describe King do
       allow(possible_king).to receive(:horizontal_move).and_return([])
       allow(possible_king).to receive(:vertical_move).and_return([])
       allow(possible_king).to receive(:diagonal_move).and_return([])
+      allow(possible_king).to receive(:discard_related_squares).with(possible_move).and_return(possible_move)
     end
 
       context 'when only #horizontal_move with x = -1 returns a possible legal move' do
@@ -118,12 +119,24 @@ describe King do
         end
       end
 
-      context 'when there are 2 possible moves but one of them has square with Piece the same color as given King' do
+      context 'when there are 2 possible moves but one of them has square with Piece the same color as calling Queen' do
         it 'returns an array with 1 possible legal move' do
-          allow(possible_king).to receive(:diagonal_move).with(chess_board, -1, -1).and_return(possible_move)
-          allow(possible_king).to receive(:diagonal_move).with(chess_board, -1, 1).and_return(impossible_move)
+          returned_array = [possible_move, impossible_move].flatten
+          allow(possible_king).to receive(:discard_related_squares).with(returned_array).and_return(possible_move)
+          allow(possible_king).to receive(:horizontal_move).with(chess_board, 1).and_return(possible_move)
+          allow(possible_king).to receive(:vertical_move).with(chess_board, -1).and_return(impossible_move)
           result = possible_king.possible_moves(chess_board)
           expect(result).to match_array(possible_move)
+        end
+      end
+
+      context 'when there is 1 possible move on square with Piece the same color as calling Queen' do
+        it 'returns empty array' do
+          empty_array = []
+          allow(possible_king).to receive(:discard_related_squares).with(impossible_move).and_return(empty_array)
+          allow(possible_king).to receive(:vertical_move).with(chess_board, -1).and_return(impossible_move)
+          result = possible_king.possible_moves(chess_board)
+          expect(result).to be_empty
         end
       end
     end
@@ -243,7 +256,6 @@ describe King do
 
         before do
           allow(chess_board).to receive(:get_relative_square).with(start_square_44, x: 1, y: 1).and_return(square_55)
-          allow(diagonal_king_44).to receive(:reject_related_squares).and_return([square_55])
         end
 
         it 'returns square { x: 5, y: 5 }' do
@@ -258,7 +270,6 @@ describe King do
 
         before do
           allow(chess_board).to receive(:get_relative_square).with(start_square_44, x: 1, y: -1).and_return(square_53)
-          allow(diagonal_king_44).to receive(:reject_related_squares).and_return([square_53])
         end
 
         it 'returns square { x: 5, y: 3 }' do
@@ -273,7 +284,6 @@ describe King do
 
         before do
           allow(chess_board).to receive(:get_relative_square).with(start_square_44, x: -1, y: 1).and_return(square_35)
-          allow(diagonal_king_44).to receive(:reject_related_squares).and_return([square_35])
         end
 
         it 'returns square { x: 3, y: 5 }' do
@@ -288,7 +298,6 @@ describe King do
 
         before do
           allow(chess_board).to receive(:get_relative_square).with(start_square_44, x: -1, y: -1).and_return(square_33)
-          allow(diagonal_king_44).to receive(:reject_related_squares).and_return([square_33])
         end
 
         it 'returns square { x: 3, y: 3 }' do

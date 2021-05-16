@@ -15,6 +15,7 @@ describe Queen do
       allow(possible_queen).to receive(:vertical_move).and_return([])
       allow(possible_queen).to receive(:horizontal_move).and_return([])
       allow(possible_queen).to receive(:diagonal_move).and_return([])
+      allow(possible_queen).to receive(:discard_related_squares).with(possible_move).and_return(possible_move)
     end
 
     context 'when only #horizontal_move with x = 1 returns a possible and legal move' do
@@ -105,12 +106,24 @@ describe Queen do
       end
     end
 
-    context 'when there are 2 possible moves but one of them has square with Piece the same color as given Rook' do
+    context 'when there are 2 possible moves but one of them has square with Piece the same color as calling Queen' do
       it 'returns an array with 1 possible legal move' do
+        returned_array = [possible_move, impossible_move].flatten
+        allow(possible_queen).to receive(:discard_related_squares).with(returned_array).and_return(possible_move)
         allow(possible_queen).to receive(:horizontal_move).with(chess_board, 1).and_return(possible_move)
         allow(possible_queen).to receive(:vertical_move).with(chess_board, -1).and_return(impossible_move)
         result = possible_queen.possible_moves(chess_board)
         expect(result).to match_array(possible_move)
+      end
+    end
+
+    context 'when there is 1 possible move on square with Piece the same color as calling Queen' do
+      it 'returns empty array' do
+        empty_array = []
+        allow(possible_queen).to receive(:discard_related_squares).with(impossible_move).and_return(empty_array)
+        allow(possible_queen).to receive(:vertical_move).with(chess_board, -1).and_return(impossible_move)
+        result = possible_queen.possible_moves(chess_board)
+        expect(result).to be_empty
       end
     end
   end
