@@ -182,4 +182,79 @@ describe Piece do
       end
     end
   end
+
+  describe '#discard_related_squares' do
+    let(:opponent_color) { :black }
+    let(:white_piece_dbl) { double('Piece', color: :white) }
+    let(:black_piece_dbl) { double('Piece', color: :black) }
+    let(:real_board) { instance_double(Board) }
+
+    context 'when given :white Piece' do
+      subject(:wht_piece) { described_class.new(nil, :white) }
+      let(:empty_square) { double('Square', taken?: false) }
+      let(:related_square) { double('Square', taken?: true, piece: white_piece_dbl) }
+      let(:opponent_square) { double('Square', taken?: true, piece: black_piece_dbl) }
+
+      context 'when given an array with 2 squares (white_piece, white_piece)' do
+        let(:squares_array) { [related_square, related_square] }
+
+        it 'returns empty array' do
+          result = wht_piece.discard_related_squares(squares_array)
+          expect(result).to be_empty
+        end
+      end
+
+      context 'when given an array with 2 squares (white_piece, empty)' do
+        let(:squares_array) { [related_square, empty_square] }
+
+        it 'returns array with (empty) square' do
+          result = wht_piece.discard_related_squares(squares_array)
+          expect(result).to match_array([empty_square])
+        end
+      end
+
+      context 'when given an array with 2 squares (black_piece, empty)' do
+        let(:squares_array) { [opponent_square, empty_square] }
+
+        it 'returns array with squares (black_piece, empty)' do
+          result = wht_piece.discard_related_squares(squares_array)
+          expect(result).to match_array([opponent_square, empty_square])
+        end
+      end
+    end
+
+    context 'when given :black Piece' do
+      subject(:blk_piece) { described_class.new(nil, :black) }
+      let(:empty_square) { double('Square', taken?: false) }
+      let(:related_square) { double('Square', taken?: true, piece: black_piece_dbl) }
+      let(:opponent_square) { double('Square', taken?: true, piece: white_piece_dbl) }
+
+      context 'when given an array with 2 squares (white_piece, white_piece)' do
+        let(:squares_array) { [opponent_square, opponent_square] }
+
+        it 'returns array with squares (white_piece, white_piece)' do
+          result = blk_piece.discard_related_squares(squares_array)
+          expect(result).to match_array([opponent_square, opponent_square])
+        end
+      end
+
+      context 'when given an array with 2 squares (black_piece, empty)' do
+        let(:squares_array) { [related_square, empty_square] }
+
+        it 'returns array with (empty) square' do
+          result = blk_piece.discard_related_squares(squares_array)
+          expect(result).to match_array([empty_square])
+        end
+      end
+
+      context 'when given an array with 2 squares (black_piece, black_piece)' do
+        let(:squares_array) { [related_square, related_square] }
+
+        it 'returns empty array' do
+          result = blk_piece.discard_related_squares(squares_array)
+          expect(result).to be_empty
+        end
+      end
+    end
+  end
 end
