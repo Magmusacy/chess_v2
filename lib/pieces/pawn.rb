@@ -15,7 +15,7 @@ class Pawn < Piece
              promotion_move(board, 0), promotion_move(board, 1),
              promotion_move(board, -1)].flatten
 
-    reject_related_squares(moves)
+    discard_related_squares(moves)
   end
 
   def vertical_move(board)
@@ -28,6 +28,7 @@ class Pawn < Piece
   def diagonal_move(board, x)
     moves = [board.get_relative_square(location, x: x, y: y_shift)].compact
     return [] if moves.empty? || !moves.first.taken?
+    #  return [] if moves.nil? || !moves.taken? # takie cos
     moves
   end
 

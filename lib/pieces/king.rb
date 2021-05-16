@@ -7,7 +7,7 @@ class King < Piece
              diagonal_move(board, 1, 1), diagonal_move(board, 1, -1),
              diagonal_move(board, -1, 1), diagonal_move(board, -1, -1)].flatten
 
-    reject_related_squares(moves)
+    discard_related_squares(moves)
   end
 
   def horizontal_move(board, x)
