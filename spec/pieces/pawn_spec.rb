@@ -710,21 +710,37 @@ describe Pawn do
       allow(new_piece).to receive(:move)
     end
 
-    let(:bishop) { :bishop }
+    context 'when piece argument has the default value' do
+      before do
+        allow(wht_pawn_27).to receive(:promotion_input).and_return(:bishop)
+      end
 
-    it 'calls #create_instance with new piece symbol and Pawn\'s location and color in array' do
-      expect(wht_pawn_27).to receive(:create_instance).with(bishop, attributes)
-      wht_pawn_27.promote(bishop, chosen_square, chess_board)
+      it 'calls #create_instance with new piece symbol and Pawn\'s location and color in array' do
+        expect(wht_pawn_27).to receive(:create_instance).with(:bishop, attributes)
+        wht_pawn_27.promote(chosen_square, chess_board)
+      end
+
+      it 'calls #promotion_input' do
+        expect(wht_pawn_27).to receive(:promotion_input)
+        wht_pawn_27.promote(chosen_square, chess_board)
+      end
+
+      it 'sends :update_piece message to Pawn\'s location with returned new piece object from #create_instance' do
+        expect(start_square_27).to receive(:update_piece).with(new_piece)
+        wht_pawn_27.promote(chosen_square, chess_board)
+      end
+
+      it 'sends :move message to new piece object with chosen_square and board arguments' do
+        expect(new_piece).to receive(:move).with(chosen_square, chess_board)
+        wht_pawn_27.promote(chosen_square, chess_board)
+      end
     end
 
-    it 'sends :update_piece message to Pawn\'s location with returned new piece object from #create_instance' do
-      expect(start_square_27).to receive(:update_piece).with(new_piece)
-      wht_pawn_27.promote(bishop, chosen_square, chess_board)
-    end
-
-    it 'sends :move message to new piece object with chosen_square and board arguments' do
-      expect(new_piece).to receive(:move).with(chosen_square, chess_board)
-      wht_pawn_27.promote(bishop, chosen_square, chess_board)
+    context 'when explicitly specified piece argument' do
+      it 'doesn\'t call #promotion_input' do
+        expect(wht_pawn_27).not_to receive(:promotion_input)
+        wht_pawn_27.promote(chosen_square, chess_board, :bishop)
+      end
     end
   end
 
