@@ -617,6 +617,85 @@ describe Pawn do
     end
   end
 
+  describe '#piece_input' do
+    subject(:promotion_pawn) { described_class.new }
+    # run method that shows the things to click you know
+    # return input symbol
+    # else output error message
+    before do
+      allow(promotion_pawn).to receive(:show_pieces)
+      allow(promotion_pawn).to receive(:gets)
+    end
+
+    context 'when given correct input on the first try' do
+      it 'doesn\'t output error message' do
+        error_message = 'Wrong input!'
+        allow(promotion_pawn).to receive(:verify_piece).and_return(:rook)
+        expect(promotion_pawn).not_to receive(:puts).with(error_message)
+        promotion_pawn.promotion_input
+      end
+    end
+
+    context 'when given correct input on the third try' do
+      it 'outputs error message 2 times' do
+        error_message = 'Wrong input!'
+        allow(promotion_pawn).to receive(:verify_piece).and_return(nil, nil, :rook)
+        expect(promotion_pawn).to receive(:puts).with(error_message).twice
+        promotion_pawn.promotion_input
+      end
+    end
+  end
+
+  describe '#verify_piece' do
+    subject(:verify_pawn) { described_class.new }
+
+    context 'when input is: 0' do
+      it 'returns :bishop symbol' do
+        input = 0
+        expected = :bishop
+        expect(verify_pawn.verify_piece(input)).to eq(expected)
+      end
+    end
+
+    context 'when input is: 1' do
+      it 'returns :knight symbol' do
+        input = 1
+        expected = :knight
+        expect(verify_pawn.verify_piece(input)).to eq(expected)
+      end
+    end
+
+    context 'when input is: 2' do
+      it 'returns :queen symbol' do
+        input = 2
+        expected = :queen
+        expect(verify_pawn.verify_piece(input)).to eq(expected)
+      end
+    end
+
+    context 'when input is: 3' do
+      it 'returns :rook symbol' do
+        input = 3
+        expected = :rook
+        expect(verify_pawn.verify_piece(input)).to eq(expected)
+      end
+    end
+
+    context 'when input is lower than 0' do
+      it 'returns nil' do
+        input = -1
+        expect(verify_pawn.verify_piece(input)).to be_nil
+      end
+    end
+
+    context 'when input bigger than 3' do
+      it 'returns nil' do
+        input = 4
+        expect(verify_pawn.verify_piece(input)).to be_nil
+      end
+    end
+  end
+
   describe '#promote' do
     let(:color) { :white }
     let(:start_square_27) { instance_double(Square, position: { x: 2, y: 7 }) }
