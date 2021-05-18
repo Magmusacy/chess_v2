@@ -622,26 +622,22 @@ describe Pawn do
     # run method that shows the things to click you know
     # return input symbol
     # else output error message
-    before do
-      allow(promotion_pawn).to receive(:show_pieces)
-      allow(promotion_pawn).to receive(:gets)
-    end
 
     context 'when given correct input on the first try' do
       it 'doesn\'t output error message' do
         error_message = 'Wrong input!'
-        allow(promotion_pawn).to receive(:verify_piece).and_return(:rook)
+        allow(promotion_pawn).to receive(:input).and_return(2)
         expect(promotion_pawn).not_to receive(:puts).with(error_message)
-        promotion_pawn.promotion_input
+        promotion_pawn.piece_input
       end
     end
 
     context 'when given correct input on the third try' do
       it 'outputs error message 2 times' do
         error_message = 'Wrong input!'
-        allow(promotion_pawn).to receive(:verify_piece).and_return(nil, nil, :rook)
+        allow(promotion_pawn).to receive(:input).and_return(5, -1, 3)
         expect(promotion_pawn).to receive(:puts).with(error_message).twice
-        promotion_pawn.promotion_input
+        promotion_pawn.piece_input
       end
     end
   end
@@ -712,7 +708,7 @@ describe Pawn do
 
     context 'when piece argument has the default value' do
       before do
-        allow(wht_pawn_27).to receive(:promotion_input).and_return(:bishop)
+        allow(wht_pawn_27).to receive(:piece_input).and_return(:bishop)
       end
 
       it 'calls #create_instance with new piece symbol and Pawn\'s location and color in array' do
@@ -720,8 +716,8 @@ describe Pawn do
         wht_pawn_27.promote(chosen_square, chess_board)
       end
 
-      it 'calls #promotion_input' do
-        expect(wht_pawn_27).to receive(:promotion_input)
+      it 'calls #piece_input' do
+        expect(wht_pawn_27).to receive(:piece_input)
         wht_pawn_27.promote(chosen_square, chess_board)
       end
 
@@ -737,8 +733,8 @@ describe Pawn do
     end
 
     context 'when explicitly specified piece argument' do
-      it 'doesn\'t call #promotion_input' do
-        expect(wht_pawn_27).not_to receive(:promotion_input)
+      it 'doesn\'t call #piece_input' do
+        expect(wht_pawn_27).not_to receive(:piece_input)
         wht_pawn_27.promote(chosen_square, chess_board, :bishop)
       end
     end
@@ -758,7 +754,7 @@ describe Pawn do
       let(:input_piece) { :bishop }
 
       before do
-        allow(pawn).to receive(:promotion_input).and_return(input_piece)
+        allow(pawn).to receive(:piece_input).and_return(input_piece)
         allow(pawn).to receive(:promote)
       end
 
@@ -772,8 +768,8 @@ describe Pawn do
           pawn.move(square, chess_board)
         end
 
-        it 'calls #promote with returned value from #promotion_input' do
-          expect(pawn).to receive(:promote).with(input_piece, square, chess_board)
+        it 'calls #promote with default Piece parameter' do
+          expect(pawn).to receive(:promote).with(square, chess_board)
         end
 
         it 'doesn\'t send :add_move message to Board' do
@@ -803,8 +799,8 @@ describe Pawn do
           pawn.move(square, chess_board)
         end
 
-        it 'calls #promote with returned value from #promotion_input and returns' do
-          expect(pawn).to receive(:promote).with(input_piece, square, chess_board)
+        it 'calls #promote with default Piece parameter' do
+          expect(pawn).to receive(:promote).with(square, chess_board)
         end
 
         it 'doesn\'t send :add_move message to Board' do
@@ -834,8 +830,8 @@ describe Pawn do
           pawn.move(square, chess_board)
         end
 
-        it 'calls #promote with returned value from #promotion_input and returns' do
-          expect(pawn).to receive(:promote).with(input_piece, square, chess_board)
+        it 'calls #promote with default Piece parameter' do
+          expect(pawn).to receive(:promote).with(square, chess_board)
         end
 
         it 'doesn\'t send :add_move message to Board' do
