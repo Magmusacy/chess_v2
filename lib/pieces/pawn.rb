@@ -28,7 +28,6 @@ class Pawn < Piece
   def diagonal_move(board, x)
     moves = [board.get_relative_square(location, x: x, y: y_shift)].compact
     return [] if moves.empty? || !moves.first.taken?
-    #  return [] if moves.nil? || !moves.taken? # takie cos
     moves
   end
 
@@ -40,7 +39,7 @@ class Pawn < Piece
 
       super
     else
-      promote(promotion_input, chosen_square, board)
+      promote(chosen_square, board)
     end
   end
 
