@@ -4,6 +4,43 @@ require_relative '../lib/board'
 require_relative '../lib/square'
 
 describe Game do
+  let(:chess_board) { instance_double(Board) }
+
+  describe '#create_game' do
+    subject(:game_create) { described_class.new(nil, nil, chess_board) }
+    let(:player_1) { double('player1', color: :white) }
+    let(:player_2) { double('player2', color: :black) }
+
+    before do
+      players_array = [player_1, player_2]
+      allow(game_create).to receive(:create_players).and_return(players_array)
+      allow(game_create).to receive(:create_pieces)
+      allow(chess_board).to receive(:setup_board)
+    end
+
+    it 'assigns @player_white instance variable to first item from #create_players' do
+      exp_player = player_1
+      expect { game_create.create_game }.to change { game_create.player_white }.to(exp_player)
+    end
+
+    it 'assigns @player_black instance variable to second item from #create_players' do
+      exp_player = player_2
+      expect { game_create.create_game }.to change { game_create.player_black }.to(exp_player)
+    end
+
+    it 'assigns @players instance variable to an [@player_white, @player_black] array' do
+      exp_players = [player_1, player_2]
+      expect { game_create.create_game }.to change { game_create.instance_variable_get(:@players) }.to(exp_players)
+    end
+
+    it 'sends :setup_board message to @chess_board with white_pieces and black_pieces' do
+      white_pieces = game_create.create_pieces(player_1)
+      black_pieces = game_create.create_pieces(player_2)
+      expect(chess_board).to receive(:setup_board).with(white_pieces, black_pieces)
+      game_create.create_game
+    end
+  end
+
   describe '#player_move' do
     subject(:player_game) { described_class.new }
 
@@ -34,156 +71,112 @@ describe Game do
     end
   end
 
-  describe '#correct_input?' do
-    let(:chess_board) { instance_double(Board) }
-    subject(:move_game) { described_class.new(nil, nil, chess_board) }
-    context 'when player color is :white' do
-      let(:wht_player) { instance_double(Player, color: :white) }
-      let(:wht_square1) { instance_double(Square, position: { x: 4, y: 4 }) }
-      let(:wht_square2) { instance_double(Square, position: { x: 5, y: 4 }) }
-      context 'when square with given input position has :white Piece' do
-        it 'returns true' do
-          allow(chess_board).to receive(:squares_taken_by).with(wht_player.color).and_return([wht_square1, wht_square2])
-          result = move_game.correct_input?(wht_player, wht_square1)
-          expect(result).to be true
-        end
-      end
-
-      context 'when square with given input position has :black Piece' do
-        let(:blk_square) { instance_double(Square, position: { x: 2, y: 6 }) }
-        it 'returns false' do
-          allow(chess_board).to receive(:squares_taken_by).with(wht_player.color).and_return([wht_square1, wht_square2])
-          result = move_game.correct_input?(wht_player, blk_square)
-          expect(result).to be false
-        end
-      end
-    end
-  end
-
-  describe '#correct_move?' do
-    let(:given_move) { instance_double(Square) }
-    let(:square_piece) { instance_double(Piece) }
-    let(:curr_square) { instance_double(Square, piece: square_piece) }
-    let(:chess_board) { instance_double(Board) }
-    subject(:move_game) { described_class.new(nil, nil, chess_board) }
-
-    context 'when given square\'s Piece #legal_moves include given move' do
-
-      it 'returns true' do
-        allow(square_piece).to receive(:legal_moves).with(chess_board).and_return([given_move])
-        result = move_game.correct_move?(curr_square, given_move)
-        expect(result).to be true
-      end
-    end
-
-    context 'when given square\'s Piece #legal_moves doesn\'t include given move' do
-
-      it 'returns false' do
-        allow(square_piece).to receive(:legal_moves).with(chess_board).and_return([])
-        result = move_game.correct_move?(curr_square, given_move)
-        expect(result).to be false
-      end
-    end
-  end
-
-  describe '#get_correct_square' do
-    let(:chess_board) { instance_double(Board) }
-    subject(:get_game) { described_class.new(nil, nil, chess_board) }
-
-    context 'when given given correct input for :white Player' do
-      let(:wht_player) { instance_double(Player, color: :white) }
-      let(:square_input) { instance_double(Square, position: { x: 4, y: 4 }) }
-
-      before do
-        input = { x: 4, y: 4 }
-        allow(wht_player).to receive(:input).and_return(input)
-        allow(chess_board).to receive(:get_square).with(input).and_return(square_input)
-        allow(get_game).to receive(:correct_input?).with(wht_player, square_input).and_return(true)
-      end
-
-      it 'returns that square with that input as a position' do
-        result = get_game.get_correct_square(wht_player)
-        expect(result).to eq(square_input)
-      end
-    end
-
-    context 'when given wrong input 2 times for :black Player' do
-      let(:blk_player) { instance_double(Player, color: :black) }
-      let(:square_input) { instance_double(Square, position: { x: 6, y: 4 }) }
-
-      before do
-        input = { x: 6, y: 4 }
-        allow(blk_player).to receive(:input).and_return(input)
-        allow(chess_board).to receive(:get_square).with(input).and_return(square_input)
-        allow(get_game).to receive(:correct_input?).with(blk_player, square_input).and_return(false, false, true)
-      end
-
-      it 'displays error message 2 times' do
-        error_message = "Wrong square, you can only choose black pieces"
-        expect(get_game).to receive(:puts).with(error_message).twice
-        result = get_game.get_correct_square(blk_player)
-      end
-    end
-
-    context 'when given wrong input 1 time for :white Player' do
-      let(:wht_player) { instance_double(Player, color: :white) }
-      let(:square_input) { instance_double(Square, position: { x: 6, y: 4 }) }
-
-      before do
-        input = { x: 6, y: 4 }
-        allow(wht_player).to receive(:input).and_return(input)
-        allow(chess_board).to receive(:get_square).with(input).and_return(square_input)
-        allow(get_game).to receive(:correct_input?).with(wht_player, square_input).and_return(false, true)
-      end
-
-      it 'displays error message 1 time' do
-        error_message = "Wrong square, you can only choose white pieces"
-        expect(get_game).to receive(:puts).with(error_message).once
-        result = get_game.get_correct_square(wht_player)
-      end
-    end
-  end
-
   describe '#human_move' do
-
     let(:piece) { instance_double(Piece) }
-    let(:initial_square) { instance_double(Square, piece: piece) }
-    let(:square_move) { instance_double(Square, position: { x: 6, y: 4 }) }
-    let(:human_player) { instance_double(Player) }
-    let(:chess_board) { instance_double(Board) }
+    let(:square) { instance_double(Square, piece: piece) }
+    let(:move) { instance_double(Square, position: { x: 6, y: 4 }) }
+    let(:player) { instance_double(Player, color: :white) }
     subject(:human_game) { described_class.new(nil, nil, chess_board) }
 
-    context 'when specified correct move input' do
+    context 'when moving Piece' do
       before do
-        input = { x: 6, y: 4 }
         allow(chess_board).to receive(:display)
-        allow(human_game).to receive(:get_correct_square).with(human_player).and_return(initial_square)
-        allow(human_game).to receive(:correct_move?).with(initial_square, square_move).and_return(true)
-        allow(human_player).to receive(:input).and_return(input)
-        allow(chess_board).to receive(:get_square).with(input).and_return(square_move)
+        allow(chess_board).to receive(:squares_taken_by).with(:white).and_return(square)
+        allow(piece).to receive(:legal_moves).with(chess_board).and_return(move)
+        allow(piece).to receive(:move)
+        allow(human_game).to receive(:select_square).and_return(square, move)
       end
 
-      it 'sends :move message with correct square to Piece on given square' do
-        expect(piece).to receive(:move).with(square_move, chess_board)
-        human_game.human_move(human_player)
+      it 'does not raise an error' do
+        expect { human_game.human_move(player) }.not_to raise_error
+      end
+
+      it 'stops loop and sends :move message with correct square to Piece on chosen square' do
+        expect(piece).to receive(:move).with(move, chess_board)
+        human_game.human_move(player)
       end
     end
 
-    context 'when specified wrong move input 2 times' do
-      before do # refactor
-        input = { x: 6, y: 4 }
+    context 'when chosen wrong square twice' do
+      before do
         allow(chess_board).to receive(:display)
-        allow(human_player).to receive(:input).and_return(input)
+        allow(chess_board).to receive(:squares_taken_by).with(:white).and_return(square)
+        allow(piece).to receive(:legal_moves).with(chess_board).once.and_return(move)
         allow(piece).to receive(:move)
-        allow(human_game).to receive(:get_correct_square).with(human_player).and_return(initial_square)
-        allow(human_game).to receive(:correct_move?).with(initial_square, square_move).and_return(false, false, true)
-        allow(chess_board).to receive(:get_square).with(input).and_return(square_move)
+        allow(human_game).to receive(:select_square).and_return(nil, nil, square, move)
       end
 
-      it 'displays error message 2 times' do
-        error_message = 'Wrong move!'
+      it 'displays an error message 2 times' do
+        error_message = 'Chosen wrong square, try again'
         expect(human_game).to receive(:puts).with(error_message).twice
-        human_game.human_move(human_player)
+        human_game.human_move(player)
+      end
+    end
+
+    context 'when chosen wrong move twice' do
+      let(:return_values) { [:raise, :raise, true] }
+
+      before do
+        allow(chess_board).to receive(:display)
+        allow(chess_board).to receive(:squares_taken_by).with(:white).and_return(square)
+        allow(piece).to receive(:legal_moves).with(chess_board).and_return(move)
+        allow(human_game).to receive(:select_square).and_return(square, nil, square, nil, square, move)
+        # Since move is called on Piece double, we need to manually raise the error
+        # using this method the error will be raised 2 times as expected
+        allow(piece).to receive(:move).exactly(3).times do
+          return_value = return_values.shift
+          return_value == :raise ? raise(NoMethodError) : return_value
+        end
+      end
+
+      it 'displays an error message 2 times' do
+        error_message = 'Chosen wrong square, try again'
+        expect(human_game).to receive(:puts).with(error_message).twice
+        human_game.human_move(player)
+      end
+    end
+  end
+
+  describe '#select_square' do
+    subject(:square_game) { described_class.new(nil, nil, chess_board) }
+    let(:correct_square) { instance_double(Square, position: { x: 2, y: 3 }) }
+
+    context 'when square with the chosen position is inside of squares array' do
+      before do
+        input_position = { x: 2, y: 3 }
+        allow(square_game).to receive(:input_hub).and_return(input_position)
+      end
+
+      it 'returns correct square object' do
+        squares = [correct_square]
+        result = square_game.select_square(squares)
+        expect(result).to eq(correct_square)
+      end
+    end
+
+    context 'when square with the chosen position isn\'t inside of squares array' do
+      let(:correct_square) { instance_double(Square, position: { x: 5, y: 7 }) }
+
+      before do
+        input_position = { x: 5, y: 3 }
+        allow(square_game).to receive(:input_hub).and_return(input_position)
+      end
+
+      it 'returns nil' do
+        squares = [correct_square]
+        result = square_game.select_square(squares)
+        expect(result).to be_nil
+      end
+    end
+
+    context 'when chosen position is nil' do
+      before do
+        allow(square_game).to receive(:input_hub).and_return(nil)
+      end
+
+      it 'returns nil' do
+        result = square_game.select_square([])
+        expect(result).to be_nil
       end
     end
   end
@@ -197,6 +190,7 @@ describe Game do
     let(:legal_moves) { [ instance_double(Square) ] }
 
     before do
+      allow(chess_board).to receive(:display)
       allow(ai_player).to receive(:ai_pick_square).with(chess_board).and_return(ai_picked_square)
       allow(ai_piece).to receive(:legal_moves).with(chess_board).and_return(legal_moves)
       allow(ai_player).to receive(:ai_pick_legal_move).with(legal_moves).and_return(legal_moves[0])
@@ -209,8 +203,6 @@ describe Game do
   end
 
   describe '#game_loop' do
-    let(:chess_board) { instance_double(Board) }
-
     context 'when given players array with two elements: [player_1, player_2]' do
       let(:player_1) { double('Playesr', color: :white) }
       let(:player_2) { instance_double(Player, color: :black) }
@@ -386,7 +378,6 @@ describe Game do
   end
 
   describe '#announce_winner' do
-    let(:chess_board) { instance_double(Board) }
     let(:player_1) { double('Playesr', color: :white) }
     let(:player_2) { instance_double(Player, color: :black) }
     let(:players) { [player_1, player_2] }
@@ -453,6 +444,126 @@ describe Game do
           expect(winner_game).to receive(:puts).with(message).once
           winner_game.announce_winner
         end
+      end
+    end
+  end
+
+  describe '#input_hub' do
+    subject(:input_game) { described_class.new(nil, nil, chess_board) }
+
+    context 'when #basic_input returned :s symbol' do
+      it 'invokes #save_game method' do
+        allow(input_game).to receive(:basic_input).and_return(:s)
+        expect(input_game).to receive(:save_game)
+        input_game.input_hub
+      end
+
+      it 'returns nil' do
+        allow(input_game).to receive(:basic_input).and_return(:s)
+        allow(input_game).to receive(:save_game)
+        result = input_game.input_hub
+        expect(result).to be_nil
+      end
+    end
+
+    context 'when #basic_input returned a square position' do
+      it 'returns that position' do
+        position = { x: 2, y: 3 }
+        allow(input_game).to receive(:basic_input).and_return(position)
+        result = input_game.input_hub
+        expect(result).to eq(position)
+      end
+    end
+  end
+
+  describe '#basic_input' do
+    subject(:input_game) { described_class.new(nil, nil, chess_board) }
+
+    context 'when given correct input on first try' do
+      it 'doesn\'t send error message' do
+        allow(input_game).to receive(:gets).and_return('h6')
+        error_message = 'Wrong input!'
+        expect(input_game).not_to receive(:puts).with(error_message)
+        input_game.basic_input
+      end
+    end
+
+    context 'when given correct input on third try' do
+      it 'sends error message 2 times' do
+        allow(input_game).to receive(:gets).and_return('w', 'a0', 's')
+        error_message = 'Wrong input!'
+        expect(input_game).to receive(:puts).with(error_message).twice
+        input_game.basic_input
+      end
+    end
+
+    context 'when given correct input' do
+      it 'returns #verify_input method' do
+        input = 'h2'
+        allow(input_game).to receive(:gets).and_return(input)
+        verified_input = input_game.verify_input(input)
+        result = input_game.basic_input
+        expect(result).to eq(verified_input)
+      end
+    end
+  end
+
+  describe '#verify_input' do
+    subject(:input_game) { described_class.new(nil, nil, chess_board) }
+
+    context 'when given input is equal to \'s\'' do
+      it 'returns symbol :s' do
+        input = 's'
+        expected = :s
+        result = input_game.verify_input(input)
+        expect(result).to eq(expected)
+      end
+    end
+
+    context 'when given input is 2 characters long string with characters in correct range' do
+      let(:square) { double('Square', position: { x: 2, y: 2 }) }
+
+      it 'returns translated input' do
+        input = 'b2'
+        result = input_game.verify_input(input)
+        expected = { x: 2, y: 2 }
+        expect(result).to eq(expected)
+      end
+    end
+
+    context 'when given input is not valid' do
+      it 'returns nil' do
+        input = 'dw'
+        result = input_game.verify_input(input)
+        expect(result).to be_nil
+      end
+    end
+  end
+
+  describe '#load_save?' do
+    subject(:load_game) { described_class.new(nil, nil, chess_board) }
+
+    context 'when player inputted \'y\' the first time' do
+      it 'returns true' do
+        allow(load_game).to receive(:load_choice).and_return('y')
+        result = load_game.load_save?
+        expect(result).to be true
+      end
+    end
+
+    context 'when player inputted \'n\' the first time' do
+      it 'returns false' do
+        allow(load_game).to receive(:load_choice).and_return('n')
+        result = load_game.load_save?
+        expect(result).to be false
+      end
+    end
+
+    context 'when player provided wrong input 3 times' do
+      it 'displays error message 3 times' do
+        allow(load_game).to receive(:load_choice).and_return('d', '2', 'w', 'n')
+        expect(load_game).to receive(:puts).with('Wrong input!').exactly(3).times
+        result = load_game.load_save?
       end
     end
   end
