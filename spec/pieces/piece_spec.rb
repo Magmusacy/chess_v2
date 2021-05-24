@@ -1,9 +1,10 @@
+require_relative 'shared_piece_spec'
 require_relative '../../lib/pieces/piece'
 require_relative '../../lib/square'
 require_relative '../../lib/board'
 
 describe Piece do
-  let(:board) { instance_double(Board) }
+  let(:chess_board) { instance_double(Board) }
 
   describe '#move' do
     let(:start_square) { instance_double(Square) }
@@ -14,28 +15,28 @@ describe Piece do
     before do
       allow(square).to receive(:update_piece).with(piece)
       allow(start_square).to receive(:update_piece)
-      allow(board).to receive(:add_move).with(move_array)
+      allow(chess_board).to receive(:add_move).with(move_array)
       allow(piece).to receive(:update_location)
     end
 
     it 'sends :add_move message to Board with [location, square] argument' do
-      expect(board).to receive(:add_move).with(move_array)
-      piece.move(square, board)
+      expect(chess_board).to receive(:add_move).with(move_array)
+      piece.move(square, chess_board)
     end
 
     it 'sends :update_piece message with self to given square' do
       expect(square).to receive(:update_piece).with(piece)
-      piece.move(square, board)
+      piece.move(square, chess_board)
     end
 
     it 'sends :update_piece message without any args to self location' do
       expect(start_square).to receive(:update_piece).with(no_args)
-      piece.move(square, board)
+      piece.move(square, chess_board)
     end
 
     it 'calls #update_location method with given square as an argument' do
       expect(piece).to receive(:update_location).with(square)
-      piece.move(square, board)
+      piece.move(square, chess_board)
     end
   end
 
@@ -50,7 +51,7 @@ describe Piece do
     end
   end
 
-  describe '#clone_move' do
+  describe '#clone_objects' do
     let(:clone_board) { instance_double(Board) }
     let(:real_board) { instance_double(Board) }
     let(:clone_square) { instance_double(Square, piece: nil) }
@@ -63,33 +64,47 @@ describe Piece do
     # whereas Marshalling changes object and it's attributes
 
     before do
-      allow(Marshal).to receive(:dump).with(real_piece).and_return(clone_piece)
-      allow(Marshal).to receive(:load).with(clone_piece).and_return(clone_piece)
-      allow(Marshal).to receive(:dump).with(real_square).and_return(clone_square)
-      allow(Marshal).to receive(:load).with(clone_square).and_return(clone_square)
-      allow(Marshal).to receive(:dump).with(real_board).and_return(clone_board)
-      allow(Marshal).to receive(:load).with(clone_board).and_return(clone_board)
-      allow(clone_piece).to receive(:move).with(clone_square, clone_board)
+      allow(Marshal).to receive(:dump)
+      allow(Marshal).to receive(:load)
     end
 
-    it 'sends :dump message to Marshal class 3 times' do
-      expect(Marshal).to receive(:dump).exactly(3).times
-      real_piece.clone_move(real_board, real_piece, real_square)
+    context 'when marshalling Piece object' do
+      it 'sends :dump message to Marshal class with Piece object' do
+        expect(Marshal).to receive(:dump).with(real_piece).and_return(clone_piece)
+        real_piece.clone_objects(real_board, real_piece, real_square)
+      end
+
+      it 'sends :load message to Marshal class with the result of dumping Piece object' do
+        allow(Marshal).to receive(:dump).with(real_piece).and_return(clone_piece)
+        expect(Marshal).to receive(:load).with(clone_piece)
+        real_piece.clone_objects(real_board, real_piece, real_square)
+      end
     end
 
-    it 'sends :load message to Marshal class 3 times' do
-      expect(Marshal).to receive(:load).exactly(3).times
-      real_piece.clone_move(real_board, real_piece, real_square)
+    context 'when marshalling Square object' do
+      it 'sends :dump message to Marshal class with Square object' do
+        expect(Marshal).to receive(:dump).with(real_square).and_return(clone_square)
+        real_piece.clone_objects(real_board, real_piece, real_square)
+      end
+
+      it 'sends :load message to Marshal class with the result of dumping Square object' do
+        allow(Marshal).to receive(:dump).with(real_square).and_return(clone_square)
+        expect(Marshal).to receive(:load).with(clone_square)
+        real_piece.clone_objects(real_board, real_piece, real_square)
+      end
     end
 
-    it 'sends :move message to cloned piece, with cloned square and cloned board' do
-      expect(clone_piece).to receive(:move).with(clone_square, clone_board)
-      real_piece.clone_move(real_board, real_piece, real_square)
-    end
+    context 'when marshalling Board object' do
+      it 'sends :dump message to Marshal class with Board object' do
+        expect(Marshal).to receive(:dump).with(real_board)
+        real_piece.clone_objects(real_board, real_piece, real_square)
+      end
 
-    it 'returns cloned board' do
-      result = real_piece.clone_move(real_board, real_piece, real_square)
-      expect(result).to eq(clone_board)
+      it 'sends :load message to Marshal class with the result of dumping Board object' do
+        allow(Marshal).to receive(:dump).with(real_board).and_return(clone_board)
+        expect(Marshal).to receive(:load).with(clone_board)
+        real_piece.clone_objects(real_board, real_piece, real_square)
+      end
     end
   end
 
@@ -97,7 +112,6 @@ describe Piece do
     context 'when Piece object has :white color' do
       let(:opponent_color) { :black }
       let(:piece_color) { :white }
-      let(:clone_board) { instance_double(Board) }
       subject(:illegal_piece) { described_class.new(nil, piece_color, nil) }
 
       context 'when given Board on which :white King is under attack' do
@@ -106,13 +120,13 @@ describe Piece do
         let(:enemy_squares) { [double('Square', taken?: true, piece: enemy_piece1)] }
 
         before do
-          allow(enemy_piece1).to receive(:possible_moves).with(clone_board).and_return([wht_king])
-          allow(clone_board).to receive(:squares_taken_by).with(opponent_color).and_return(enemy_squares)
-          allow(clone_board).to receive(:get_king_square).with(piece_color).and_return(wht_king)
+          allow(enemy_piece1).to receive(:possible_moves).with(chess_board).and_return([wht_king])
+          allow(chess_board).to receive(:squares_taken_by).with(opponent_color).and_return(enemy_squares)
+          allow(chess_board).to receive(:get_king_square).with(piece_color).and_return(wht_king)
         end
 
         it 'returns true' do
-          result = illegal_piece.illegal?(clone_board, opponent_color)
+          result = illegal_piece.illegal?(chess_board)
           expect(result).to be true
         end
       end
@@ -123,24 +137,38 @@ describe Piece do
         let(:enemy_squares) { [double('Square', taken?: true, piece: enemy_piece1)] }
 
         before do
-          allow(enemy_piece1).to receive(:possible_moves).with(clone_board).and_return([])
-          allow(clone_board).to receive(:squares_taken_by).with(opponent_color).and_return(enemy_squares)
-          allow(clone_board).to receive(:get_king_square).with(piece_color).and_return(wht_king)
+          allow(enemy_piece1).to receive(:possible_moves).with(chess_board).and_return([])
+          allow(chess_board).to receive(:squares_taken_by).with(opponent_color).and_return(enemy_squares)
+          allow(chess_board).to receive(:get_king_square).with(piece_color).and_return(wht_king)
         end
 
         it 'returns false' do
-          result = illegal_piece.illegal?(clone_board, opponent_color)
+          result = illegal_piece.illegal?(chess_board)
           expect(result).to be false
         end
       end
     end
   end
 
+  describe '#clone_board_move' do
+    let(:move_square) { instance_double(Square, piece: nil) }
+    let(:dbl_piece) { instance_double(Piece) }
+    subject(:piece) { described_class.new(nil, :white, nil) }
+
+    it 'sends correct :move message to Piece object' do
+      expect(dbl_piece).to receive(:move).with(move_square, chess_board)
+      piece.clone_board_move(chess_board, dbl_piece, move_square)
+    end
+
+    it 'returns Board object' do
+      allow(dbl_piece).to receive(:move).with(move_square, chess_board)
+      result = piece.clone_board_move(chess_board, dbl_piece, move_square)
+      expect(result).to eq(chess_board)
+    end
+  end
+
   describe '#discard_illegal_moves' do
-    let(:opponent_color) { :black }
-    let(:real_color) { :white }
-    let(:real_board) { instance_double(Board) }
-    subject(:real_piece) { described_class.new(nil, real_color, nil) }
+    subject(:real_piece) { described_class.new(nil, :white, nil) }
 
     context 'when possible_moves has 1 move' do
     let(:real_square_1) { instance_double(Square, piece: nil) }
@@ -149,12 +177,13 @@ describe Piece do
 
       context 'when that move is illegal' do
         before do
-          allow(real_piece).to receive(:clone_move).with(real_board, real_piece, real_square_1).and_return(clone_board_1)
-          allow(real_piece).to receive(:illegal?).with(clone_board_1, opponent_color).and_return(true)
+          allow(real_piece).to receive(:clone_objects).and_return(clone_board_1)
+          allow(real_piece).to receive(:clone_board_move).and_return(clone_board_1)
+          allow(real_piece).to receive(:illegal?).with(clone_board_1).and_return(true)
         end
 
         it 'returns empty array' do
-          result = real_piece.discard_illegal_moves(real_board, opponent_color, possible_moves)
+          result = real_piece.discard_illegal_moves(chess_board, possible_moves)
           expect(result).to be_empty
         end
       end
@@ -169,14 +198,14 @@ describe Piece do
 
       context 'when only the first move is illegal' do
         before do
-          allow(real_piece).to receive(:clone_move).with(real_board, real_piece, real_square_1).and_return(clone_board_1)
-          allow(real_piece).to receive(:clone_move).with(real_board, real_piece, real_square_2).and_return(clone_board_2)
-          allow(real_piece).to receive(:illegal?).with(clone_board_1, opponent_color).and_return(true)
-          allow(real_piece).to receive(:illegal?).with(clone_board_2, opponent_color).and_return(false)
+          allow(real_piece).to receive(:clone_objects).and_return(clone_board_1, clone_board_2)
+          allow(real_piece).to receive(:clone_board_move).and_return(clone_board_1, clone_board_2)
+          allow(real_piece).to receive(:illegal?).with(clone_board_1).and_return(true)
+          allow(real_piece).to receive(:illegal?).with(clone_board_2).and_return(false)
         end
 
         it 'returns array with only second move' do
-          result = real_piece.discard_illegal_moves(real_board, opponent_color, possible_moves)
+          result = real_piece.discard_illegal_moves(chess_board, possible_moves)
           expect(result).to eq([real_square_2])
         end
       end
@@ -184,10 +213,8 @@ describe Piece do
   end
 
   describe '#discard_related_squares' do
-    let(:opponent_color) { :black }
     let(:white_piece_dbl) { double('Piece', color: :white) }
     let(:black_piece_dbl) { double('Piece', color: :black) }
-    let(:real_board) { instance_double(Board) }
 
     context 'when given :white Piece' do
       subject(:wht_piece) { described_class.new(nil, :white) }
