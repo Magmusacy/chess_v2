@@ -17,7 +17,7 @@ describe King do
     include_examples 'shared method names'
   end
 
-  describe '#possible_moves' do
+  describe '#possible_moves' do # possible moves calluje ten no castling
     context 'when given King { x: 4, y: 4 }' do
     subject(:possible_king) { described_class.new(nil, :white) }
     let(:white_piece) { instance_double(Piece, color: :white) }
@@ -28,6 +28,7 @@ describe King do
       allow(possible_king).to receive(:horizontal_move).and_return([])
       allow(possible_king).to receive(:vertical_move).and_return([])
       allow(possible_king).to receive(:diagonal_move).and_return([])
+      allow(possible_king).to receive(:castling_move).and_return([])
     end
 
       context 'when only #horizontal_move with x = -1 returns a possible legal move' do
@@ -115,6 +116,19 @@ describe King do
         it 'returns an array with 1 possible move' do
           result = possible_king.possible_moves(chess_board)
           expect(result).to match_array(possible_move)
+        end
+      end
+
+      context 'when only #castling_move with x = 1 and x = -1 are possible' do
+        before do
+          allow(possible_king).to receive(:castling_move).with(chess_board, 1).and_return(possible_move)
+          allow(possible_king).to receive(:castling_move).with(chess_board, -1).and_return(possible_move)
+        end
+
+        it 'returns an array with 2 possible move' do
+          result = possible_king.possible_moves(chess_board)
+          expected = [possible_move, possible_move].flatten
+          expect(result).to match_array(expected)
         end
       end
 
