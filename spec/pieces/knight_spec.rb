@@ -148,5 +148,19 @@ describe Knight do
         end
       end
     end
+
+    context 'when given move results in nil' do
+      let(:start_square_44) { double('Square', position: { x: 4, y: 4 }) }
+      subject(:knight_44) { described_class.new(start_square_44) }
+      let(:move_square) { [double('square')] }
+
+      it 'returns empty array' do
+          x = -2
+          y = -1
+          allow(chess_board).to receive(:get_relative_square).with(start_square_44, x: -2, y: -1).and_return(nil)
+          result = knight_44.knight_move(chess_board, x, y)
+          expect(result).to be_empty
+      end
+    end
   end
 end

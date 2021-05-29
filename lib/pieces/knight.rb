@@ -10,6 +10,6 @@ class Knight < Piece
   end
 
   def knight_move(board, x, y)
-    board.get_relative_square(location, x: x, y: y)
+    board.get_relative_square(location, x: x, y: y) || []
   end
 end
