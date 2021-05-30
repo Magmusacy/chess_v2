@@ -70,7 +70,8 @@ describe Board do
 
   describe '#get_square' do
     context 'when given position { x: 2, y: 2 }' do
-      let(:board) { [instance_double(Square, position: { x: 2, y:2 })] }
+      let(:exp_sqr_22) { instance_double(Square, position: { x: 2, y:2 }) }
+      let(:board) { [exp_sqr_22] }
       subject(:chess_board) { described_class.new(board) }
 
       it 'returns only one square with given position' do
@@ -142,7 +143,7 @@ describe Board do
 
       it 'returns square with :black King piece on it' do
         result = chess_board.get_king_square(:black)
-        expect(result).to eq(black_king)
+        expect(result).to eq(black_square)
       end
     end
 
@@ -153,7 +154,7 @@ describe Board do
 
       it 'returns square with :white King piece on it' do
         result = chess_board.get_king_square(:white)
-        expect(result).to eq(white_king)
+        expect(result).to eq(white_square)
       end
     end
   end
