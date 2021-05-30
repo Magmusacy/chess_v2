@@ -17,6 +17,6 @@ module SquareAccessor
   end
 
   def get_king_square(color)
-    squares_taken_by(color).map(&:piece).find { |piece| piece.is_a?(King) }
+    squares_taken_by(color).find { |square| square.piece.is_a?(King) }
   end
 end
