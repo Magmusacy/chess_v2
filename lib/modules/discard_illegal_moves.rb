@@ -6,8 +6,8 @@ module DiscardIllegalMoves
   def discard_illegal_moves(chess_board, possible_moves)
     possible_moves.reject do |move_square|
       clone_board, clone_piece, clone_square = clone_objects(chess_board, self, move_square)
-      board_clone = clone_board_move(clone_board, clone_piece, clone_square)
-      illegal?(board_clone)
+      clone_piece.move(clone_square, clone_board)
+      illegal?(clone_board)
     end
   end
 
@@ -23,14 +23,10 @@ module DiscardIllegalMoves
 
   def clone_objects(real_board, real_piece, real_square)
     clone_board = Marshal.load(Marshal.dump(real_board))
-    clone_piece = Marshal.load(Marshal.dump(real_piece))
-    clone_square = Marshal.load(Marshal.dump(real_square))
+    piece_position = self.location.position
+    clone_piece = clone_board.get_square(piece_position).piece
+    clone_square = clone_board.get_square(real_square.position)
     [clone_board, clone_piece, clone_square]
-  end
-
-  def clone_board_move(board, piece, square)
-    piece.move(square, board)
-    board
   end
 
   private
