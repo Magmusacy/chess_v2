@@ -21,7 +21,10 @@ module Castling
 
   def columns_attacked?(board, x)
     columns = get_columns(board, x)
-    !(columns == discard_illegal_moves(board, columns))
+    enemy_pieces = board.squares_taken_by(opponent_color).map(&:piece)
+    columns.any? do |columns|
+      enemy_pieces.any? { |piece| piece.possible_moves(board).include?(columns) }
+    end
   end
 
   def get_columns(board, x)
