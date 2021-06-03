@@ -342,6 +342,8 @@ describe King do
     let(:empty_square) { double('emptySquare', taken?: false) }
     let(:wht_rook) { double('Rook', color: :white, is_a?: true) }
     let(:rook_square) { instance_double(Square, position: { x: 8, y: 1 }, taken?: true, piece: wht_rook) }
+    let(:enemy_piece) { double('Piece') }
+    let(:enemy_square) { double('square', taken: true, piece: enemy_piece) }
     let(:square_71) { instance_double(Square, position: { x: 7, y: 1 }, taken?: false) }
 
     before do
@@ -349,54 +351,96 @@ describe King do
       allow(chess_board).to receive(:recorded_moves).and_return([])
       allow(chess_board).to receive(:get_relative_square).with(start_square_51, x: 1).and_return(empty_square)
       allow(chess_board).to receive(:get_relative_square).with(start_square_51, x: 2).and_return(square_71)
+      allow(chess_board).to receive(:squares_taken_by).and_return([enemy_square])
+      allow(enemy_piece).to receive(:possible_moves).with(chess_board).and_return([])
     end
 
-    context 'when :white King on initial square and castling with x = 1 is available' do
-      before do
-        col_squares = [empty_square, square_71]
-        allow(castling_king).to receive(:discard_illegal_moves).and_return(col_squares)
+    context 'when :white King on initial square { x: 5, y: 1 }' do
+      context 'when castling with x = 1 is available' do
+        before do
+          col_squares = [empty_square, square_71]
+          allow(castling_king).to receive(:discard_illegal_moves).and_return(col_squares)
+        end
+
+        it 'returns Square { x: 7, y: 1 }' do
+          x = 1
+          result = castling_king.castling_move(chess_board, x)
+          expected = square_71
+          expect(result).to be(square_71)
+        end
       end
 
-      it 'returns Square { x: 7, y: 1 }' do
-        x = 1
-        result = castling_king.castling_move(chess_board, x)
-        expected = square_71
-        expect(result).to be(square_71)
-      end
-    end
+      context 'when with x = -1 is available' do
+        let(:square_31) { instance_double(Square, position: { x: 3, y: 1 }, taken?: false) }
 
-    context 'when :white King on initial square and castling with x = -1 is available' do
-      let(:square_31) { instance_double(Square, position: { x: 3, y: 1 }, taken?: false) }
+        before do
+          col_squares = [empty_square, square_31, empty_square]
+          allow(castling_king).to receive(:discard_illegal_moves).and_return(col_squares)
+          allow(chess_board).to receive(:get_relative_square).with(start_square_51, x: -1).and_return(empty_square)
+          allow(chess_board).to receive(:get_relative_square).with(start_square_51, x: -2).and_return(square_31)
+          allow(chess_board).to receive(:get_relative_square).with(start_square_51, x: -3).and_return(empty_square)
+        end
 
-      before do
-        col_squares = [empty_square, square_31, empty_square]
-        allow(castling_king).to receive(:discard_illegal_moves).and_return(col_squares)
-        allow(chess_board).to receive(:get_relative_square).with(start_square_51, x: -1).and_return(empty_square)
-        allow(chess_board).to receive(:get_relative_square).with(start_square_51, x: -2).and_return(square_31)
-        allow(chess_board).to receive(:get_relative_square).with(start_square_51, x: -3).and_return(empty_square)
-      end
-
-      it 'returns Square { x: 3, y: 1 }' do
-        x = -1
-        result = castling_king.castling_move(chess_board, x)
-        expected = square_31
-        expect(result).to be(square_31)
-      end
-    end
-
-    context 'when King has to move through attacked square' do
-      let(:attacked_square) { double('attacjedSquare', taken?: false) }
-
-      before do
-        col_squares = [attacked_square, square_71]
-        allow(castling_king).to receive(:discard_illegal_moves).with(chess_board, col_squares).and_return([empty_square])
-        allow(chess_board).to receive(:get_relative_square).with(start_square_51, x: 1).and_return(attacked_square)
+        it 'returns Square { x: 3, y: 1 }' do
+          x = -1
+          result = castling_king.castling_move(chess_board, x)
+          expected = square_31
+          expect(result).to be(square_31)
+        end
       end
 
-      it 'returns empty array' do
-        x = 1
-        result = castling_king.castling_move(chess_board, x)
-        expect(result).to be_empty
+      context 'when King has to move through attacked square' do
+        let(:attacked_square) { double('attacjedSquare', taken?: false) }
+
+        before do
+          col_squares = [attacked_square, square_71]
+          allow(chess_board).to receive(:squares_taken_by).and_return([enemy_square])
+          allow(enemy_piece).to receive(:possible_moves).with(chess_board).and_return([attacked_square])
+          allow(castling_king).to receive(:discard_illegal_moves).with(chess_board, col_squares).and_return([empty_square])
+          allow(chess_board).to receive(:get_relative_square).with(start_square_51, x: 1).and_return(attacked_square)
+        end
+
+        it 'returns empty array' do
+          x = 1
+          result = castling_king.castling_move(chess_board, x)
+          expect(result).to be_empty
+        end
+      end
+
+      context 'when there is no correct Rook on the specified side' do
+        let(:attacked_square) { double('attacjedSquare', taken?: false) }
+        let(:enemy_piece) { double('Piece') }
+        let(:square_71) { instance_double(Square, position: { x: 7, y: 1 }, taken?: false) }
+        before do
+
+          col_squares = [empty_square, square_71]
+          allow(castling_king).to receive(:discard_illegal_moves).and_return(col_squares)
+          allow(castling_king).to receive(:get_rook).and_return(nil)
+        end
+
+        it 'returns empty array' do
+          x = 1
+          result = castling_king.castling_move(chess_board, x)
+          expect(result).to be_empty
+        end
+      end
+
+      context 'when Rook on the specified side has made a move before' do
+        let(:attacked_square) { double('attacjedSquare', taken?: false) }
+        let(:enemy_piece) { double('Piece') }
+        let(:square_71) { instance_double(Square, position: { x: 7, y: 1 }, taken?: false) }
+
+        before do
+          col_squares = [empty_square, square_71]
+          allow(castling_king).to receive(:discard_illegal_moves).and_return(col_squares)
+          allow(chess_board).to receive(:recorded_moves).and_return([[rook_square]])
+        end
+
+        it 'returns empty array' do
+          x = 1
+          result = castling_king.castling_move(chess_board, x)
+          expect(result).to be_empty
+        end
       end
     end
 
@@ -405,58 +449,6 @@ describe King do
         col_squares = [empty_square, square_71]
         allow(castling_king).to receive(:discard_illegal_moves).and_return(col_squares)
         allow(chess_board).to receive(:recorded_moves).and_return([[start_square_51]])
-      end
-
-      it 'returns empty array' do
-        x = 1
-        result = castling_king.castling_move(chess_board, x)
-        expect(result).to be_empty
-      end
-    end
-
-    context 'when Rook on the specified side has made a move before' do
-      let(:attacked_square) { double('attacjedSquare', taken?: false) }
-      let(:enemy_piece) { double('Piece') }
-      let(:square_71) { instance_double(Square, position: { x: 7, y: 1 }, taken?: false) }
-
-      before do
-        col_squares = [empty_square, square_71]
-        allow(castling_king).to receive(:discard_illegal_moves).and_return(col_squares)
-        allow(chess_board).to receive(:recorded_moves).and_return([[rook_square]])
-      end
-
-      it 'returns empty array' do
-        x = 1
-        result = castling_king.castling_move(chess_board, x)
-        expect(result).to be_empty
-      end
-    end
-
-    context 'when there is no correct Rook on the specified side' do
-      let(:attacked_square) { double('attacjedSquare', taken?: false) }
-      let(:enemy_piece) { double('Piece') }
-      let(:square_71) { instance_double(Square, position: { x: 7, y: 1 }, taken?: false) }
-
-      before do
-        col_squares = [empty_square, square_71]
-        allow(castling_king).to receive(:discard_illegal_moves).and_return(col_squares)
-        allow(castling_king).to receive(:get_rook).and_return(nil)
-      end
-
-      it 'returns empty array' do
-        x = 1
-        result = castling_king.castling_move(chess_board, x)
-        expect(result).to be_empty
-      end
-    end
-
-    context 'when there are occupied squares between King and Rook' do
-      let(:taken_square) { double('takenSquare', taken?: true) }
-
-      before do
-        col_squares = [empty_square, taken_square]
-        allow(castling_king).to receive(:discard_illegal_moves).and_return(col_squares)
-        allow(chess_board).to receive(:get_relative_square).with(start_square_51, x: 2).and_return(taken_square)
       end
 
       it 'returns empty array' do
