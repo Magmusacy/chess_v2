@@ -12,6 +12,7 @@ class Game
   include PiecesCreator
   include PlayerCreator
   include SaveLoad
+  include AI
 
   attr_reader :player_white, :player_black, :chess_board, :players
 
@@ -58,26 +59,7 @@ class Game
   end
 
   def player_move(player)
-    player.type == :human ? human_move(player) : ai_move(player)
-  end
-
-  def human_move(player)
-    loop do
-      begin
-        square = pick(player)
-        move = pick(player, square)
-        raise NoMethodError if move.nil?
-
-        return square.piece.move(move, chess_board)
-      rescue NoMethodError
-        puts 'Chosen wrong square, try again'
-      end
-    end
-  end
-
-  def select_square(squares)
-    position = input_hub
-    return squares.find { |sqr| sqr.position == position } unless position.nil?
+    player.type == :human ? player.human_move(chess_board, self) : ai_move(player)
   end
 
   def ai_move(player)
@@ -85,53 +67,8 @@ class Game
     square = player.ai_pick_square(chess_board)
     legal_moves = square.piece.legal_moves(chess_board)
     chess_board.display(square, legal_moves)
-    move = player.ai_pick_legal_move(legal_moves)
-    square.piece.move(move, chess_board)
-  end
-
-  def input_hub
-    input = basic_input
-    input == :s ? save_game : input
-  end
-
-  def basic_input
-    loop do
-      player_input = gets.chomp
-      verified_input = verify_input(player_input)
-      return verified_input if verified_input
-
-      puts 'Wrong input!'
-    end
-  end
-
-  def verify_input(input)
-    if input == 's'
-      :s
-    elsif square_input?(input)
-      translate(input)
-    end
-  end
-
-  private
-
-  def pick(player, chosen_square = :deafult, legal_moves = [])
-    if chosen_square == :deafult
-      chess_board.display
-      available_squares = chess_board.squares_taken_by(player.color)
-    else
-      available_squares = chosen_square.piece.legal_moves(chess_board)
-      chess_board.display(chosen_square, available_squares)
-    end
-    select_square(available_squares)
-  end
-
-  def square_input?(input)
-    return true if input.length == 2 && input[0].between?('a', 'h') && input[1].between?('1', '8')
-  end
-
-  def translate(input)
-    x = (input[0].ord - 'a'.ord) + 1
-    y = input[1].to_i
-    { x: x, y: y }
+    move = player.ai_pick_legal_move(square.piece, chess_board, legal_moves)
+    square.piece.move(move, chess_board) # moze AI powinno byc includowane w game :D
+    # to chyba powinno byc w ai w sensie to samo .move, ai_pick_legal_move powinno to miec
   end
 end

@@ -3,84 +3,140 @@
 require_relative '../lib/player'
 require_relative '../lib/square'
 require_relative '../lib/board'
+require_relative '../lib/game'
 require_relative '../lib/modules/special_conditions'
 
 describe Player do
-  subject(:player_human) { described_class.new(:black, :human) }
+  let(:chess_board) { instance_double(Board) }
+  let(:game) { instance_double(Game) }
+  subject(:human) { described_class.new(:white, :human) }
 
-  describe '#input' do
-    context 'when player is human' do
-      context 'when given input is invalid' do
-        before do
-          allow(player_human).to receive(:gets).and_return('taco')
-          allow(player_human).to receive(:translate_input)
-          allow(player_human).to receive(:verify_input).and_return(nil, 'b2')
-        end
+  describe '#human_move' do
+    let(:piece) { instance_double(Piece) }
+    let(:square) { instance_double(Square, piece: piece) }
+    let(:move) { instance_double(Square, position: { x: 6, y: 4 }) }
 
-        it 'outputs error message' do
-          error_msg = 'Wrong square specified, to specify square type first it\'s column, then it\'s row like: b2'
-          expect(player_human).to receive(:puts).with(error_msg).once
-          player_human.input
-        end
+    context 'when moving Piece' do
+      before do
+        allow(chess_board).to receive(:display)
+        allow(chess_board).to receive(:squares_taken_by).with(:white).and_return(square)
+        allow(piece).to receive(:legal_moves).with(chess_board).and_return(move)
+        allow(piece).to receive(:move)
+        allow(human).to receive(:select_square).and_return(square, move)
       end
 
-      context 'when given input is valid' do
-        before do
-          allow(player_human).to receive(:gets).and_return('b2')
-          allow(player_human).to receive(:translate_input)
-          allow(player_human).to receive(:verify_input).and_return({ x: 2, y: 2 })
-        end
+      it 'does not raise an error' do
+        expect { human.human_move(chess_board, game) }.not_to raise_error
+      end
 
-        it 'doesn\'t output error message' do
-          error_msg = 'Wrong square specified, to specify square type first it\'s column, then it\'s row like: b2'
-          expect(player_human).not_to receive(:puts).with(error_msg)
-          player_human.input
-        end
+      it 'stops loop and sends :move message with correct square to Piece on chosen square' do
+        expect(piece).to receive(:move).with(move, chess_board)
+        human.human_move(chess_board, game)
+      end
+    end
+
+    context 'when chosen wrong square twice' do
+      before do
+        allow(chess_board).to receive(:display)
+        allow(chess_board).to receive(:squares_taken_by).with(:white).and_return(square)
+        allow(piece).to receive(:legal_moves).with(chess_board).once.and_return(move)
+        allow(piece).to receive(:move)
+        allow(human).to receive(:select_square).and_return(nil, nil, square, move)
+      end
+
+      it 'displays an error message 2 times' do
+        error_message = 'Chosen wrong square, try again'
+        expect(human).to receive(:puts).with(error_message).twice
+        human.human_move(chess_board, game)
+      end
+    end
+
+    context 'when chosen wrong move twice' do
+      let(:return_values) { [:raise, :raise, true] }
+
+      before do
+        allow(chess_board).to receive(:display)
+        allow(chess_board).to receive(:squares_taken_by).with(:white).and_return(square)
+        allow(piece).to receive(:legal_moves).with(chess_board).and_return(move)
+        allow(human).to receive(:select_square).and_return(square, nil, square, nil, square, move)
+        # Since move is called on Piece double, we need to manually raise the error
+        # using this method the error will be raised 2 times as expected
+        allow(piece).to receive(:move)
+      end
+
+      it 'displays an error message 2 times' do
+        error_message = 'Chosen wrong square, try again'
+        expect(human).to receive(:puts).with(error_message).twice
+        human.human_move(chess_board, game)
       end
     end
   end
 
-  describe '#verify_input' do
-    context 'when given input string \'b2\'' do
-      it 'returns given input' do
-        input = 'b2'
-        result = player_human.verify_input(input)
-        expect(result).to eq(input)
+  describe '#select_square' do
+    let(:correct_square) { instance_double(Square, position: { x: 2, y: 3 }) }
+
+    context 'when square with the chosen position is inside of squares array' do
+      before do
+        input_position = { x: 2, y: 3 }
+        allow(human).to receive(:input_hub).and_return(input_position)
+      end
+
+      it 'returns correct square object' do
+        squares = [correct_square]
+        result = human.select_square(squares, game)
+        expect(result).to eq(correct_square)
       end
     end
 
-    context 'when given input string length is not 2' do
+    context 'when square with the chosen position isn\'t inside of squares array' do
+      let(:correct_square) { instance_double(Square, position: { x: 5, y: 7 }) }
+
+      before do
+        input_position = { x: 5, y: 3 }
+        allow(human).to receive(:input_hub).and_return(input_position)
+      end
+
       it 'returns nil' do
-        input = 'bb2'
-        result = player_human.verify_input(input)
-        expect(result).to eq(nil)
+        squares = [correct_square]
+        result = human.select_square(squares, game)
+        expect(result).to be_nil
       end
     end
 
-    context 'when given input string first character is not between(\'a\'..\'h\')' do
-      it 'returns nil' do
-        input = 'j2'
-        result = player_human.verify_input(input)
-        expect(result).to eq(nil)
+    context 'when chosen position is nil' do
+      before do
+        allow(human).to receive(:input_hub).and_return(nil)
       end
-    end
 
-    context 'when given input string second character is not between(\'1\'..\'8\')' do
       it 'returns nil' do
-        input = 'a9'
-        result = player_human.verify_input(input)
-        expect(result).to eq(nil)
+        result = human.select_square([], game)
+        expect(result).to be_nil
       end
     end
   end
 
-  describe '#translate_input' do
-    context 'when given string \'a3\'' do
-      it 'returns hash { x: 1, y: 3 }' do
-        input = 'a3'
-        result = player_human.translate_input(input)
-        expected = { x: 1, y: 3 }
-        expect(result).to eq(expected)
+  describe '#input_hub' do
+    context 'when #basic_input returned :s symbol' do
+      it 'sends :save_game message to Game object' do
+        allow(human).to receive(:basic_input).and_return(:s)
+        expect(game).to receive(:save_game)
+        human.input_hub(game)
+      end
+
+      it 'returns nil' do
+        allow(human).to receive(:basic_input).and_return(:s)
+        allow(game).to receive(:save_game)
+        result = human.input_hub(game)
+        expect(result).to be_nil
+      end
+    end
+
+    context 'when #basic_input returned a square position' do
+      it 'returns that position' do
+        position = { x: 2, y: 3 }
+        allow(human).to receive(:basic_input).and_return(position)
+        result = human.input_hub(game)
+        expect(result).to eq(position)
       end
     end
   end
