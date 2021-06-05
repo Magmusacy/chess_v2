@@ -4,6 +4,7 @@ require_relative '../lib/player'
 require_relative '../lib/square'
 require_relative '../lib/board'
 require_relative '../lib/game'
+require_relative '../lib/pieces/pawn'
 require_relative '../lib/modules/special_conditions'
 
 describe Player do
@@ -141,7 +142,108 @@ describe Player do
     end
   end
 
-  describe '#ai_pick_square' do
+  subject(:ai) { described_class.new(:white, :ai) }
+
+  describe '#ai_move' do
+    let(:chess_board) { double('chess_board') }
+    let(:ai_game) { described_class.new(nil, nil, chess_board) }
+    let(:ai_player) { instance_double(Player, type: :ai) }
+    let(:piece) { instance_double(Piece) }
+    let(:ai_picked_square) { instance_double(Square) }
+    let(:legal_moves) { [ instance_double(Square) ] }
+    let(:pawn) { instance_double(Pawn) }
+
+    before do
+      allow(chess_board).to receive(:display)
+      allow(ai).to receive(:pick_square).with(chess_board).and_return(ai_picked_square)
+      allow(piece).to receive(:legal_moves).with(chess_board).and_return(legal_moves)
+      allow(ai).to receive(:pick_move).with(legal_moves).and_return(legal_moves[0])
+    end
+
+    context 'when Piece is not a Pawn with promotion move' do
+      it 'sends :move message to correct piece with legal move chosen by AI' do
+        allow(ai_picked_square).to receive(:piece).and_return(piece)
+        allow(ai).to receive(:pawn_promotion?).and_return(false)
+        expect(piece).to receive(:move).with(legal_moves[0], chess_board)
+        ai.ai_move(chess_board)
+      end
+    end
+
+    context 'when Piece is a Pawn with promotion move' do
+      it 'sends :promote message to Piece with legal move and random new piece' do
+        random_piece_symbol = :rook
+        allow(ai).to receive(:random_new_piece).and_return(random_piece_symbol)
+        allow(ai_picked_square).to receive(:piece).and_return(pawn)
+        allow(ai).to receive(:pawn_promotion?).and_return(true)
+        allow(pawn).to receive(:legal_moves).with(chess_board).and_return(legal_moves)
+        expect(pawn).to receive(:promote).with(legal_moves[0], chess_board, random_piece_symbol)
+        ai.ai_move(chess_board)
+      end
+    end
+  end
+
+  describe '#pawn_promotion?' do
+    let(:move) { instance_double(Square) }
+
+    context 'when piece is Pawn' do
+      let(:pawn) { instance_double(Pawn, is_a?: true) }
+
+      before do
+        allow(pawn).to receive(:promotion_move)
+      end
+
+      context 'when move square is in #promotion_move with x = 1' do
+        it 'returns true' do
+          allow(pawn).to receive(:promotion_move).with(chess_board, 1).and_return(move)
+          result = ai.pawn_promotion?(pawn, chess_board, move)
+          expect(result).to be true
+        end
+      end
+
+      context 'when move square is in #promotion_move with x = 0' do
+        it 'returns true' do
+          allow(pawn).to receive(:promotion_move).with(chess_board, 0).and_return(move)
+          result = ai.pawn_promotion?(pawn, chess_board, move)
+          expect(result).to be true
+        end
+      end
+
+      context 'when move square is in #promotion_move with x = -1' do
+        it 'returns true' do
+          allow(pawn).to receive(:promotion_move).with(chess_board, -1).and_return(move)
+          result = ai.pawn_promotion?(pawn, chess_board, move)
+          expect(result).to be true
+        end
+      end
+
+      context 'when move square is not in any #promotion_move' do
+        it 'returns false' do
+          result = ai.pawn_promotion?(pawn, chess_board, move)
+          expect(result).to be false
+        end
+      end
+    end
+
+    context 'when piece is not Pawn' do
+      let(:piece) { instance_double(Piece, is_a?: false) }
+
+      it 'returns nil' do
+        result = ai.pawn_promotion?(piece, chess_board, move)
+        expect(result).to be nil
+      end
+    end
+
+  end
+
+  describe '#random_new_piece' do
+    it 'selects correct random new Piece symbol' do
+      promotion_pieces = [:bishop, :knight, :queen, :rook]
+      result = ai.random_new_piece
+      expect(promotion_pieces).to include(result)
+    end
+  end
+
+  describe '#pick_square' do
     let(:chess_board) { instance_double(Board) }
 
     context 'when AI player color is :black' do
@@ -158,7 +260,7 @@ describe Player do
         end
 
         it 'returns square with that Piece' do
-          result = player_ai.ai_pick_square(chess_board)
+          result = player_ai.pick_square(chess_board)
           expect(result).to eq(black_square)
         end
       end
@@ -178,21 +280,22 @@ describe Player do
         end
 
         it 'returns square with that Piece' do
-          result = player_ai.ai_pick_square(chess_board)
+          result = player_ai.pick_square(chess_board)
           expect(result).to eq(white_square)
         end
       end
     end
   end
 
-  describe '#ai_pick_legal_move' do
+  describe '#pick_move' do
     subject(:player_ai) { described_class.new(:black, :ai) }
 
     context 'when given not empty #legal_moves array' do
       let(:legal_moves) { [instance_double(Square), instance_double(Square), instance_double(Square)] }
 
       it 'returns square from #legal_moves' do
-        expect(legal_moves).to include(player_ai.ai_pick_legal_move(legal_moves))
+        move = player_ai.pick_move(legal_moves)
+        expect(legal_moves).to include(move)
       end
     end
   end
