@@ -1,12 +1,19 @@
-require_relative 'special_conditions'
+# frozen_string_literal: true
 
+# DiscardIllegalMoves contains logic for discarding moves that either result in King being checked or taking our piece
 module DiscardIllegalMoves
-  include SpecialConditions
+  # The piece that Pawn will turn into is negligible here,
+  # rook is just here so that the prompt won't pop up during legal move evaluation
+  PROMOTE_PIECE = :rook
 
   def discard_illegal_moves(chess_board, possible_moves)
     possible_moves.reject do |move_square|
-      clone_board, clone_piece, clone_square = clone_objects(chess_board, self, move_square)
-      clone_piece.move(clone_square, clone_board)
+      clone_board, clone_piece, clone_square = clone_objects(chess_board, move_square)
+      if pawn_promotion?(chess_board, move_square)
+        clone_piece.promote(clone_square, clone_board, PROMOTE_PIECE)
+      else
+        clone_piece.move(clone_square, clone_board)
+      end
       illegal?(clone_board)
     end
   end
@@ -21,15 +28,23 @@ module DiscardIllegalMoves
     enemy_pieces.any? { |piece| piece.possible_moves(board_clone).include?(king_square) }
   end
 
-  def clone_objects(real_board, real_piece, real_square)
+  def clone_objects(real_board, real_square)
     clone_board = Marshal.load(Marshal.dump(real_board))
-    piece_position = self.location.position
+    piece_position = location.position
     clone_piece = clone_board.get_square(piece_position).piece
     clone_square = clone_board.get_square(real_square.position)
     [clone_board, clone_piece, clone_square]
   end
 
   private
+
+  def pawn_promotion?(chess_board, square)
+    return unless is_a?(Pawn)
+
+    [promotion_move(chess_board, 1),
+     promotion_move(chess_board, 0),
+     promotion_move(chess_board, -1)].flatten.include?(square)
+  end
 
   def opponent_color
     color == :white ? :black : :white
