@@ -302,277 +302,187 @@ describe Player do
 
   describe '#in_check?' do
     let(:chess_board) { instance_double(Board) }
+    let(:wht_king) { instance_double(King) }
+    let(:wht_square) { instance_double(Square, piece: wht_king) }
+    let(:blk_piece) { instance_double(Piece) }
+    let(:blk_square) { instance_double(Square, piece: blk_piece) }
+    subject(:checked_player) { described_class.new(:white, nil) }
 
-    context 'when method called on :white player' do
-      let(:wht_king) { instance_double(King) }
-      let(:wht_square) { instance_double(Square, piece: wht_king) }
-      let(:blk_piece) { instance_double(Piece) }
-      let(:blk_square) { instance_double(Square, piece: blk_piece) }
-      subject(:checked_player) { described_class.new(:white, nil) }
-
-      context 'when any :black player\'s piece attack :white player\'s king' do
-        before do
-          allow(blk_piece).to receive(:legal_moves).with(chess_board).and_return([wht_square])
-          allow(chess_board).to receive(:get_king_square).with(:white).and_return(wht_square)
-          allow(chess_board).to receive(:squares_taken_by).with(:black).and_return([blk_square])
-        end
-
-        it 'returns true' do
-          result = checked_player.in_check?(chess_board)
-          expect(result).to be true
-        end
+    context 'when any opponent\'s piece attack player\'s king' do
+      before do
+        allow(blk_piece).to receive(:legal_moves).with(chess_board).and_return([wht_square])
+        allow(chess_board).to receive(:get_king_square).with(:white).and_return(wht_square)
+        allow(chess_board).to receive(:squares_taken_by).with(:black).and_return([blk_square])
       end
 
-      context 'when none of :black player\'s pieces attack :white player\'s king' do
-        before do
-          allow(blk_piece).to receive(:legal_moves).with(chess_board).and_return([])
-          allow(chess_board).to receive(:get_king_square).with(:white).and_return(wht_square)
-          allow(chess_board).to receive(:squares_taken_by).with(:black).and_return([blk_square])
-        end
-
-        it 'returns false' do
-          result = checked_player.in_check?(chess_board)
-          expect(result).to be false
-        end
+      it 'returns true' do
+        result = checked_player.in_check?(chess_board)
+        expect(result).to be true
       end
     end
 
-    context 'when method called on :black player' do
-      let(:blk_king) { instance_double(King) }
-      let(:wht_piece) { instance_double(Piece) }
-      let(:blk_square) { instance_double(Square, piece: blk_king) }
-      let(:wht_square) { instance_double(Square, piece: wht_piece) }
-      subject(:checked_player) { described_class.new(:black, nil) }
-
-      context 'when any :white player\'s pieces attack :black player\'s king' do
-        before do
-          allow(wht_piece).to receive(:legal_moves).with(chess_board).and_return([blk_square])
-          allow(chess_board).to receive(:get_king_square).with(:black).and_return(blk_square)
-          allow(chess_board).to receive(:squares_taken_by).with(:white).and_return([wht_square])
-        end
-
-        it 'returns true' do
-          result = checked_player.in_check?(chess_board)
-          expect(result).to be true
-        end
+    context 'when none of opponent\'s pieces attack player\'s king' do
+      before do
+        allow(blk_piece).to receive(:legal_moves).with(chess_board).and_return([])
+        allow(chess_board).to receive(:get_king_square).with(:white).and_return(wht_square)
+        allow(chess_board).to receive(:squares_taken_by).with(:black).and_return([blk_square])
       end
 
-      context 'when none of :white player\'s pieces attack :black player\'s king' do
-        before do
-          allow(wht_piece).to receive(:legal_moves).with(chess_board).and_return([])
-          allow(chess_board).to receive(:get_king_square).with(:black).and_return(blk_square)
-          allow(chess_board).to receive(:squares_taken_by).with(:white).and_return([wht_square])
-        end
-
-        it 'returns false' do
-          result = checked_player.in_check?(chess_board)
-          expect(result).to be false
-        end
+      it 'returns false' do
+        result = checked_player.in_check?(chess_board)
+        expect(result).to be false
       end
     end
-
   end
 
   describe '#in_checkmate?' do
     let(:chess_board) { instance_double(Board) }
 
-    context 'when method called on :white player' do
-      let(:player_color) { :white }
-      let(:opponent_color) { :black }
-      let(:blk_piece) { instance_double(Piece) }
-      let(:blk_square) { instance_double(Square, piece: blk_piece) }
-      subject(:checkmated_player) { described_class.new(player_color, nil) }
+    let(:player_color) { :white }
+    let(:opponent_color) { :black }
+    let(:blk_piece) { instance_double(Piece) }
+    let(:blk_square) { instance_double(Square, piece: blk_piece) }
+    subject(:checkmated_player) { described_class.new(player_color, nil) }
 
-      context 'when :white player is in check, and all of his pieces have no legal moves' do
-        before do
-          allow(checkmated_player).to receive(:in_check?).with(chess_board).and_return(true)
-          allow(chess_board).to receive(:squares_taken_by).with(player_color).and_return([blk_square])
-          allow(blk_piece).to receive(:legal_moves).with(chess_board).and_return([])
-        end
-
-        it 'returns true' do
-          result = checkmated_player.in_checkmate?(chess_board)
-          expect(result).to be true
-        end
+    context 'when player is in check, and all of his pieces have no legal moves' do
+      before do
+        allow(checkmated_player).to receive(:in_check?).with(chess_board).and_return(true)
+        allow(chess_board).to receive(:squares_taken_by).with(player_color).and_return([blk_square])
+        allow(blk_piece).to receive(:legal_moves).with(chess_board).and_return([])
       end
 
-      context 'when :white player is not in check, and all of his pieces have no legal moves' do
-        before do
-          allow(checkmated_player).to receive(:in_check?).with(chess_board).and_return(false)
-          allow(chess_board).to receive(:squares_taken_by).with(player_color).and_return([blk_square])
-          allow(blk_piece).to receive(:legal_moves).with(chess_board).and_return([])
-        end
-
-        it 'returns false' do
-          result = checkmated_player.in_checkmate?(chess_board)
-          expect(result).to be false
-        end
-      end
-
-      context 'when :white player is in check, and some of his pieces have legal moves' do
-        let(:move_square) { instance_double(Square) }
-
-        before do
-          allow(checkmated_player).to receive(:in_check?).with(chess_board).and_return(true)
-          allow(chess_board).to receive(:squares_taken_by).with(player_color).and_return([blk_square])
-          allow(blk_piece).to receive(:legal_moves).with(chess_board).and_return([move_square])
-        end
-
-        it 'returns false' do
-          result = checkmated_player.in_checkmate?(chess_board)
-          expect(result).to be false
-        end
+      it 'returns true' do
+        result = checkmated_player.in_checkmate?(chess_board)
+        expect(result).to be true
       end
     end
 
-    context 'when method called on :black player' do
-      let(:player_color) { :black }
-      let(:opponent_color) { :white }
-      let(:blk_piece) { instance_double(Piece) }
-      let(:blk_square) { instance_double(Square, piece: blk_piece) }
-      subject(:checkmated_player) { described_class.new(player_color, nil) }
-
-      context 'when :black player is in check, and all of his pieces have no legal moves' do
-        before do
-          allow(checkmated_player).to receive(:in_check?).with(chess_board).and_return(true)
-          allow(chess_board).to receive(:squares_taken_by).with(player_color).and_return([blk_square])
-          allow(blk_piece).to receive(:legal_moves).with(chess_board).and_return([])
-        end
-
-        it 'returns true' do
-          result = checkmated_player.in_checkmate?(chess_board)
-          expect(result).to be true
-        end
+    context 'when player is not in check, and all of his pieces have no legal moves' do
+      before do
+        allow(checkmated_player).to receive(:in_check?).with(chess_board).and_return(false)
+        allow(chess_board).to receive(:squares_taken_by).with(player_color).and_return([blk_square])
+        allow(blk_piece).to receive(:legal_moves).with(chess_board).and_return([])
       end
 
-      context 'when :black player is not in check, and all of his pieces have no legal moves' do
-        before do
-          allow(checkmated_player).to receive(:in_check?).with(chess_board).and_return(false)
-          allow(chess_board).to receive(:squares_taken_by).with(player_color).and_return([blk_square])
-          allow(blk_piece).to receive(:legal_moves).with(chess_board).and_return([])
-        end
+      it 'returns false' do
+        result = checkmated_player.in_checkmate?(chess_board)
+        expect(result).to be false
+      end
+    end
 
-        it 'returns false' do
-          result = checkmated_player.in_checkmate?(chess_board)
-          expect(result).to be false
-        end
+    context 'when player is in check, and some of his pieces have legal moves' do
+      let(:move_square) { instance_double(Square) }
+
+      before do
+        allow(checkmated_player).to receive(:in_check?).with(chess_board).and_return(true)
+        allow(chess_board).to receive(:squares_taken_by).with(player_color).and_return([blk_square])
+        allow(blk_piece).to receive(:legal_moves).with(chess_board).and_return([move_square])
       end
 
-      context 'when :black player is in check, and some of his pieces have legal moves' do
-        let(:move_square) { instance_double(Square) }
-
-        before do
-          allow(checkmated_player).to receive(:in_check?).with(chess_board).and_return(true)
-          allow(chess_board).to receive(:squares_taken_by).with(player_color).and_return([blk_square])
-          allow(blk_piece).to receive(:legal_moves).with(chess_board).and_return([move_square])
-        end
-
-        it 'returns false' do
-          result = checkmated_player.in_checkmate?(chess_board)
-          expect(result).to be false
-        end
+      it 'returns false' do
+        result = checkmated_player.in_checkmate?(chess_board)
+        expect(result).to be false
       end
     end
   end
 
   describe '#in_stalemate?' do
     let(:chess_board) { instance_double(Board) }
+    let(:player_color) { :black }
+    let(:opponent_color) { :white }
+    let(:player_piece) { instance_double(Piece) }
+    let(:player_square) { instance_double(Square, piece: player_piece) }
+    let(:move_square) { instance_double(Square) }
+    subject(:stalemated_player) { described_class.new(player_color, nil) }
 
-    context 'when method called on :white player' do
-      let(:player_color) { :white }
-      let(:opponent_color) { :black }
-      let(:blk_piece) { instance_double(Piece) }
-      let(:blk_square) { instance_double(Square, piece: blk_piece) }
-      subject(:stalemated_player) { described_class.new(player_color, nil) }
+    before do
+      allow(chess_board).to receive(:squares_taken_by).with(player_color).and_return([])
+      allow(chess_board).to receive(:squares_taken_by).with(opponent_color).and_return([])
+    end
 
-      context 'when :white player is not in check, and all of his pieces have no legal moves' do
-        before do
-          allow(stalemated_player).to receive(:in_check?).with(chess_board).and_return(false)
-          allow(blk_piece).to receive(:legal_moves).with(chess_board).and_return([])
-          allow(chess_board).to receive(:squares_taken_by).with(player_color).and_return([blk_square])
-        end
-
-        it 'returns true' do
-          result = stalemated_player.in_stalemate?(chess_board)
-          expect(result).to be true
-        end
+    context 'when player is white' do
+      before do
+        allow(stalemated_player).to receive(:in_check?).with(chess_board).and_return(false)
+        allow(player_piece).to receive(:legal_moves).with(chess_board).and_return([])
+        allow(chess_board).to receive(:squares_taken_by).with(:white).and_return([player_square])
       end
 
-      context 'when :white player is in check, and all of his pieces have no legal moves' do
-        before do
-          allow(stalemated_player).to receive(:in_check?).with(chess_board).and_return(true)
-          allow(blk_piece).to receive(:legal_moves).with(chess_board).and_return([])
-          allow(chess_board).to receive(:squares_taken_by).with(player_color).and_return([blk_square])
-        end
-
-        it 'returns false' do
-          result = stalemated_player.in_stalemate?(chess_board)
-          expect(result).to be false
-        end
-      end
-
-      context 'when :white player is not in check, and all some of his pieces have legal moves' do
-        let(:move_square) { instance_double(Square) }
-
-        before do
-          allow(stalemated_player).to receive(:in_check?).with(chess_board).and_return(false)
-          allow(blk_piece).to receive(:legal_moves).with(chess_board).and_return([move_square])
-          allow(chess_board).to receive(:squares_taken_by).with(player_color).and_return([blk_square])
-        end
-
-        it 'returns false' do
-          result = stalemated_player.in_stalemate?(chess_board)
-          expect(result).to be false
-        end
+      it 'works correctly' do
+        stalemated_player.instance_variable_set(:@color, :white)
+        result = stalemated_player.in_stalemate?(chess_board)
+        expect(result).to be true
       end
     end
 
-    context 'when method called on :black player' do
-      let(:player_color) { :black }
-      let(:opponent_color) { :white }
-      let(:blk_piece) { instance_double(Piece) }
-      let(:blk_square) { instance_double(Square, piece: blk_piece) }
-      subject(:stalemated_player) { described_class.new(player_color, nil) }
-
-      context 'when :black player is not in check, and all of his pieces have no legal moves' do
-        before do
-          allow(stalemated_player).to receive(:in_check?).with(chess_board).and_return(false)
-          allow(blk_piece).to receive(:legal_moves).with(chess_board).and_return([])
-          allow(chess_board).to receive(:squares_taken_by).with(player_color).and_return([blk_square])
-        end
-
-        it 'returns true' do
-          result = stalemated_player.in_stalemate?(chess_board)
-          expect(result).to be true
-        end
+    context 'when player is :black' do
+      before do
+        allow(stalemated_player).to receive(:in_check?).with(chess_board).and_return(false)
+        allow(player_piece).to receive(:legal_moves).with(chess_board).and_return([])
+        allow(chess_board).to receive(:squares_taken_by).with(:black).and_return([player_square])
       end
 
-      context 'when :black player is in check, and all of his pieces have no legal moves' do
-        before do
-          allow(stalemated_player).to receive(:in_check?).with(chess_board).and_return(true)
-          allow(blk_piece).to receive(:legal_moves).with(chess_board).and_return([])
-          allow(chess_board).to receive(:squares_taken_by).with(player_color).and_return([blk_square])
-        end
+      it 'works correctly' do
+        stalemated_player.instance_variable_set(:@color, :black)
+        result = stalemated_player.in_stalemate?(chess_board)
+        expect(result).to be true
+      end
+    end
 
-        it 'returns false' do
-          result = stalemated_player.in_stalemate?(chess_board)
-          expect(result).to be false
-        end
+    context 'when player is not in check, and all of his pieces have no legal moves' do
+      before do
+        allow(stalemated_player).to receive(:in_check?).with(chess_board).and_return(false)
+        allow(player_piece).to receive(:legal_moves).with(chess_board).and_return([])
+        allow(chess_board).to receive(:squares_taken_by).with(player_color).and_return([player_square])
       end
 
-      context 'when :black player is not in check, and all some of his pieces have legal moves' do
-        let(:move_square) { instance_double(Square) }
+      it 'returns true' do
+        result = stalemated_player.in_stalemate?(chess_board)
+        expect(result).to be true
+      end
+    end
 
-        before do
-          allow(stalemated_player).to receive(:in_check?).with(chess_board).and_return(false)
-          allow(blk_piece).to receive(:legal_moves).with(chess_board).and_return([move_square])
-          allow(chess_board).to receive(:squares_taken_by).with(player_color).and_return([blk_square])
-        end
+    context 'when player is in check, and all of his pieces have no legal moves' do
+      before do
+        allow(stalemated_player).to receive(:in_check?).with(chess_board).and_return(true)
+        allow(player_piece).to receive(:legal_moves).with(chess_board).and_return([])
+        allow(chess_board).to receive(:squares_taken_by).with(player_color).and_return([player_square])
+      end
 
-        it 'returns false' do
-          result = stalemated_player.in_stalemate?(chess_board)
-          expect(result).to be false
-        end
+      it 'returns false' do
+        result = stalemated_player.in_stalemate?(chess_board)
+        expect(result).to be false
+      end
+    end
+
+    context 'when player is not in check, and all some of his pieces have legal moves' do
+      before do
+        allow(stalemated_player).to receive(:in_check?).with(chess_board).and_return(false)
+        allow(player_piece).to receive(:legal_moves).with(chess_board).and_return([move_square])
+        allow(chess_board).to receive(:squares_taken_by).with(player_color).and_return([player_square])
+      end
+
+      it 'returns false' do
+        result = stalemated_player.in_stalemate?(chess_board)
+        expect(result).to be false
+      end
+    end
+
+    context 'when player\'s only piece is king and enemy only piece is king' do
+      let(:player_king) { instance_double(King, is_a?: true) }
+      let(:enemy_king) { instance_double(King, is_a?: true) }
+      let(:player_king_square) { instance_double(Square, piece: player_king) }
+      let(:enemy_king_square) { instance_double(Square, piece: enemy_king) }
+
+      before do
+        allow(player_king).to receive(:legal_moves).with(chess_board).and_return([move_square])
+        allow(stalemated_player).to receive(:in_check?).with(chess_board).and_return(false)
+        allow(chess_board).to receive(:squares_taken_by).with(player_color).and_return([player_king_square])
+        allow(chess_board).to receive(:squares_taken_by).with(opponent_color).and_return([enemy_king_square])
+      end
+
+      it 'returns true' do
+        result = stalemated_player.in_stalemate?(chess_board)
+        expect(result).to be true
       end
     end
   end
