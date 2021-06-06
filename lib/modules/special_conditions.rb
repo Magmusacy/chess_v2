@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Module responsible for logic behind chess' 3 special rules (check, checkmate, stalemate)
 module SpecialConditions
   def in_check?(chess_board)
@@ -13,12 +15,18 @@ module SpecialConditions
   end
 
   def in_stalemate?(chess_board)
-    return true if !in_check?(chess_board) && no_legal_moves?(chess_board)
+    return true if !in_check?(chess_board) && no_legal_moves?(chess_board) || only_kings_left?(chess_board)
 
     false
   end
 
   private
+
+  def only_kings_left?(chess_board)
+    white_pieces = chess_board.squares_taken_by(:white).map(&:piece)
+    black_pieces = chess_board.squares_taken_by(:black).map(&:piece)
+    true if white_pieces.all? { |piece| piece.is_a?(King) } && black_pieces.all? { |piece| piece.is_a?(King) }
+  end
 
   def no_legal_moves?(chess_board)
     checked_pieces = chess_board.squares_taken_by(color).map(&:piece)
