@@ -20,26 +20,28 @@ class Pawn < Piece
 
   def vertical_move(board)
     moves = [board.get_relative_square(location, y: y_shift)]
-    return [] if moves.first.taken?
+    return [] if moves.first.nil? || moves.first.taken?
+
     moves << double_vertical_move(board) if first_move?
     moves.compact
   end
 
-  def diagonal_move(board, x)
-    moves = [board.get_relative_square(location, x: x, y: y_shift)].compact
-    return [] if moves.empty? || !moves.first.taken?
+  def diagonal_move(board, x_shift)
+    moves = [board.get_relative_square(location, x: x_shift, y: y_shift)]
+    return [] if moves.first.nil? || !moves.first.taken?
+
     moves
   end
 
   def move(chosen_square, board)
     possible_promotion = [promotion_move(board, 1), promotion_move(board, 0), promotion_move(board, -1)].flatten
-    unless possible_promotion.include?(chosen_square)
+    if possible_promotion.include?(chosen_square)
+      promote(chosen_square, board)
+    else
       possible_en_passant = [en_passant_move(board, 1), en_passant_move(board, -1)].flatten
       take_enemy_pawn(chosen_square, board) if possible_en_passant.include?(chosen_square)
 
       super
-    else
-      promote(chosen_square, board)
     end
   end
 
