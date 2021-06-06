@@ -59,16 +59,6 @@ class Game
   end
 
   def player_move(player)
-    player.type == :human ? player.human_move(chess_board, self) : ai_move(player)
-  end
-
-  def ai_move(player)
-    chess_board.display
-    square = player.ai_pick_square(chess_board)
-    legal_moves = square.piece.legal_moves(chess_board)
-    chess_board.display(square, legal_moves)
-    move = player.ai_pick_legal_move(square.piece, chess_board, legal_moves)
-    square.piece.move(move, chess_board) # moze AI powinno byc includowane w game :D
-    # to chyba powinno byc w ai w sensie to samo .move, ai_pick_legal_move powinno to miec
+    player.type == :human ? player.human_move(chess_board, self) : player.ai_move(chess_board)
   end
 end

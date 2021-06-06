@@ -54,35 +54,10 @@ describe Game do
     context 'when given player is :ai' do
       let(:ai_player) { instance_double(Player, type: :ai) }
 
-      before do
-        allow(game).to receive(:ai_move).with(ai_player)
-      end
-
-      it 'calls #ai_move method' do
-        expect(game).to receive(:ai_move).with(ai_player)
+      it 'sends :ai_move message to Player object' do
+        expect(ai_player).to receive(:ai_move).with(chess_board)
         game.player_move(ai_player)
       end
-    end
-  end
-
-  describe '#ai_move' do # contains logic for player movement if type == :ai
-    let(:chess_board) { double('chess_board') }
-    let(:ai_game) { described_class.new(nil, nil, chess_board) }
-    let(:ai_player) { instance_double(Player, type: :ai) }
-    let(:ai_piece) { instance_double(Piece) }
-    let(:ai_picked_square) { instance_double(Square, piece: ai_piece) }
-    let(:legal_moves) { [ instance_double(Square) ] }
-
-    before do
-      allow(chess_board).to receive(:display)
-      allow(ai_player).to receive(:ai_pick_square).with(chess_board).and_return(ai_picked_square)
-      allow(ai_piece).to receive(:legal_moves).with(chess_board).and_return(legal_moves)
-      allow(ai_player).to receive(:ai_pick_legal_move).with(legal_moves).and_return(legal_moves[0])
-    end
-
-    it 'sends :move message to random piece with random legal move' do
-      expect(ai_piece).to receive(:move).with(legal_moves[0], chess_board)
-      ai_game.ai_move(ai_player)
     end
   end
 
@@ -167,11 +142,9 @@ describe Game do
       end
 
       context 'when player_2 is checkmated on 3rd move' do
-        #let(:players) { loop_game.instance_variable_get(:@players) }
-
         before do
           allow(player_2).to receive(:in_checkmate?).with(chess_board).and_return(false, true)
-          allow(players).to receive(:rotate).and_return(players.rotate(1)) # idk
+          allow(players).to receive(:rotate).and_return(players.rotate(1))
         end
 
         it 'calls #player_move with player_1 twice' do
