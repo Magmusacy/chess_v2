@@ -5,16 +5,19 @@ require_relative '../modules/discard_illegal_moves'
 # Superclass of each piece, contains logic for movement and finding relative square
 class Piece
   attr_reader :color, :icon, :location
+
   include DiscardIllegalMoves
 
-  def initialize(location = nil, color = nil, icon = nil)
+  def initialize(location = nil, color = nil)
     @location = location
     @color = color
   end
 
+  def possible_moves(board); end
+
   def legal_moves(board)
     moves = possible_moves(board)
-    discard_illegal_moves(board, opponent_color, moves)
+    discard_illegal_moves(board, moves)
   end
 
   def update_location(new_square)
@@ -26,15 +29,5 @@ class Piece
     new_square.update_piece(self)
     location.update_piece
     update_location(new_square)
-  end
-
-  private
-
-  def opponent_color
-    color == :white ? :black : :white
-  end
-
-  def reject_related_squares(squares)
-    squares.reject { |sqr| sqr.taken? && sqr.piece.color == color }
   end
 end
