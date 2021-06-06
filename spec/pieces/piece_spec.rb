@@ -1,14 +1,28 @@
+# frozen_string_literal: true
+
 require_relative 'shared_piece_spec'
 require_relative '../../lib/pieces/piece'
+require_relative '../../lib/pieces/pawn'
 require_relative '../../lib/square'
 require_relative '../../lib/board'
 
 describe Piece do
   let(:chess_board) { instance_double(Board) }
+  let(:start_square) { instance_double(Square) }
+  subject(:piece) { described_class.new(start_square) }
+
+  describe '#legal_moves' do
+    it 'returns only the moves that will not leave the King in check' do
+      moves = %i[m1 m2 m3]
+      legal_moves = %i[m1 m2]
+      allow(piece).to receive(:possible_moves).with(chess_board).and_return(moves)
+      allow(piece).to receive(:discard_illegal_moves).with(chess_board, moves).and_return(legal_moves)
+      result = piece.legal_moves(chess_board)
+      expect(result).to match_array(legal_moves)
+    end
+  end
 
   describe '#move' do
-    let(:start_square) { instance_double(Square) }
-    subject(:piece) { described_class.new(start_square) }
     let(:square) { instance_double(Square) }
     let(:move_array) { [start_square, square] }
 
@@ -19,30 +33,29 @@ describe Piece do
       allow(piece).to receive(:update_location)
     end
 
+    after do
+      piece.move(square, chess_board)
+    end
+
     it 'sends :add_move message to Board with [location, square] argument' do
       expect(chess_board).to receive(:add_move).with(move_array)
-      piece.move(square, chess_board)
     end
 
     it 'sends :update_piece message with self to given square' do
       expect(square).to receive(:update_piece).with(piece)
-      piece.move(square, chess_board)
     end
 
     it 'sends :update_piece message without any args to self location' do
       expect(start_square).to receive(:update_piece).with(no_args)
-      piece.move(square, chess_board)
     end
 
     it 'calls #update_location method with given square as an argument' do
       expect(piece).to receive(:update_location).with(square)
-      piece.move(square, chess_board)
     end
   end
 
   describe '#update_location' do
     context 'when given square object' do
-      subject(:piece) { described_class.new }
       let(:new_square) { instance_double(Square) }
 
       it 'updates @location variable to that given square' do
@@ -58,8 +71,8 @@ describe Piece do
     let(:real_square) { instance_double(Square, position: { x: 6, y: 9 }) }
     let(:clone_piece) { instance_double(Piece) }
     let(:clone_piece_square) { instance_double(Square, piece: clone_piece) }
-    let(:start_square) { instance_double(Square, position: { x: 2, y: 6 } ) }
-    subject(:real_piece) { described_class.new(start_square, :white, nil) }
+    let(:start_square) { instance_double(Square, position: { x: 2, y: 6 }) }
+    subject(:real_piece) { described_class.new(start_square, :white) }
 
     # self note:
     # #clone method only changes the object itself without it's attributes,
@@ -96,7 +109,7 @@ describe Piece do
     context 'when Piece object has :white color' do
       let(:opponent_color) { :black }
       let(:piece_color) { :white }
-      subject(:illegal_piece) { described_class.new(nil, piece_color, nil) }
+      subject(:illegal_piece) { described_class.new(nil, piece_color) }
 
       context 'when given Board on which :white King is under attack' do
         let(:wht_king) { double('King', color: :white, piece: nil) }
@@ -135,47 +148,7 @@ describe Piece do
   end
 
   describe '#discard_illegal_moves' do
-    let(:clone_board) { instance_double(Board) }
-    let(:real_board) { instance_double(Board) }
-    let(:real_square) { instance_double(Square, position: { x: 6, y: 9 }) }
-    let(:clone_chosen_square) { instance_double(Square, position: { x: 6, y: 9 }) }
-    let(:clone_piece) { instance_double(Piece) }
-    subject(:real_piece) { described_class.new(nil, :white, nil) }
-
-    let(:possible_moves) { [real_square] }
-
-    before do
-      allow(real_piece).to receive(:clone_objects).and_return([clone_board, clone_piece, clone_chosen_square])
-      allow(clone_piece).to receive(:move)
-      allow(real_piece).to receive(:illegal?).with(clone_board).and_return(true)
-    end
-
-    it 'sends correct :move message to cloned piece' do
-      expect(clone_piece).to receive(:move).with(clone_chosen_square, clone_board)
-      real_piece.discard_illegal_moves(chess_board, possible_moves)
-    end
-
-    context 'when possible_moves has 1 move that is illegal' do
-      it 'returns empty array' do
-        result = real_piece.discard_illegal_moves(chess_board, possible_moves)
-        expect(result).to be_empty
-      end
-    end
-
-    context 'when possible_moves has 2 moves' do
-      let(:possible_moves) { [real_square, real_square] }
-
-      context 'when only the first move is illegal' do
-        before do
-          allow(real_piece).to receive(:illegal?).with(clone_board).and_return(true, false)
-        end
-
-        it 'returns array with only second move' do
-          result = real_piece.discard_illegal_moves(chess_board, possible_moves)
-          expect(result).to eq([real_square])
-        end
-      end
-    end
+    include_examples 'discard illegal moves'
   end
 
   describe '#discard_related_squares' do

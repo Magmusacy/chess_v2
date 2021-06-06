@@ -398,3 +398,46 @@ RSpec.shared_examples '#diagonal_move method' do
     end
   end
 end
+
+RSpec.shared_examples 'discard illegal moves' do
+  let(:clone_board) { instance_double(Board) }
+  let(:real_board) { instance_double(Board) }
+  let(:real_square) { instance_double(Square, position: { x: 6, y: 9 }) }
+  let(:clone_chosen_square) { instance_double(Square, position: { x: 6, y: 9 }) }
+  let(:possible_moves) { [real_square] }
+  subject(:real_piece) { described_class.new(nil, :white) }
+
+  before do
+    allow(real_piece).to receive(:is_a?).and_return(false)
+    allow(real_piece).to receive(:clone_objects).and_return([clone_board, real_piece, clone_chosen_square])
+    allow(real_piece).to receive(:move)
+    allow(real_piece).to receive(:illegal?).with(clone_board).and_return(true)
+  end
+
+  it 'sends correct :move message to cloned piece' do
+    expect(real_piece).to receive(:move).with(clone_chosen_square, clone_board)
+    real_piece.discard_illegal_moves(chess_board, possible_moves)
+  end
+
+  context 'when possible_moves has 1 move that is illegal' do
+
+    it 'returns empty array' do
+      result = real_piece.discard_illegal_moves(chess_board, possible_moves)
+      expect(result).to be_empty
+    end
+  end
+  context 'when possible_moves has 2 moves' do
+    let(:possible_moves) { [real_square, real_square] }
+
+    context 'when only the first move is illegal' do
+      before do
+        allow(real_piece).to receive(:illegal?).with(clone_board).and_return(true, false)
+      end
+
+      it 'returns array with only second move' do
+        result = real_piece.discard_illegal_moves(chess_board, possible_moves)
+        expect(result).to eq([real_square])
+      end
+    end
+  end
+end
