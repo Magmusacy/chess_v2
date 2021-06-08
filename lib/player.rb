@@ -58,11 +58,11 @@ class Player
 
   def pick(game, board, chosen_square = :deafult, legal_moves = [])
     if chosen_square == :deafult
-      board.display
+      board.display(color, type)
       available_squares = board.squares_taken_by(color)
     else
       available_squares = chosen_square.piece.legal_moves(board)
-      board.display(chosen_square, available_squares)
+      board.display(color, type, chosen_square, available_squares)
     end
     select_square(available_squares, game)
   end
