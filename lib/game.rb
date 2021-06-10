@@ -46,7 +46,6 @@ class Game
       player = @players.first
       break if player.in_checkmate?(chess_board) || player.in_stalemate?(chess_board)
 
-      puts `clear`
       puts "#{player.color} player is in check!" if player.in_check?(chess_board)
       player_move(player)
       @players.rotate!

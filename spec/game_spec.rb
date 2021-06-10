@@ -72,7 +72,6 @@ describe Game do
 
       before do
         loop_game.instance_variable_set(:@players, players)
-        allow(loop_game).to receive(:puts).with(`clear`)
         allow(player1).to receive(:in_check?)
         allow(player1).to receive(:in_checkmate?)
         allow(player1).to receive(:in_stalemate?)
