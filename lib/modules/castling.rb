@@ -33,11 +33,9 @@ module Castling
 
   def columns_attacked?(board, x_shift)
     columns = get_columns(board, x_shift)
-    # It has to reject enemy King to ensure that infinite loop will not happen. Rejecting King also means that
-    # this method is not going to work properly when enemy king attacks any of the columns (maybe fix that later)
-    enemy_pieces = board.squares_taken_by(opponent_color).map(&:piece).reject { |p| p.is_a?(King) }
+    enemy_pieces = board.squares_taken_by(opponent_color).map(&:piece)
     columns.any? do |column|
-      enemy_pieces.any? { |piece| piece.possible_moves(board).include?(column) }
+      illegal?(board, column)
     end
   end
 

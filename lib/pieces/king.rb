@@ -17,6 +17,13 @@ class King < Piece
     discard_related_squares(moves)
   end
 
+  def basic_moves(board)
+    [horizontal_move(board, 1), horizontal_move(board, -1),
+     vertical_move(board, 1), vertical_move(board, -1),
+     diagonal_move(board, 1, 1), diagonal_move(board, 1, -1),
+     diagonal_move(board, -1, 1), diagonal_move(board, -1, -1)]
+  end
+
   def horizontal_move(board, x_shift)
     [board.get_relative_square(location, x: x_shift)].compact
   end

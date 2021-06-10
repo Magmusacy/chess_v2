@@ -17,7 +17,7 @@ describe King do
     include_examples 'shared method names'
   end
 
-  describe '#possible_moves' do # possible moves calluje ten no castling
+  describe '#possible_moves' do
     context 'when given King { x: 4, y: 4 }' do
       subject(:possible_king) { described_class.new(nil, :white) }
       let(:white_piece) { instance_double(Piece, color: :white) }
@@ -100,6 +100,29 @@ describe King do
           result = possible_king.possible_moves(chess_board)
           expect(result).to be_empty
         end
+      end
+    end
+  end
+
+  describe '#basic_moves' do
+    subject(:possible_king) { described_class.new(nil, :white) }
+    let(:moves) { %i[m1 m2 m3 m4 m5 m6 m7 m8] }
+
+    before do
+      allow(possible_king).to receive(:horizontal_move).with(chess_board, 1).and_return(moves[0])
+      allow(possible_king).to receive(:horizontal_move).with(chess_board, -1).and_return(moves[1])
+      allow(possible_king).to receive(:vertical_move).with(chess_board, 1).and_return(moves[2])
+      allow(possible_king).to receive(:vertical_move).with(chess_board, -1).and_return(moves[3])
+      allow(possible_king).to receive(:diagonal_move).with(chess_board, 1, 1).and_return(moves[4])
+      allow(possible_king).to receive(:diagonal_move).with(chess_board, -1, 1).and_return(moves[5])
+      allow(possible_king).to receive(:diagonal_move).with(chess_board, 1, -1).and_return(moves[6])
+      allow(possible_king).to receive(:diagonal_move).with(chess_board, -1, -1).and_return(moves[7])
+    end
+
+    context 'when all basic moves are available' do
+      it 'returns an array with all possible moves without castling moves' do
+        result = possible_king.basic_moves(chess_board)
+        expect(result).to match_array(moves)
       end
     end
   end
