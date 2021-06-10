@@ -38,7 +38,7 @@ describe Board do
         start_moves = [moves]
         expected_array = [moves, new_moves]
         chess_board.instance_variable_set(:@recorded_moves, start_moves)
-        expect { chess_board.add_move(new_moves) }.to change { chess_board.recorded_moves }.from(start_moves).to (expected_array)
+        expect { chess_board.add_move(new_moves) }.to change { chess_board.recorded_moves }.to(expected_array)
       end
     end
   end
@@ -70,14 +70,14 @@ describe Board do
 
   describe '#get_square' do
     context 'when given position { x: 2, y: 2 }' do
-      let(:exp_sqr_22) { instance_double(Square, position: { x: 2, y:2 }) }
-      let(:board) { [exp_sqr_22] }
+      let(:exp_sqr22) { instance_double(Square, position: { x: 2, y: 2 }) }
+      let(:board) { [exp_sqr22] }
       subject(:chess_board) { described_class.new(board) }
 
       it 'returns only one square with given position' do
         position = { x: 2, y: 2 }
         result = chess_board.get_square(position)
-        expect(result).to eq(exp_sqr_22)
+        expect(result).to eq(exp_sqr22)
       end
     end
   end
@@ -86,26 +86,26 @@ describe Board do
     subject(:chess_board) { described_class.new }
 
     context 'when given initial_square { x: 2, y: 2 } and x: 1, y: 1' do
-      let(:initial_square_22) { instance_double(Square, position: { x: 2, y: 2 }) }
-      let(:expected_square_33) { instance_double(Square, position: { x: 3, y: 3 }) }
-      let(:board) { [initial_square_22, expected_square_33] }
+      let(:initial_square22) { instance_double(Square, position: { x: 2, y: 2 }) }
+      let(:expected_square33) { instance_double(Square, position: { x: 3, y: 3 }) }
+      let(:board) { [initial_square22, expected_square33] }
 
       it 'returns square { x: 3, y: 3 }' do
         chess_board.instance_variable_set(:@board, board)
-        result = chess_board.get_relative_square(initial_square_22, x: 1, y: 1)
-        expect(result).to eq(expected_square_33)
+        result = chess_board.get_relative_square(initial_square22, x: 1, y: 1)
+        expect(result).to eq(expected_square33)
       end
     end
 
     context 'when given initial_square { x: 1, y: 4 } and x: 4, y: -2' do
-      let(:initial_square_14) { instance_double(Square, position: { x: 1, y: 4 }) }
-      let(:expected_square_52) { instance_double(Square, position: { x: 5, y: 2 }) }
-      let(:board) { [initial_square_14, expected_square_52] }
+      let(:initial_square14) { instance_double(Square, position: { x: 1, y: 4 }) }
+      let(:expected_square52) { instance_double(Square, position: { x: 5, y: 2 }) }
+      let(:board) { [initial_square14, expected_square52] }
 
       it 'returns square { x: 5, y: 2 }' do
         chess_board.instance_variable_set(:@board, board)
-        result = chess_board.get_relative_square(initial_square_14, x: 4, y: -2)
-        expect(result).to eq(expected_square_52)
+        result = chess_board.get_relative_square(initial_square14, x: 4, y: -2)
+        expect(result).to eq(expected_square52)
       end
     end
   end

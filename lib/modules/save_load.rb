@@ -1,11 +1,14 @@
+# frozen_string_literal: true
+
 require 'yaml'
 
+# Contains logic for saving and loading Game object with correct attributes
 module SaveLoad
   SAVES = Dir.glob('saves/*.yaml')
 
   def save_game
-    file_name = "saves/#{Time.now.strftime("%d-%m-%Y %H:%M:%S")}.yaml"
-    players_colors = players.map { |p| p.color }
+    file_name = "saves/#{Time.now.strftime('%d-%m-%Y %H:%M:%S')}.yaml"
+    players_colors = players.map(&:color)
     file_contents = YAML.dump_stream(player_white, player_black, chess_board, players_colors)
     File.write(file_name, file_contents)
     puts "Successfully saved game in a file \"#{file_name}\""
@@ -32,14 +35,15 @@ module SaveLoad
   end
 
   def verify_load(input)
-    return true if input.to_i.to_s == input && SAVES[input.to_i]
+    true if input.to_i.to_s == input && SAVES[input.to_i]
   end
 
   def load_save?
     choice = { y: true, n: false }[load_choice.to_sym]
     return choice unless choice.nil?
+
     puts 'Wrong input!'
-    return load_save?
+    load_save?
   end
 
   def any_existing_save?

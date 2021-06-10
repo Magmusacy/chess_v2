@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../lib/game'
 require_relative '../lib/player'
 require_relative '../lib/board'
@@ -8,34 +10,34 @@ describe Game do
   subject(:game) { described_class.new(nil, nil, chess_board) }
 
   describe '#create_game' do
-    let(:player_1) { double('player1', color: :white) }
-    let(:player_2) { double('player2', color: :black) }
+    let(:player1) { instance_double(Player, color: :white) }
+    let(:player2) { instance_double(Player, color: :black) }
 
     before do
-      players_array = [player_1, player_2]
+      players_array = [player1, player2]
       allow(game).to receive(:create_players).and_return(players_array)
       allow(game).to receive(:create_pieces)
       allow(chess_board).to receive(:setup_board)
     end
 
     it 'assigns @player_white instance variable to first item from #create_players' do
-      exp_player = player_1
+      exp_player = player1
       expect { game.create_game }.to change { game.player_white }.to(exp_player)
     end
 
     it 'assigns @player_black instance variable to second item from #create_players' do
-      exp_player = player_2
+      exp_player = player2
       expect { game.create_game }.to change { game.player_black }.to(exp_player)
     end
 
     it 'assigns @players instance variable to an [@player_white, @player_black] array' do
-      exp_players = [player_1, player_2]
+      exp_players = [player1, player2]
       expect { game.create_game }.to change { game.instance_variable_get(:@players) }.to(exp_players)
     end
 
     it 'sends :setup_board message to @chess_board with white_pieces and black_pieces' do
-      white_pieces = game.create_pieces(player_1)
-      black_pieces = game.create_pieces(player_2)
+      white_pieces = game.create_pieces(player1)
+      black_pieces = game.create_pieces(player2)
       expect(chess_board).to receive(:setup_board).with(white_pieces, black_pieces)
       game.create_game
     end
@@ -62,171 +64,172 @@ describe Game do
   end
 
   describe '#game_loop' do
-    context 'when given players array with two elements: [player_1, player_2]' do
-      let(:player_1) { double('Playesr', color: :white) }
-      let(:player_2) { instance_double(Player, color: :black) }
-      let(:players) { [player_1, player_2] }
-      subject(:loop_game) { described_class.new(player_1, player_2, chess_board) }
+    context 'when given players array with two elements: [player1, player2]' do
+      let(:player1) { instance_double(Player, color: :white) }
+      let(:player2) { instance_double(Player, color: :black) }
+      let(:players) { [player1, player2] }
+      subject(:loop_game) { described_class.new(player1, player2, chess_board) }
 
       before do
         loop_game.instance_variable_set(:@players, players)
-        allow(player_1).to receive(:in_check?)
-        allow(player_1).to receive(:in_checkmate?)
-        allow(player_1).to receive(:in_stalemate?)
-        allow(player_2).to receive(:in_check?)
-        allow(player_2).to receive(:in_checkmate?)
-        allow(player_2).to receive(:in_stalemate?)
+        allow(loop_game).to receive(:puts).with(`clear`)
+        allow(player1).to receive(:in_check?)
+        allow(player1).to receive(:in_checkmate?)
+        allow(player1).to receive(:in_stalemate?)
+        allow(player2).to receive(:in_check?)
+        allow(player2).to receive(:in_checkmate?)
+        allow(player2).to receive(:in_stalemate?)
         allow(loop_game).to receive(:player_move)
       end
 
-      context 'when player_1 is checkmated' do
+      context 'when player1 is checkmated' do
         before do
-          allow(player_1).to receive(:in_checkmate?).with(chess_board).and_return(false, true)
+          allow(player1).to receive(:in_checkmate?).with(chess_board).and_return(false, true)
         end
 
         it 'doesn\'t rotate @players array globally' do
-            players = loop_game.instance_variable_get(:@players)
-            expect { loop_game.game_loop }.not_to change { players }
+          players = loop_game.instance_variable_get(:@players)
+          expect { loop_game.game_loop }.not_to(change { players })
         end
       end
 
-      context 'when player_1 is in stalemate' do
+      context 'when player1 is in stalemate' do
         before do
-          allow(player_1).to receive(:in_stalemate?).with(chess_board).and_return(false, true)
+          allow(player1).to receive(:in_stalemate?).with(chess_board).and_return(false, true)
         end
 
         it 'doesn\'t rotate @players array globally' do
-            players = loop_game.instance_variable_get(:@players)
-            expect { loop_game.game_loop }.not_to change { players }
+          players = loop_game.instance_variable_get(:@players)
+          expect { loop_game.game_loop }.not_to(change { players })
         end
       end
 
-      context 'when player_2 is checkmated' do
+      context 'when player2 is checkmated' do
         before do
-          allow(player_2).to receive(:in_checkmate?).with(chess_board).and_return(false, true)
+          allow(player2).to receive(:in_checkmate?).with(chess_board).and_return(false, true)
         end
 
         it 'rotates @players array globally' do
-            players = loop_game.instance_variable_get(:@players)
-            rotated_array = players.rotate
-            expect { loop_game.game_loop }.to change { players }.to(rotated_array)
+          players = loop_game.instance_variable_get(:@players)
+          rotated_array = players.rotate
+          expect { loop_game.game_loop }.to change { players }.to(rotated_array)
         end
       end
 
-      context 'when player_2 is in stalemate' do
+      context 'when player2 is in stalemate' do
         before do
-          allow(player_2).to receive(:in_stalemate?).with(chess_board).and_return(false, true)
+          allow(player2).to receive(:in_stalemate?).with(chess_board).and_return(false, true)
         end
 
         it 'rotates @players array globally' do
-            players = loop_game.instance_variable_get(:@players)
-            rotated_array = players.rotate
-            expect { loop_game.game_loop }.to change { players }.to(rotated_array)
+          players = loop_game.instance_variable_get(:@players)
+          rotated_array = players.rotate
+          expect { loop_game.game_loop }.to change { players }.to(rotated_array)
         end
       end
 
-      context 'when player_1 is checkmated on 2nd move' do
+      context 'when player1 is checkmated on 2nd move' do
         before do
-          allow(player_1).to receive(:in_checkmate?).with(chess_board).and_return(false, true)
+          allow(player1).to receive(:in_checkmate?).with(chess_board).and_return(false, true)
         end
 
-        it 'calls #player_move with player_1 once' do
-          expect(loop_game).to receive(:player_move).with(player_1).once
+        it 'calls #player_move with player1 once' do
+          expect(loop_game).to receive(:player_move).with(player1).once
           loop_game.game_loop
         end
 
-        it 'calls #player_move with player_2 once' do
-          expect(loop_game).to receive(:player_move).with(player_2).once
+        it 'calls #player_move with player2 once' do
+          expect(loop_game).to receive(:player_move).with(player2).once
           loop_game.game_loop
         end
       end
 
-      context 'when player_2 is checkmated on 3rd move' do
+      context 'when player2 is checkmated on 3rd move' do
         before do
-          allow(player_2).to receive(:in_checkmate?).with(chess_board).and_return(false, true)
+          allow(player2).to receive(:in_checkmate?).with(chess_board).and_return(false, true)
           allow(players).to receive(:rotate).and_return(players.rotate(1))
         end
 
-        it 'calls #player_move with player_1 twice' do
-          expect(loop_game).to receive(:player_move).with(player_1).twice
+        it 'calls #player_move with player1 twice' do
+          expect(loop_game).to receive(:player_move).with(player1).twice
           loop_game.game_loop
         end
 
-        it 'calls #player_move with player_2 once' do
-          expect(loop_game).to receive(:player_move).with(player_2).once
-          loop_game.game_loop
-        end
-      end
-
-      context 'when player_2 is checkmated on 5th move' do
-        before do
-          allow(player_2).to receive(:in_checkmate?).with(chess_board).and_return(false, false, true)
-        end
-
-        it 'calls #player_move with player_1 three times' do
-          expect(loop_game).to receive(:player_move).with(player_1).exactly(3).times
-          loop_game.game_loop
-        end
-
-        it 'calls #player_move with player_2 twice' do
-          expect(loop_game).to receive(:player_move).with(player_2).twice
+        it 'calls #player_move with player2 once' do
+          expect(loop_game).to receive(:player_move).with(player2).once
           loop_game.game_loop
         end
       end
 
-      context 'when player_1 is in stalemate on 4th move' do
+      context 'when player2 is checkmated on 5th move' do
         before do
-          allow(player_1).to receive(:in_stalemate?).with(chess_board).and_return(false, false, true)
+          allow(player2).to receive(:in_checkmate?).with(chess_board).and_return(false, false, true)
         end
 
-        it 'calls #player_move with player_1 twice' do
-          expect(loop_game).to receive(:player_move).with(player_1).twice
+        it 'calls #player_move with player1 three times' do
+          expect(loop_game).to receive(:player_move).with(player1).exactly(3).times
           loop_game.game_loop
         end
 
-        it 'calls #player_move with player_2 twice' do
-          expect(loop_game).to receive(:player_move).with(player_2).twice
+        it 'calls #player_move with player2 twice' do
+          expect(loop_game).to receive(:player_move).with(player2).twice
           loop_game.game_loop
         end
       end
 
-      context 'when player_2 is in stalemate on 3rd move' do
+      context 'when player1 is in stalemate on 4th move' do
         before do
-          allow(player_2).to receive(:in_stalemate?).with(chess_board).and_return(false, true)
+          allow(player1).to receive(:in_stalemate?).with(chess_board).and_return(false, false, true)
         end
 
-        it 'calls #player_move with player_1 twice' do
-          expect(loop_game).to receive(:player_move).with(player_1).twice
+        it 'calls #player_move with player1 twice' do
+          expect(loop_game).to receive(:player_move).with(player1).twice
           loop_game.game_loop
         end
 
-        it 'calls #player_move with player_2 once' do
-          expect(loop_game).to receive(:player_move).with(player_2).once
+        it 'calls #player_move with player2 twice' do
+          expect(loop_game).to receive(:player_move).with(player2).twice
           loop_game.game_loop
         end
       end
 
-      context 'when player_1 is in check on 2nd move and is checkmated on 4th move' do
+      context 'when player2 is in stalemate on 3rd move' do
         before do
-          allow(player_1).to receive(:in_check?).with(chess_board).and_return(false, true)
-          allow(player_1).to receive(:in_checkmate?).with(chess_board).and_return(false, false, true)
+          allow(player2).to receive(:in_stalemate?).with(chess_board).and_return(false, true)
         end
 
-        it 'outputs message for player_1 about the check once' do
-          message = "#{player_1.color} player is in check!"
+        it 'calls #player_move with player1 twice' do
+          expect(loop_game).to receive(:player_move).with(player1).twice
+          loop_game.game_loop
+        end
+
+        it 'calls #player_move with player2 once' do
+          expect(loop_game).to receive(:player_move).with(player2).once
+          loop_game.game_loop
+        end
+      end
+
+      context 'when player1 is in check on 2nd move and is checkmated on 4th move' do
+        before do
+          allow(player1).to receive(:in_check?).with(chess_board).and_return(false, true)
+          allow(player1).to receive(:in_checkmate?).with(chess_board).and_return(false, false, true)
+        end
+
+        it 'outputs message for player1 about the check once' do
+          message = "#{player1.color} player is in check!"
           expect(loop_game).to receive(:puts).with(message).once
           loop_game.game_loop
         end
       end
 
-      context 'when player_2 is in check on 3nd move and is checkmated on 5th move' do
+      context 'when player2 is in check on 3nd move and is checkmated on 5th move' do
         before do
-          allow(player_2).to receive(:in_check?).with(chess_board).and_return(false, true)
-          allow(player_2).to receive(:in_checkmate?).with(chess_board).and_return(false, false, true)
+          allow(player2).to receive(:in_check?).with(chess_board).and_return(false, true)
+          allow(player2).to receive(:in_checkmate?).with(chess_board).and_return(false, false, true)
         end
 
-        it 'outputs message for player_2 about the check once' do
-          message = "#{player_2.color} player is in check!"
+        it 'outputs message for player2 about the check once' do
+          message = "#{player2.color} player is in check!"
           expect(loop_game).to receive(:puts).with(message).once
           loop_game.game_loop
         end
@@ -235,20 +238,20 @@ describe Game do
   end
 
   describe '#announce_winner' do
-    let(:player_1) { double('Playesr', color: :white) }
-    let(:player_2) { instance_double(Player, color: :black) }
-    let(:players) { [player_1, player_2] }
+    let(:player1) { instance_double(Player, color: :white) }
+    let(:player2) { instance_double(Player, color: :black) }
+    let(:players) { [player1, player2] }
 
-    context 'when @players array is equal to [player_1, player_2]' do
+    context 'when @players array is equal to [player1, player2]' do
       before do
         game.instance_variable_set(:@players, players)
-        allow(player_1).to receive(:in_checkmate?)
-        allow(player_1).to receive(:in_stalemate?)
+        allow(player1).to receive(:in_checkmate?)
+        allow(player1).to receive(:in_stalemate?)
       end
 
-      context 'when player_1 is checkmated by player_2' do
+      context 'when player1 is checkmated by player2' do
         before do
-          allow(player_1).to receive(:in_checkmate?).with(chess_board).and_return(true)
+          allow(player1).to receive(:in_checkmate?).with(chess_board).and_return(true)
         end
 
         it 'outputs winner message for :black player' do
@@ -258,9 +261,9 @@ describe Game do
         end
       end
 
-      context 'when player_1 is in stalemate' do
+      context 'when player1 is in stalemate' do
         before do
-          allow(player_1).to receive(:in_stalemate?).with(chess_board).and_return(true)
+          allow(player1).to receive(:in_stalemate?).with(chess_board).and_return(true)
         end
 
         it 'outputs draw message' do
@@ -271,16 +274,16 @@ describe Game do
       end
     end
 
-    context 'when @players array is equal to [player_2, player_1]' do
+    context 'when @players array is equal to [player2, player1]' do
       before do
         game.instance_variable_set(:@players, players.rotate)
-        allow(player_2).to receive(:in_checkmate?)
-        allow(player_2).to receive(:in_stalemate?)
+        allow(player2).to receive(:in_checkmate?)
+        allow(player2).to receive(:in_stalemate?)
       end
 
-      context 'when player_2 is checkmated by player_1' do
+      context 'when player2 is checkmated by player1' do
         before do
-          allow(player_2).to receive(:in_checkmate?).with(chess_board).and_return(true)
+          allow(player2).to receive(:in_checkmate?).with(chess_board).and_return(true)
         end
 
         it 'outputs winner message for :white player' do
@@ -290,9 +293,9 @@ describe Game do
         end
       end
 
-      context 'when player_2 is in stalemate' do
+      context 'when player2 is in stalemate' do
         before do
-          allow(player_2).to receive(:in_stalemate?).with(chess_board).and_return(true)
+          allow(player2).to receive(:in_stalemate?).with(chess_board).and_return(true)
         end
 
         it 'outputs draw message' do
@@ -325,7 +328,7 @@ describe Game do
       it 'displays error message 3 times' do
         allow(game).to receive(:load_choice).and_return('d', '2', 'w', 'n')
         expect(game).to receive(:puts).with('Wrong input!').exactly(3).times
-        result = game.load_save?
+        game.load_save?
       end
     end
   end
@@ -350,7 +353,7 @@ describe Game do
 
   describe '#verify_load' do
     before do
-      saves = [:save, :save, :save]
+      saves = %i[save save save]
       stub_const('SaveLoad::SAVES', saves)
     end
 
@@ -435,11 +438,11 @@ describe Game do
   end
 
   describe '#setup_attributes' do
-    let(:player_white) { double('Player', color: :white) }
-    let(:player_black) { double('Player', color: :black) }
-    let(:new_board) { double('chessboard') }
+    let(:player_white) { instance_double(Player, color: :white) }
+    let(:player_black) { instance_double(Player, color: :black) }
+    let(:new_board) { instance_double(Board) }
     let(:players) { [player_white, player_black] }
-    let(:attributes) { [player_white, player_black, new_board, [:white, :black]] }
+    let(:attributes) { [player_white, player_black, new_board, %i[white black]] }
 
     it 'changes @player_white attribute' do
       expect { game.setup_attributes(attributes) }.to change { game.player_white }.to attributes[0]
@@ -459,9 +462,9 @@ describe Game do
   end
 
   describe '#save_game' do
-    let(:player_white) { double('Player', color: :white) }
-    let(:player_black) { double('Player', color: :black) }
-    let(:chess_board) { double('chessboard') }
+    let(:player_white) { instance_double(Player, color: :white) }
+    let(:player_black) { instance_double(Player, color: :black) }
+    let(:chess_board) { instance_double(Board) }
     let(:players) { [player_white, player_black] }
     let(:dumped_string) { :ds }
 
@@ -476,13 +479,13 @@ describe Game do
     end
 
     it 'stream YAML dumps correct attributes' do
-      players_colors = players.map { |p| p.color }
+      players_colors = players.map(&:color)
       expect(YAML).to receive(:dump_stream).with(player_white, player_black, chess_board, players_colors)
       game.save_game
     end
 
     it 'writes attributes to correct file' do
-      file_name = "saves/#{Time.now.strftime("%d-%m-%Y %H:%M:%S")}.yaml"
+      file_name = "saves/#{Time.now.strftime('%d-%m-%Y %H:%M:%S')}.yaml"
       expect(File).to receive(:write).with(file_name, dumped_string)
       game.save_game
     end

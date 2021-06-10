@@ -150,7 +150,7 @@ describe Player do
     let(:ai_player) { instance_double(Player, type: :ai) }
     let(:piece) { instance_double(Piece) }
     let(:ai_picked_square) { instance_double(Square) }
-    let(:legal_moves) { [ instance_double(Square) ] }
+    let(:legal_moves) { [instance_double(Square)] }
     let(:pawn) { instance_double(Pawn) }
 
     before do
@@ -232,12 +232,11 @@ describe Player do
         expect(result).to be nil
       end
     end
-
   end
 
   describe '#random_new_piece' do
     it 'selects correct random new Piece symbol' do
-      promotion_pieces = [:bishop, :knight, :queen, :rook]
+      promotion_pieces = %i[bishop knight queen rook]
       result = ai.random_new_piece
       expect(promotion_pieces).to include(result)
     end

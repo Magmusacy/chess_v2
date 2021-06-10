@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../../lib/modules/player_creator'
 require_relative '../../lib/player'
 
@@ -6,7 +8,6 @@ RSpec.configure do |c|
 end
 
 describe '#input_setting' do
-
   context 'when given input 2' do
     it 'returns 2' do
       input = '2'
@@ -17,7 +18,6 @@ describe '#input_setting' do
   end
 
   context 'when given wrong settings option 2 times' do
-
     before do
       wrong_input1 = '0'
       wrong_input2 = '4'
@@ -28,13 +28,12 @@ describe '#input_setting' do
     it 'displays error message 2 times' do
       error_message = 'Wrong input! Try again'
       expect(self).to receive(:puts).with(error_message).twice
-      result = input_setting
+      input_setting
     end
   end
 end
 
 describe '#initialize_player' do
-
   context 'when given :white color and :human type' do
     it 'sends :new message to Player class with :white and :human arguments' do
       color = :white
@@ -55,7 +54,6 @@ describe '#initialize_player' do
 end
 
 describe '#game_mode' do
-
   context 'when given setting 1' do
     let(:player1) { instance_double(Player, color: :white, type: :human) }
     let(:player2) { instance_double(Player, color: :black, type: :human) }

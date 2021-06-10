@@ -1,6 +1,6 @@
+# frozen_string_literal: true
+
 require_relative 'shared_piece_spec'
-require_relative '../../lib/pieces/king'
-require_relative '../../lib/pieces/piece'
 require_relative '../../lib/board'
 require_relative '../../lib/square'
 
@@ -19,103 +19,56 @@ describe King do
 
   describe '#possible_moves' do # possible moves calluje ten no castling
     context 'when given King { x: 4, y: 4 }' do
-    subject(:possible_king) { described_class.new(nil, :white) }
-    let(:white_piece) { instance_double(Piece, color: :white) }
-    let(:impossible_move) { [instance_double(Square, taken?: true, piece: white_piece)] }
-    let(:possible_move) { [instance_double(Square, taken?: false)] }
+      subject(:possible_king) { described_class.new(nil, :white) }
+      let(:white_piece) { instance_double(Piece, color: :white) }
+      let(:impossible_move) { [instance_double(Square, taken?: true, piece: white_piece)] }
+      let(:possible_move) { [instance_double(Square, taken?: false)] }
 
-    before do
-      allow(possible_king).to receive(:horizontal_move).and_return([])
-      allow(possible_king).to receive(:vertical_move).and_return([])
-      allow(possible_king).to receive(:diagonal_move).and_return([])
-      allow(possible_king).to receive(:castling_move).and_return([])
-    end
-
-      context 'when only #horizontal_move with x = -1 returns a possible legal move' do
-        before do
-          allow(possible_king).to receive(:horizontal_move).with(chess_board, -1).and_return(possible_move)
-        end
-
-        it 'returns an array with 1 possible move' do
-          result = possible_king.possible_moves(chess_board)
-          expect(result).to match_array(possible_move)
-        end
+      before do
+        allow(possible_king).to receive(:horizontal_move).and_return([])
+        allow(possible_king).to receive(:vertical_move).and_return([])
+        allow(possible_king).to receive(:diagonal_move).and_return([])
+        allow(possible_king).to receive(:castling_move).and_return([])
       end
 
-      context 'when only #horizontal_move with x = 1 returns a possible legal move' do
+      context 'when only #horizontal_move with x = -1 and x = 1 return a possible legal move' do
         before do
+          allow(possible_king).to receive(:horizontal_move).with(chess_board, -1).and_return(possible_move)
           allow(possible_king).to receive(:horizontal_move).with(chess_board, 1).and_return(possible_move)
         end
 
-        it 'returns an array with 1 possible move' do
+        it 'returns an array with 2 possible moves' do
+          expected = [possible_move, possible_move].flatten
           result = possible_king.possible_moves(chess_board)
-          expect(result).to match_array(possible_move)
+          expect(result).to match_array(expected)
         end
       end
 
-      context 'when only #vertical_move with y = -1 is possible' do
+      context 'when only #vertical_move with y = -1 and y = 1 return a possible legal move' do
         before do
           allow(possible_king).to receive(:vertical_move).with(chess_board, -1).and_return(possible_move)
-        end
-
-        it 'returns an array with 1 possible move' do
-          result = possible_king.possible_moves(chess_board)
-          expect(result).to match_array(possible_move)
-        end
-      end
-
-      context 'when only #vertical_move with y = 1 is possible' do
-        before do
           allow(possible_king).to receive(:vertical_move).with(chess_board, 1).and_return(possible_move)
         end
 
-        it 'returns an array with 1 possible move' do
+        it 'returns an array with 2 possible moves' do
+          expected = [possible_move, possible_move].flatten
           result = possible_king.possible_moves(chess_board)
-          expect(result).to match_array(possible_move)
+          expect(result).to match_array(expected)
         end
       end
 
-      context 'when only #diagonal_move with x = 1, y = 1 is possible' do
+      context 'when all diagonal moves are available' do
         before do
           allow(possible_king).to receive(:diagonal_move).with(chess_board, 1, 1).and_return(possible_move)
-        end
-
-        it 'returns an array with 1 possible move' do
-          result = possible_king.possible_moves(chess_board)
-          expect(result).to match_array(possible_move)
-        end
-      end
-
-      context 'when only #diagonal_move with x = 1, y = -1 is possible' do
-        before do
           allow(possible_king).to receive(:diagonal_move).with(chess_board, 1, -1).and_return(possible_move)
-        end
-
-        it 'returns an array with 1 possible move' do
-          result = possible_king.possible_moves(chess_board)
-          expect(result).to match_array(possible_move)
-        end
-      end
-
-      context 'when only #diagonal_move with x = -1, y = -1 is possible' do
-        before do
           allow(possible_king).to receive(:diagonal_move).with(chess_board, -1, -1).and_return(possible_move)
-        end
-
-        it 'returns an array with 1 possible move' do
-          result = possible_king.possible_moves(chess_board)
-          expect(result).to match_array(possible_move)
-        end
-      end
-
-      context 'when only #diagonal_move with x = -1, y = 1 is possible' do
-        before do
           allow(possible_king).to receive(:diagonal_move).with(chess_board, -1, 1).and_return(possible_move)
         end
 
-        it 'returns an array with 1 possible move' do
+        it 'returns an array with 4 possible moves' do
+          expected = [possible_move, possible_move, possible_move, possible_move].flatten
           result = possible_king.possible_moves(chess_board)
-          expect(result).to match_array(possible_move)
+          expect(result).to match_array(expected)
         end
       end
 
@@ -134,7 +87,6 @@ describe King do
 
       context 'when there are 2 possible moves but one of them has square with Piece the same color as calling Queen' do
         it 'returns an array with 1 possible legal move' do
-          returned_array = [possible_move, impossible_move].flatten
           allow(possible_king).to receive(:horizontal_move).with(chess_board, 1).and_return(possible_move)
           allow(possible_king).to receive(:vertical_move).with(chess_board, -1).and_return(impossible_move)
           result = possible_king.possible_moves(chess_board)
@@ -144,7 +96,6 @@ describe King do
 
       context 'when there is 1 possible move on square with Piece the same color as calling Queen' do
         it 'returns empty array' do
-          empty_array = []
           allow(possible_king).to receive(:vertical_move).with(chess_board, -1).and_return(impossible_move)
           result = possible_king.possible_moves(chess_board)
           expect(result).to be_empty
@@ -155,51 +106,51 @@ describe King do
 
   describe '#horizontal_move' do
     context 'when given King on square { x: 5, y: 3 }' do
-      let(:start_square_53) { instance_double(Square, position: { x: 5, y: 3 }) }
-      subject(:king_53) { described_class.new(start_square_53, :nil, nil) }
+      let(:start_square53) { instance_double(Square, position: { x: 5, y: 3 }) }
+      subject(:king53) { described_class.new(start_square53, :nil) }
 
       context 'when x = 1' do
-        let(:square_63) { instance_double(Square, position: { x: 6, y: 3 }, taken?: false) }
+        let(:square63) { instance_double(Square, position: { x: 6, y: 3 }, taken?: false) }
 
         before do
-          allow(chess_board).to receive(:get_relative_square).with(start_square_53, x: 1).and_return(square_63)
+          allow(chess_board).to receive(:get_relative_square).with(start_square53, x: 1).and_return(square63)
         end
 
         it 'returns square { x: 6, y: 3 }' do
           x = 1
-          result = king_53.horizontal_move(chess_board, x)
-          expected = [square_63]
+          result = king53.horizontal_move(chess_board, x)
+          expected = [square63]
           expect(result).to match_array(expected)
         end
       end
 
       context 'when x = -1' do
-        let(:square_43) { instance_double(Square, position: { x: 6, y: 3 }, taken?: false) }
+        let(:square43) { instance_double(Square, position: { x: 6, y: 3 }, taken?: false) }
 
         before do
-          allow(chess_board).to receive(:get_relative_square).with(start_square_53, x: -1).and_return(square_43)
+          allow(chess_board).to receive(:get_relative_square).with(start_square53, x: -1).and_return(square43)
         end
 
         it 'returns square { x: 4, y: 3 }' do
           x = -1
-          result = king_53.horizontal_move(chess_board, x)
-          expected = [square_43]
+          result = king53.horizontal_move(chess_board, x)
+          expected = [square43]
           expect(result).to match_array(expected)
         end
       end
     end
 
     context 'when move results in square that is not on the board' do
-      let(:start_square_12) { instance_double(Square, position: { x: 1, y: 2 }) }
-      subject(:king_12) { described_class.new(start_square_12, nil, nil) }
+      let(:start_square12) { instance_double(Square, position: { x: 1, y: 2 }) }
+      subject(:king12) { described_class.new(start_square12, nil) }
 
       before do
-        allow(chess_board).to receive(:get_relative_square).with(start_square_12, x: -1).and_return(nil)
+        allow(chess_board).to receive(:get_relative_square).with(start_square12, x: -1).and_return(nil)
       end
 
       it 'returns empty array' do
         x = -1
-        result = king_12.horizontal_move(chess_board, x)
+        result = king12.horizontal_move(chess_board, x)
         expect(result).to be_empty
       end
     end
@@ -207,51 +158,51 @@ describe King do
 
   describe '#vertical_move' do
     context 'when given King on square { x: 5, y: 3 }' do
-      let(:start_square_53) { instance_double(Square, position: { x: 5, y: 3 }) }
-      subject(:king_53) { described_class.new(start_square_53, nil, nil) }
+      let(:start_square53) { instance_double(Square, position: { x: 5, y: 3 }) }
+      subject(:king53) { described_class.new(start_square53, nil) }
 
       context 'when y = 1' do
-        let(:square_54) { instance_double(Square, position: { x: 5, y: 4 }, taken?: false) }
+        let(:square54) { instance_double(Square, position: { x: 5, y: 4 }, taken?: false) }
 
         before do
-          allow(chess_board).to receive(:get_relative_square).with(start_square_53, y: 1).and_return(square_54)
+          allow(chess_board).to receive(:get_relative_square).with(start_square53, y: 1).and_return(square54)
         end
 
         it 'returns square { x: 5, y: 4 }' do
           y = 1
-          result = king_53.vertical_move(chess_board, y)
-          expected = [square_54]
+          result = king53.vertical_move(chess_board, y)
+          expected = [square54]
           expect(result).to match_array(expected)
         end
       end
 
       context 'when y = -1' do
-        let(:square_52) { instance_double(Square, position: { x: 5, y: 2 }, taken?: false) }
+        let(:square52) { instance_double(Square, position: { x: 5, y: 2 }, taken?: false) }
 
         before do
-          allow(chess_board).to receive(:get_relative_square).with(start_square_53, y: -1).and_return(square_52)
+          allow(chess_board).to receive(:get_relative_square).with(start_square53, y: -1).and_return(square52)
         end
 
         it 'returns square { x: 5, y: 2 }' do
           y = -1
-          result = king_53.vertical_move(chess_board, y)
-          expected = [square_52]
+          result = king53.vertical_move(chess_board, y)
+          expected = [square52]
           expect(result).to match_array(expected)
         end
       end
     end
 
     context 'when move results in square that is not on the board' do
-      let(:start_square_51) { instance_double(Square, position: { x: 5, y: 1 }) }
-      subject(:king_51) { described_class.new(start_square_51, nil, nil) }
+      let(:start_square51) { instance_double(Square, position: { x: 5, y: 1 }) }
+      subject(:king51) { described_class.new(start_square51, nil) }
 
       before do
-        allow(chess_board).to receive(:get_relative_square).with(start_square_51, y: -1).and_return(nil)
+        allow(chess_board).to receive(:get_relative_square).with(start_square51, y: -1).and_return(nil)
       end
 
       it 'returns empty array' do
         y = -1
-        result = king_51.vertical_move(chess_board, y)
+        result = king51.vertical_move(chess_board, y)
         expect(result).to be_empty
       end
     end
@@ -259,98 +210,98 @@ describe King do
 
   describe '#diagonal_move' do
     context 'when given only King on square { x: 4, y: 4 }' do
-      let(:start_square_44) { instance_double(Square, position: { x: 4, y: 4 }) }
-      subject(:diagonal_king_44) { described_class.new(start_square_44) }
+      let(:start_square44) { instance_double(Square, position: { x: 4, y: 4 }) }
+      subject(:diagonal_king44) { described_class.new(start_square44) }
 
       context 'when x = 1, y = 1' do
-        let(:square_55) { instance_double(Square, position: { x: 5, y: 5 }) }
+        let(:square55) { instance_double(Square, position: { x: 5, y: 5 }) }
 
         before do
-          allow(chess_board).to receive(:get_relative_square).with(start_square_44, x: 1, y: 1).and_return(square_55)
+          allow(chess_board).to receive(:get_relative_square).with(start_square44, x: 1, y: 1).and_return(square55)
         end
 
         it 'returns square { x: 5, y: 5 }' do
-          result = diagonal_king_44.diagonal_move(chess_board, 1, 1)
-          expected = [square_55]
+          result = diagonal_king44.diagonal_move(chess_board, 1, 1)
+          expected = [square55]
           expect(result).to match_array(expected)
         end
       end
 
       context 'when x = 1, y = -1' do
-        let(:square_53) { instance_double(Square, position: { x: 5, y: 3 }) }
+        let(:square53) { instance_double(Square, position: { x: 5, y: 3 }) }
 
         before do
-          allow(chess_board).to receive(:get_relative_square).with(start_square_44, x: 1, y: -1).and_return(square_53)
+          allow(chess_board).to receive(:get_relative_square).with(start_square44, x: 1, y: -1).and_return(square53)
         end
 
         it 'returns square { x: 5, y: 3 }' do
-          result = diagonal_king_44.diagonal_move(chess_board, 1, -1)
-          expected = [square_53]
+          result = diagonal_king44.diagonal_move(chess_board, 1, -1)
+          expected = [square53]
           expect(result).to match_array(expected)
         end
       end
 
       context 'when x = -1, y = 1' do
-        let(:square_35) { instance_double(Square, position: { x: 3, y: 5 }) }
+        let(:square35) { instance_double(Square, position: { x: 3, y: 5 }) }
 
         before do
-          allow(chess_board).to receive(:get_relative_square).with(start_square_44, x: -1, y: 1).and_return(square_35)
+          allow(chess_board).to receive(:get_relative_square).with(start_square44, x: -1, y: 1).and_return(square35)
         end
 
         it 'returns square { x: 3, y: 5 }' do
-          result = diagonal_king_44.diagonal_move(chess_board, -1, 1)
-          expected = [square_35]
+          result = diagonal_king44.diagonal_move(chess_board, -1, 1)
+          expected = [square35]
           expect(result).to match_array(expected)
         end
       end
 
       context 'when x = -1, y = -1' do
-        let(:square_33) { instance_double(Square, position: { x: 3, y: 3 }) }
+        let(:square33) { instance_double(Square, position: { x: 3, y: 3 }) }
 
         before do
-          allow(chess_board).to receive(:get_relative_square).with(start_square_44, x: -1, y: -1).and_return(square_33)
+          allow(chess_board).to receive(:get_relative_square).with(start_square44, x: -1, y: -1).and_return(square33)
         end
 
         it 'returns square { x: 3, y: 3 }' do
-          result = diagonal_king_44.diagonal_move(chess_board, -1, -1)
-          expected = [square_33]
+          result = diagonal_king44.diagonal_move(chess_board, -1, -1)
+          expected = [square33]
           expect(result).to match_array(expected)
         end
       end
     end
 
     context 'when move results in square that is not on the board' do
-      let(:start_square_51) { instance_double(Square, position: { x: 5, y: 1 }) }
-      subject(:king_51) { described_class.new(start_square_51, nil, nil) }
+      let(:start_square51) { instance_double(Square, position: { x: 5, y: 1 }) }
+      subject(:king51) { described_class.new(start_square51, nil) }
 
       before do
-        allow(chess_board).to receive(:get_relative_square).with(start_square_51, x: 1, y: -1).and_return(nil)
+        allow(chess_board).to receive(:get_relative_square).with(start_square51, x: 1, y: -1).and_return(nil)
       end
 
       it 'returns empty array' do
         x = 1
         y = -1
-        result = king_51.diagonal_move(chess_board, x, y)
+        result = king51.diagonal_move(chess_board, x, y)
         expect(result).to be_empty
       end
     end
   end
 
   describe '#castling_move' do
-    let(:start_square_51) { instance_double(Square, position: { x: 5, y: 1 }) }
-    subject(:castling_king) { described_class.new(start_square_51, :white) }
-    let(:empty_square) { double('emptySquare', taken?: false) }
-    let(:wht_rook) { double('Rook', color: :white, is_a?: true) }
+    let(:start_square51) { instance_double(Square, position: { x: 5, y: 1 }) }
+    subject(:castling_king) { described_class.new(start_square51, :white) }
+    let(:empty_square) { instance_double(Square, taken?: false) }
+    let(:wht_rook) { instance_double(Rook, color: :white, is_a?: true) }
     let(:rook_square) { instance_double(Square, position: { x: 8, y: 1 }, taken?: true, piece: wht_rook) }
-    let(:enemy_piece) { double('Piece') }
-    let(:enemy_square) { double('square', taken: true, piece: enemy_piece) }
-    let(:square_71) { instance_double(Square, position: { x: 7, y: 1 }, taken?: false) }
+    let(:enemy_piece) { instance_double(Piece) }
+    let(:enemy_square) { instance_double(Square, taken?: true, piece: enemy_piece) }
+    let(:square71) { instance_double(Square, position: { x: 7, y: 1 }, taken?: false) }
 
     before do
       allow(castling_king).to receive(:get_rook).and_return(wht_rook)
       allow(chess_board).to receive(:recorded_moves).and_return([])
-      allow(chess_board).to receive(:get_relative_square).with(start_square_51, x: 1).and_return(empty_square)
-      allow(chess_board).to receive(:get_relative_square).with(start_square_51, x: 2).and_return(square_71)
+      allow(chess_board).to receive(:get_relative_square).with(start_square51, x: 1).and_return(empty_square)
+      allow(chess_board).to receive(:get_relative_square).with(start_square51, x: 2).and_return(square71)
       allow(chess_board).to receive(:squares_taken_by).and_return([enemy_square])
       allow(enemy_piece).to receive(:possible_moves).with(chess_board).and_return([])
     end
@@ -358,46 +309,43 @@ describe King do
     context 'when :white King on initial square { x: 5, y: 1 }' do
       context 'when castling with x = 1 is available' do
         before do
-          col_squares = [empty_square, square_71]
-          allow(castling_king).to receive(:discard_illegal_moves).and_return(col_squares)
+          columns = [empty_square, square71]
+          allow(castling_king).to receive(:discard_illegal_moves).and_return(columns)
         end
 
         it 'returns Square { x: 7, y: 1 }' do
           x = 1
           result = castling_king.castling_move(chess_board, x)
-          expected = square_71
-          expect(result).to be(square_71)
+          expect(result).to be(square71)
         end
       end
 
       context 'when with x = -1 is available' do
-        let(:square_31) { instance_double(Square, position: { x: 3, y: 1 }, taken?: false) }
+        let(:square31) { instance_double(Square, position: { x: 3, y: 1 }, taken?: false) }
 
         before do
-          col_squares = [empty_square, square_31, empty_square]
-          allow(castling_king).to receive(:discard_illegal_moves).and_return(col_squares)
-          allow(chess_board).to receive(:get_relative_square).with(start_square_51, x: -1).and_return(empty_square)
-          allow(chess_board).to receive(:get_relative_square).with(start_square_51, x: -2).and_return(square_31)
-          allow(chess_board).to receive(:get_relative_square).with(start_square_51, x: -3).and_return(empty_square)
+          columns = [empty_square, square31, empty_square]
+          allow(castling_king).to receive(:discard_illegal_moves).and_return(columns)
+          allow(chess_board).to receive(:get_relative_square).with(start_square51, x: -1).and_return(empty_square)
+          allow(chess_board).to receive(:get_relative_square).with(start_square51, x: -2).and_return(square31)
+          allow(chess_board).to receive(:get_relative_square).with(start_square51, x: -3).and_return(empty_square)
         end
 
         it 'returns Square { x: 3, y: 1 }' do
           x = -1
           result = castling_king.castling_move(chess_board, x)
-          expected = square_31
-          expect(result).to be(square_31)
+          expect(result).to be(square31)
         end
       end
 
       context 'when King has to move through attacked square' do
-        let(:attacked_square) { double('attacjedSquare', taken?: false) }
+        let(:attacked_square) { instance_double(Square, taken?: false) }
 
         before do
-          col_squares = [attacked_square, square_71]
           allow(chess_board).to receive(:squares_taken_by).and_return([enemy_square])
           allow(enemy_piece).to receive(:possible_moves).with(chess_board).and_return([attacked_square])
-          allow(castling_king).to receive(:discard_illegal_moves).with(chess_board, col_squares).and_return([empty_square])
-          allow(chess_board).to receive(:get_relative_square).with(start_square_51, x: 1).and_return(attacked_square)
+          allow(castling_king).to receive(:discard_illegal_moves).and_return([empty_square])
+          allow(chess_board).to receive(:get_relative_square).with(start_square51, x: 1).and_return(attacked_square)
         end
 
         it 'returns empty array' do
@@ -408,13 +356,12 @@ describe King do
       end
 
       context 'when there is no correct Rook on the specified side' do
-        let(:attacked_square) { double('attacjedSquare', taken?: false) }
-        let(:enemy_piece) { double('Piece') }
-        let(:square_71) { instance_double(Square, position: { x: 7, y: 1 }, taken?: false) }
+        let(:attacked_square) { instance_double(Square, taken?: false) }
+        let(:enemy_piece) { instance_double(Piece) }
+        let(:square71) { instance_double(Square, position: { x: 7, y: 1 }, taken?: false) }
         before do
-
-          col_squares = [empty_square, square_71]
-          allow(castling_king).to receive(:discard_illegal_moves).and_return(col_squares)
+          columns = [empty_square, square71]
+          allow(castling_king).to receive(:discard_illegal_moves).and_return(columns)
           allow(castling_king).to receive(:get_rook).and_return(nil)
         end
 
@@ -426,13 +373,13 @@ describe King do
       end
 
       context 'when Rook on the specified side has made a move before' do
-        let(:attacked_square) { double('attacjedSquare', taken?: false) }
-        let(:enemy_piece) { double('Piece') }
-        let(:square_71) { instance_double(Square, position: { x: 7, y: 1 }, taken?: false) }
+        let(:attacked_square) { instance_double(Square, taken?: false) }
+        let(:enemy_piece) { instance_double(Piece) }
+        let(:square71) { instance_double(Square, position: { x: 7, y: 1 }, taken?: false) }
 
         before do
-          col_squares = [empty_square, square_71]
-          allow(castling_king).to receive(:discard_illegal_moves).and_return(col_squares)
+          columns = [empty_square, square71]
+          allow(castling_king).to receive(:discard_illegal_moves).and_return(columns)
           allow(chess_board).to receive(:recorded_moves).and_return([[rook_square]])
         end
 
@@ -446,9 +393,9 @@ describe King do
 
     context 'when King has made a move before' do
       before do
-        col_squares = [empty_square, square_71]
-        allow(castling_king).to receive(:discard_illegal_moves).and_return(col_squares)
-        allow(chess_board).to receive(:recorded_moves).and_return([[start_square_51]])
+        columns = [empty_square, square71]
+        allow(castling_king).to receive(:discard_illegal_moves).and_return(columns)
+        allow(chess_board).to receive(:recorded_moves).and_return([[start_square51]])
       end
 
       it 'returns empty array' do
@@ -460,10 +407,10 @@ describe King do
   end
 
   describe '#get_rook' do
-    let(:start_square_51) { instance_double(Square, position: { x: 5, y: 1 }) }
-    subject(:rook_king) { described_class.new(start_square_51, :white) }
-    let(:wht_rook) { double('Rook', color: :white, is_a?: true) }
-    let(:rook_square) { double('Square') }
+    let(:start_square51) { instance_double(Square, position: { x: 5, y: 1 }) }
+    subject(:rook_king) { described_class.new(start_square51, :white) }
+    let(:wht_rook) { instance_double(Rook, color: :white, is_a?: true) }
+    let(:rook_square) { instance_double(Square) }
 
     context 'when x = 1' do
       context 'when square with position x: 8 has Rook Piece with the same color as King on it' do
@@ -477,7 +424,7 @@ describe King do
       end
 
       context 'when square with position x: 8 does not have Rook Piece with the same color as King on it' do
-        let(:blk_rook) { double('Rook', color: :black, is_a?: true) }
+        let(:blk_rook) { instance_double(Rook, color: :black, is_a?: true) }
 
         it 'return nil' do
           allow(rook_square).to receive(:piece).and_return(blk_rook)
@@ -501,7 +448,7 @@ describe King do
       end
 
       context 'when square with position x: 1 does not have Rook Piece with the same color as King on it' do
-        let(:blk_piece) { double('piece', color: :black, is_a?: false) }
+        let(:blk_piece) { instance_double(Piece, color: :black, is_a?: false) }
 
         it 'return nil' do
           allow(rook_square).to receive(:piece).and_return(blk_piece)
@@ -515,19 +462,19 @@ describe King do
   end
 
   describe '#move' do
-    let(:start_square_51) { instance_double(Square, position: { x: 5, y: 1 }) }
-    subject(:castling_king) { described_class.new(start_square_51, :white) }
-    let(:empty_square) { double('emptySquare', taken?: false) }
-    let(:taken_square) { double('takenSquare', taken?: true) }
-    let(:wht_rook) { double('Rook', color: :white, is_a?: true) }
+    let(:start_square51) { instance_double(Square, position: { x: 5, y: 1 }) }
+    subject(:castling_king) { described_class.new(start_square51, :white) }
+    let(:empty_square) { instance_double(Square, taken?: false) }
+    let(:taken_square) { instance_double(Square, taken?: true) }
+    let(:wht_rook) { instance_double(Rook, color: :white, is_a?: true) }
     let(:rook_square) { instance_double(Square, position: { x: 8, y: 1 }, taken?: true, piece: wht_rook) }
-    let(:square_71) { instance_double(Square, position: { x: 7, y: 1 }) }
-    let(:square_61) { instance_double(Square, position: { x: 6, y: 1 }) }
-    let(:move_array) { [start_square_51, square_71] }
+    let(:square71) { instance_double(Square, position: { x: 7, y: 1 }) }
+    let(:square61) { instance_double(Square, position: { x: 6, y: 1 }) }
+    let(:move_array) { [start_square51, square71] }
 
     before do
-      allow(square_71).to receive(:update_piece).with(castling_king)
-      allow(start_square_51).to receive(:update_piece)
+      allow(square71).to receive(:update_piece).with(castling_king)
+      allow(start_square51).to receive(:update_piece)
       allow(chess_board).to receive(:add_move).with(move_array)
       allow(castling_king).to receive(:update_location)
       allow(castling_king).to receive(:castling_move)
@@ -535,54 +482,54 @@ describe King do
 
     it 'sends :add_move message to Board with [location, square] argument' do
       expect(chess_board).to receive(:add_move).with(move_array)
-      castling_king.move(square_71, chess_board)
+      castling_king.move(square71, chess_board)
     end
 
     it 'sends :update_piece message with self to given square' do
-      expect(square_71).to receive(:update_piece).with(castling_king)
-      castling_king.move(square_71, chess_board)
+      expect(square71).to receive(:update_piece).with(castling_king)
+      castling_king.move(square71, chess_board)
     end
 
     it 'sends :update_piece message without any args to self location' do
-      expect(start_square_51).to receive(:update_piece).with(no_args)
-      castling_king.move(square_71, chess_board)
+      expect(start_square51).to receive(:update_piece).with(no_args)
+      castling_king.move(square71, chess_board)
     end
 
     it 'calls #update_location method with given square as an argument' do
-      expect(castling_king).to receive(:update_location).with(square_71)
-      castling_king.move(square_71, chess_board)
+      expect(castling_king).to receive(:update_location).with(square71)
+      castling_king.move(square71, chess_board)
     end
 
     context 'when new_square is the same as the square returned from #castling_move with x = 1' do
       before do
-        allow(castling_king).to receive(:castling_move).with(chess_board, 1).and_return(square_71)
-        allow(chess_board).to receive(:get_relative_square).with(start_square_51, x: 1).and_return(square_61)
+        allow(castling_king).to receive(:castling_move).with(chess_board, 1).and_return(square71)
+        allow(chess_board).to receive(:get_relative_square).with(start_square51, x: 1).and_return(square61)
         allow(castling_king).to receive(:get_rook).with(chess_board, 1).and_return(wht_rook)
         allow(wht_rook).to receive(:move)
       end
 
       it 'sends correct :move message to correct Rook' do
-        expect(wht_rook).to receive(:move).with(square_61, chess_board)
-        castling_king.move(square_71, chess_board)
+        expect(wht_rook).to receive(:move).with(square61, chess_board)
+        castling_king.move(square71, chess_board)
       end
     end
 
     context 'when new_square is the same as the square returned from #castling_move with x = -1' do
-      let(:square_31) { instance_double(Square, position: { x: 3, y: 1 }) }
-      let(:square_41) { instance_double(Square, position: { x: 4, y: 1 }) }
-      let(:move_array) { [start_square_51, square_31] }
+      let(:square31) { instance_double(Square, position: { x: 3, y: 1 }) }
+      let(:square41) { instance_double(Square, position: { x: 4, y: 1 }) }
+      let(:move_array) { [start_square51, square31] }
 
       before do
-        allow(square_31).to receive(:update_piece).with(castling_king)
-        allow(castling_king).to receive(:castling_move).with(chess_board, -1).and_return(square_31)
-        allow(chess_board).to receive(:get_relative_square).with(start_square_51, x: -1).and_return(square_41)
+        allow(square31).to receive(:update_piece).with(castling_king)
+        allow(castling_king).to receive(:castling_move).with(chess_board, -1).and_return(square31)
+        allow(chess_board).to receive(:get_relative_square).with(start_square51, x: -1).and_return(square41)
         allow(castling_king).to receive(:get_rook).with(chess_board, -1).and_return(wht_rook)
         allow(wht_rook).to receive(:move)
       end
 
       it 'sends correct :move message to correct Rook' do
-        expect(wht_rook).to receive(:move).with(square_41, chess_board)
-        castling_king.move(square_31, chess_board)
+        expect(wht_rook).to receive(:move).with(square41, chess_board)
+        castling_king.move(square31, chess_board)
       end
     end
   end

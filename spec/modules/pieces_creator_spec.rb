@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../../lib/modules/pieces_creator'
 require_relative '../../lib/player'
 require_relative '../../lib/pieces/bishop'
@@ -44,16 +46,14 @@ describe '#select_attributes' do
       color = player_wht.color
       y_pos = [1, 2]
       result = select_attributes(color, y_pos)
-      expected = [
-                   [{ x: 1, y: 1 }, :white], [{ x: 2, y: 1 }, :white],
-                   [{ x: 3, y: 1 }, :white], [{ x: 4, y: 1 }, :white],
-                   [{ x: 5, y: 1 }, :white], [{ x: 6, y: 1 }, :white],
-                   [{ x: 7, y: 1 }, :white], [{ x: 8, y: 1 }, :white],
-                   [{ x: 1, y: 2 }, :white], [{ x: 2, y: 2 }, :white],
-                   [{ x: 3, y: 2 }, :white], [{ x: 4, y: 2 }, :white],
-                   [{ x: 5, y: 2 }, :white], [{ x: 6, y: 2 }, :white],
-                   [{ x: 7, y: 2 }, :white], [{ x: 8, y: 2 }, :white]
-                 ]
+      expected = [[{ x: 1, y: 1 }, :white], [{ x: 2, y: 1 }, :white],
+                  [{ x: 3, y: 1 }, :white], [{ x: 4, y: 1 }, :white],
+                  [{ x: 5, y: 1 }, :white], [{ x: 6, y: 1 }, :white],
+                  [{ x: 7, y: 1 }, :white], [{ x: 8, y: 1 }, :white],
+                  [{ x: 1, y: 2 }, :white], [{ x: 2, y: 2 }, :white],
+                  [{ x: 3, y: 2 }, :white], [{ x: 4, y: 2 }, :white],
+                  [{ x: 5, y: 2 }, :white], [{ x: 6, y: 2 }, :white],
+                  [{ x: 7, y: 2 }, :white], [{ x: 8, y: 2 }, :white]]
       expect(result).to match_array(expected)
     end
   end
@@ -65,16 +65,14 @@ describe '#select_attributes' do
       color = player_blk.color
       y_pos = [8, 7]
       result = select_attributes(color, y_pos)
-      expected = [
-                   [{ x: 1, y: 8 }, :black], [{ x: 2, y: 8 }, :black],
-                   [{ x: 3, y: 8 }, :black], [{ x: 4, y: 8 }, :black],
-                   [{ x: 5, y: 8 }, :black], [{ x: 6, y: 8 }, :black],
-                   [{ x: 7, y: 8 }, :black], [{ x: 8, y: 8 }, :black],
-                   [{ x: 1, y: 7 }, :black], [{ x: 2, y: 7 }, :black],
-                   [{ x: 3, y: 7 }, :black], [{ x: 4, y: 7 }, :black],
-                   [{ x: 5, y: 7 }, :black], [{ x: 6, y: 7 }, :black],
-                   [{ x: 7, y: 7 }, :black], [{ x: 8, y: 7 }, :black]
-                 ]
+      expected = [[{ x: 1, y: 8 }, :black], [{ x: 2, y: 8 }, :black],
+                  [{ x: 3, y: 8 }, :black], [{ x: 4, y: 8 }, :black],
+                  [{ x: 5, y: 8 }, :black], [{ x: 6, y: 8 }, :black],
+                  [{ x: 7, y: 8 }, :black], [{ x: 8, y: 8 }, :black],
+                  [{ x: 1, y: 7 }, :black], [{ x: 2, y: 7 }, :black],
+                  [{ x: 3, y: 7 }, :black], [{ x: 4, y: 7 }, :black],
+                  [{ x: 5, y: 7 }, :black], [{ x: 6, y: 7 }, :black],
+                  [{ x: 7, y: 7 }, :black], [{ x: 8, y: 7 }, :black]]
       expect(result).to match_array(expected)
     end
   end
@@ -210,7 +208,7 @@ describe '#create_instances' do
     end
 
     before do
-      pieces = [:rook, :knight, :bishop, :queen, :king, :bishop, :knight, :rook, :pawn]
+      pieces = %i[rook knight bishop queen king bishop knight rook pawn]
       8.times do |i|
         allow(self).to receive(:create_instance).with(pieces[i], wht_attributes[i]).and_return(piece_instance[i])
       end
@@ -262,7 +260,7 @@ describe '#create_instances' do
     end
 
     before do
-      pieces = [:rook, :knight, :bishop, :queen, :king, :bishop, :knight, :rook, :pawn]
+      pieces = %i[rook knight bishop queen king bishop knight rook pawn]
       8.times do |i|
         allow(self).to receive(:create_instance).with(pieces[i], wht_attributes[i]).and_return(piece_instance[i])
       end

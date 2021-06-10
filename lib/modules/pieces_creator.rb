@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+
+# Contains logic for creating every Piece with default array position
 module PiecesCreator
   def create_pieces(player)
     color = player.color
@@ -12,8 +15,8 @@ module PiecesCreator
 
   def select_attributes(color, y_pos)
     ary = []
-    8.times { |i| ary << [ { x: i + 1, y: y_pos.first }, color ] }
-    8.times { |i| ary << [ { x: i + 1, y: y_pos.last }, color ] }
+    8.times { |i| ary << [{ x: i + 1, y: y_pos.first }, color] }
+    8.times { |i| ary << [{ x: i + 1, y: y_pos.last }, color] }
     ary
   end
 
@@ -25,7 +28,7 @@ module PiecesCreator
 
   def create_instances(attributes)
     ary = []
-    pieces = [:rook, :knight, :bishop, :queen, :king, :bishop, :knight, :rook]
+    pieces = %i[rook knight bishop queen king bishop knight rook]
     attributes.each_with_index do |att, idx|
       piece = pieces[idx] || :pawn
       ary << create_instance(piece, att)

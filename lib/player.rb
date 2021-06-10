@@ -3,6 +3,7 @@
 require_relative 'modules/ai'
 require_relative 'modules/special_conditions'
 
+# Contains logic for getting move input from the player
 class Player
   include AI
   include SpecialConditions
@@ -19,6 +20,7 @@ class Player
         square = pick(game, board)
         move = pick(game, board, square)
         raise NoMethodError if move.nil?
+
         return square.piece.move(move, board)
       rescue NoMethodError
         puts 'Chosen wrong square, try again'
@@ -56,7 +58,7 @@ class Player
 
   private
 
-  def pick(game, board, chosen_square = :deafult, legal_moves = [])
+  def pick(game, board, chosen_square = :deafult)
     if chosen_square == :deafult
       board.display(color, type)
       available_squares = board.squares_taken_by(color)

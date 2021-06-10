@@ -1,6 +1,9 @@
+# frozen_string_literal: true
+
 require_relative 'piece'
 require_relative '../modules/shared_movement'
 
+# Contains logic for Queen movement
 class Queen < Piece
   include SharedMovement::RookMovement
   include SharedMovement::BishopMovement

@@ -1,6 +1,9 @@
+# frozen_string_literal: true
+
 require_relative 'piece'
 require_relative '../modules/shared_movement'
 
+# Contains logic for Rook movement
 class Rook < Piece
   include SharedMovement::RookMovement
 

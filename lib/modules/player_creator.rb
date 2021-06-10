@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+
+# Contains logic for creating Players with their type being read from terminal
 module PlayerCreator
   def create_players
     player_settings

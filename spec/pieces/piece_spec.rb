@@ -88,18 +88,18 @@ describe Piece do
     context 'when marshalling Board object' do
       it 'sends :dump message to Marshal class with Board object' do
         expect(Marshal).to receive(:dump).with(real_board)
-        real_piece.clone_objects(real_board, real_piece, real_square)
+        real_piece.clone_objects(real_board, real_square)
       end
 
       it 'sends :load message to Marshal class with the result of dumping Board object' do
         allow(Marshal).to receive(:dump).with(real_board).and_return(clone_board)
         expect(Marshal).to receive(:load).with(clone_board)
-        real_piece.clone_objects(real_board, real_piece, real_square)
+        real_piece.clone_objects(real_board, real_square)
       end
     end
 
     it 'returns an array with cloned board, cloned piece and cloned square from cloned board in correct order' do
-      result = real_piece.clone_objects(real_board, real_piece, real_square)
+      result = real_piece.clone_objects(real_board, real_square)
       expected = [clone_board, clone_piece, clone_chosen_square]
       expect(result).to eq(expected)
     end

@@ -13,4 +13,3 @@ require_relative 'pieces/king'
 require_relative 'game'
 
 Game.new.play_game
-

@@ -35,7 +35,6 @@ module Displayable
 
   def player_type_display(player_color, player_type)
     player_type == :human ? nil : sleep(0.15)
-    puts `clear`
     puts "#{player_color.capitalize} player turn"
   end
 

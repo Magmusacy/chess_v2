@@ -2,13 +2,15 @@
 
 # Contains logic for executing en passant move
 module EnPassantMove
-  def en_passant_move(board, x)
-    adjacent_square = [board.get_relative_square(location, x: x)].compact
+  def en_passant_move(board, x_shift)
+    adjacent_square = [board.get_relative_square(location, x: x_shift)].compact
     return [] if adjacent_square.empty? || !adjacent_square.first.taken?
+
     if en_passantable?(adjacent_square.first, board.recorded_moves.last)
-      return [board.get_relative_square(location, x: x, y: y_shift)]
+      [board.get_relative_square(location, x: x_shift, y: y_shift)]
+    else
+      []
     end
-    []
   end
 
   def take_enemy_pawn(chosen_square, board)

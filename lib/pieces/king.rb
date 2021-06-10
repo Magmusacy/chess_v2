@@ -1,6 +1,9 @@
+# frozen_string_literal: true
+
 require_relative 'piece'
 require_relative '../modules/castling'
 
+# Contains logic for King movement
 class King < Piece
   include Castling
 
@@ -9,21 +12,21 @@ class King < Piece
              vertical_move(board, 1), vertical_move(board, -1),
              diagonal_move(board, 1, 1), diagonal_move(board, 1, -1),
              diagonal_move(board, -1, 1), diagonal_move(board, -1, -1),
-            castling_move(board, 1), castling_move(board, -1)].flatten
+             castling_move(board, 1), castling_move(board, -1)].flatten
 
     discard_related_squares(moves)
   end
 
-  def horizontal_move(board, x)
-    move_square = [board.get_relative_square(location, x: x)].compact
+  def horizontal_move(board, x_shift)
+    [board.get_relative_square(location, x: x_shift)].compact
   end
 
-  def vertical_move(board, y)
-    move_square = [board.get_relative_square(location, y: y)].compact
+  def vertical_move(board, y_shift)
+    [board.get_relative_square(location, y: y_shift)].compact
   end
 
-  def diagonal_move(board, x, y)
-    move_square = [board.get_relative_square(location, x: x, y: y)].compact
+  def diagonal_move(board, x_shift, y_shift)
+    [board.get_relative_square(location, x: x_shift, y: y_shift)].compact
   end
 
   def move(chosen_square, board)

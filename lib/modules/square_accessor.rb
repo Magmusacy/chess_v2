@@ -1,5 +1,9 @@
+# rubocop:disable Naming/MethodParameterName
+# frozen_string_literal: true
+
 require_relative '../pieces/king'
 
+# Contains logic for accessing different squares from @board
 module SquareAccessor
   def get_square(square_position)
     @board.find { |square| square.position == square_position }
@@ -20,3 +24,4 @@ module SquareAccessor
     squares_taken_by(color).find { |square| square.piece.is_a?(King) }
   end
 end
+# rubocop:enable Naming/MethodParameterName
