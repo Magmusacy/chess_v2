@@ -106,12 +106,14 @@ describe Piece do
   end
 
   describe '#illegal?' do
+    let(:untouchable_square) { instance_double(Square) }
+
     context 'when Piece object has :white color' do
       let(:opponent_color) { :black }
       let(:piece_color) { :white }
       subject(:illegal_piece) { described_class.new(nil, piece_color) }
 
-      context 'when given Board on which :white King is under attack' do
+      context 'when given only argument Board on which :white King is under attack' do
         let(:wht_king) { double('King', color: :white, piece: nil) }
         let(:enemy_piece1) { double('Piece') }
         let(:enemy_squares) { [double('Square', taken?: true, piece: enemy_piece1)] }
@@ -128,7 +130,7 @@ describe Piece do
         end
       end
 
-      context 'when given Board on which :white King is not under attack' do
+      context 'when given only argument Board on which :white King is not under attack' do
         let(:wht_king) { double('King', color: :white, piece: nil) }
         let(:enemy_piece1) { double('Piece') }
         let(:enemy_squares) { [double('Square', taken?: true, piece: enemy_piece1)] }
@@ -144,6 +146,58 @@ describe Piece do
           expect(result).to be false
         end
       end
+
+      context 'when given arguments Board and untouchable square' do
+        context 'when untouchable square is under attack' do
+          let(:untouchable_square) { instance_double(Square) }
+          let(:enemy_piece) { double('Piece') }
+          let(:enemy_squares) { [double('Square', taken?: true, piece: enemy_piece)] }
+
+          before do
+            allow(enemy_piece).to receive(:possible_moves).with(chess_board).and_return([untouchable_square])
+            allow(chess_board).to receive(:squares_taken_by).with(opponent_color).and_return(enemy_squares)
+          end
+
+          it 'returns true' do
+            result = illegal_piece.illegal?(chess_board, untouchable_square)
+            expect(result).to be true
+          end
+        end
+
+        context 'when untouchable square is not under attack' do
+          let(:enemy_piece) { double('Piece') }
+          let(:enemy_squares) { [double('Square', taken?: true, piece: enemy_piece)] }
+
+          before do
+            allow(enemy_piece).to receive(:possible_moves).with(chess_board).and_return([])
+            allow(chess_board).to receive(:squares_taken_by).with(opponent_color).and_return(enemy_squares)
+          end
+
+          it 'returns false' do
+            result = illegal_piece.illegal?(chess_board, untouchable_square)
+            expect(result).to be false
+          end
+        end
+      end
+
+      context 'when checking possible moves of enemy pieces' do
+        let(:legal_moves) { [instance_double(Square)] }
+        let(:enemy_square) { instance_double(Square, taken?: true, piece: enemy_king) }
+        let(:enemy_king) { instance_double(King) }
+        subject(:piece) { described_class.new(nil, :white) }
+
+        before do
+          allow(chess_board).to receive(:squares_taken_by).with(:black).and_return([enemy_square])
+          allow(enemy_king).to receive(:is_a?).with(King).and_return(true)
+        end
+
+        context 'when current enemy piece is King' do
+          it 'sends :basic_moves message to King' do
+            expect(enemy_king).to receive(:basic_moves).with(chess_board).and_return(legal_moves)
+            piece.illegal?(chess_board, untouchable_square)
+          end
+        end
+      end
     end
   end
 
@@ -152,14 +206,14 @@ describe Piece do
   end
 
   describe '#discard_related_squares' do
-    let(:white_piece_dbl) { double('Piece', color: :white) }
-    let(:black_piece_dbl) { double('Piece', color: :black) }
+    let(:white_piece_dbl) { instance_double(Piece, color: :white) }
+    let(:black_piece_dbl) { instance_double(Piece, color: :black) }
 
     context 'when given :white Piece' do
       subject(:wht_piece) { described_class.new(nil, :white) }
-      let(:empty_square) { double('Square', taken?: false) }
-      let(:related_square) { double('Square', taken?: true, piece: white_piece_dbl) }
-      let(:opponent_square) { double('Square', taken?: true, piece: black_piece_dbl) }
+      let(:empty_square) { instance_double(Square, taken?: false) }
+      let(:related_square) { instance_double(Square, taken?: true, piece: white_piece_dbl) }
+      let(:opponent_square) { instance_double(Square, taken?: true, piece: black_piece_dbl) }
 
       context 'when given an array with 2 squares (white_piece, white_piece)' do
         let(:squares_array) { [related_square, related_square] }
@@ -191,9 +245,9 @@ describe Piece do
 
     context 'when given :black Piece' do
       subject(:blk_piece) { described_class.new(nil, :black) }
-      let(:empty_square) { double('Square', taken?: false) }
-      let(:related_square) { double('Square', taken?: true, piece: black_piece_dbl) }
-      let(:opponent_square) { double('Square', taken?: true, piece: white_piece_dbl) }
+      let(:empty_square) { instance_double(Square, taken?: false) }
+      let(:related_square) { instance_double(Square, taken?: true, piece: black_piece_dbl) }
+      let(:opponent_square) { instance_double(Square, taken?: true, piece: white_piece_dbl) }
 
       context 'when given an array with 2 squares (white_piece, white_piece)' do
         let(:squares_array) { [opponent_square, opponent_square] }

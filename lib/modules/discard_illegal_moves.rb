@@ -22,10 +22,13 @@ module DiscardIllegalMoves
     squares.reject { |sqr| sqr.taken? && sqr.piece.color == color }
   end
 
-  def illegal?(board_clone)
+  def illegal?(board_clone, untouchable_square = nil)
     enemy_pieces = board_clone.squares_taken_by(opponent_color).map(&:piece)
-    king_square = board_clone.get_king_square(@color)
-    enemy_pieces.any? { |piece| piece.possible_moves(board_clone).include?(king_square) }
+    untouchable_square = board_clone.get_king_square(@color) if untouchable_square.nil?
+    enemy_pieces.any? do |piece|
+      move = piece.is_a?(King) ? piece.basic_moves(board_clone) : piece.possible_moves(board_clone)
+      move.include?(untouchable_square)
+    end
   end
 
   def clone_objects(real_board, real_square)
