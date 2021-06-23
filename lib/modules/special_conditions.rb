@@ -8,14 +8,14 @@ module SpecialConditions
     enemy_pieces.any? { |piece| piece.legal_moves(chess_board).include?(king_square) }
   end
 
-  def in_checkmate?(chess_board)
-    return true if in_check?(chess_board) && no_legal_moves?(chess_board)
+  def in_checkmate?(chess_board, check_condition = false)
+    return true if check_condition && no_legal_moves?(chess_board)
 
     false
   end
 
-  def in_stalemate?(chess_board)
-    return true if !in_check?(chess_board) && no_legal_moves?(chess_board) || only_kings_left?(chess_board)
+  def in_stalemate?(chess_board, check_condition = false)
+    return true if !check_condition && no_legal_moves?(chess_board) || only_kings_left?(chess_board)
 
     false
   end
