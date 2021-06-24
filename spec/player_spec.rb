@@ -142,6 +142,37 @@ describe Player do
     end
   end
 
+  describe '#basic_input' do
+    context 'when given correct input on first try' do
+      it 'doesn\'t send error message' do
+        allow(human).to receive(:gets).and_return('h6')
+        error_message = 'Wrong input!'
+        expect(human).not_to receive(:puts).with(error_message)
+        human.basic_input
+      end
+    end
+
+    context 'when given correct input on third try' do
+      it 'sends error message 2 times' do
+        allow(human).to receive(:gets).and_return('w', 'a0', 's')
+        error_message = 'Wrong input!'
+        expect(human).to receive(:puts).with(error_message).twice
+        human.basic_input
+      end
+    end
+
+    context 'when given correct input' do
+      it 'returns translated input' do
+        input = 'h2'
+        translated_input = { x: 8, y: 2 }
+        allow(human).to receive(:gets).and_return(input)
+        result = human.basic_input
+        expect(result).to eq(translated_input)
+      end
+    end
+  end
+
+
   subject(:ai) { described_class.new(:white, :ai) }
 
   describe '#ai_move' do
