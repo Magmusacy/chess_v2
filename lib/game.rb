@@ -44,9 +44,10 @@ class Game
   def game_loop
     loop do
       player = @players.first
-      break if player.in_checkmate?(chess_board) || player.in_stalemate?(chess_board)
+      check_condition = player.in_check?(chess_board)
+      break if player.in_checkmate?(chess_board, check_condition) || player.in_stalemate?(chess_board, check_condition)
 
-      puts "#{player.color} player is in check!" if player.in_check?(chess_board)
+      puts "#{player.color} player is in check!" if check_condition
       player_move(player)
       @players.rotate!
     end

@@ -72,18 +72,19 @@ describe Game do
 
       before do
         loop_game.instance_variable_set(:@players, players)
-        allow(player1).to receive(:in_check?)
+        allow(player1).to receive(:in_check?).and_return(true)
         allow(player1).to receive(:in_checkmate?)
         allow(player1).to receive(:in_stalemate?)
-        allow(player2).to receive(:in_check?)
+        allow(player2).to receive(:in_check?).and_return(true)
         allow(player2).to receive(:in_checkmate?)
         allow(player2).to receive(:in_stalemate?)
         allow(loop_game).to receive(:player_move)
+        allow(loop_game).to receive(:puts)
       end
 
       context 'when player1 is checkmated' do
         before do
-          allow(player1).to receive(:in_checkmate?).with(chess_board).and_return(false, true)
+          allow(player1).to receive(:in_checkmate?).with(chess_board, true).and_return(false, true)
         end
 
         it 'doesn\'t rotate @players array globally' do
@@ -94,7 +95,8 @@ describe Game do
 
       context 'when player1 is in stalemate' do
         before do
-          allow(player1).to receive(:in_stalemate?).with(chess_board).and_return(false, true)
+          allow(player1).to receive(:in_check?).and_return(false)
+          allow(player1).to receive(:in_stalemate?).with(chess_board, false).and_return(false, true)
         end
 
         it 'doesn\'t rotate @players array globally' do
@@ -105,7 +107,7 @@ describe Game do
 
       context 'when player2 is checkmated' do
         before do
-          allow(player2).to receive(:in_checkmate?).with(chess_board).and_return(false, true)
+          allow(player2).to receive(:in_checkmate?).with(chess_board, true).and_return(false, true)
         end
 
         it 'rotates @players array globally' do
@@ -117,7 +119,8 @@ describe Game do
 
       context 'when player2 is in stalemate' do
         before do
-          allow(player2).to receive(:in_stalemate?).with(chess_board).and_return(false, true)
+          allow(player2).to receive(:in_check?).and_return(false)
+          allow(player2).to receive(:in_stalemate?).with(chess_board, false).and_return(false, true)
         end
 
         it 'rotates @players array globally' do
@@ -129,7 +132,7 @@ describe Game do
 
       context 'when player1 is checkmated on 2nd move' do
         before do
-          allow(player1).to receive(:in_checkmate?).with(chess_board).and_return(false, true)
+          allow(player1).to receive(:in_checkmate?).with(chess_board, true).and_return(false, true)
         end
 
         it 'calls #player_move with player1 once' do
@@ -145,7 +148,7 @@ describe Game do
 
       context 'when player2 is checkmated on 3rd move' do
         before do
-          allow(player2).to receive(:in_checkmate?).with(chess_board).and_return(false, true)
+          allow(player2).to receive(:in_checkmate?).with(chess_board, true).and_return(false, true)
           allow(players).to receive(:rotate).and_return(players.rotate(1))
         end
 
@@ -162,7 +165,7 @@ describe Game do
 
       context 'when player2 is checkmated on 5th move' do
         before do
-          allow(player2).to receive(:in_checkmate?).with(chess_board).and_return(false, false, true)
+          allow(player2).to receive(:in_checkmate?).with(chess_board, true).and_return(false, false, true)
         end
 
         it 'calls #player_move with player1 three times' do
@@ -178,7 +181,8 @@ describe Game do
 
       context 'when player1 is in stalemate on 4th move' do
         before do
-          allow(player1).to receive(:in_stalemate?).with(chess_board).and_return(false, false, true)
+          allow(player1).to receive(:in_check?).and_return(false)
+          allow(player1).to receive(:in_stalemate?).with(chess_board, false).and_return(false, false, true)
         end
 
         it 'calls #player_move with player1 twice' do
@@ -194,7 +198,8 @@ describe Game do
 
       context 'when player2 is in stalemate on 3rd move' do
         before do
-          allow(player2).to receive(:in_stalemate?).with(chess_board).and_return(false, true)
+          allow(player2).to receive(:in_check?).and_return(false)
+          allow(player2).to receive(:in_stalemate?).with(chess_board, false).and_return(false, true)
         end
 
         it 'calls #player_move with player1 twice' do
@@ -210,8 +215,9 @@ describe Game do
 
       context 'when player1 is in check on 2nd move and is checkmated on 4th move' do
         before do
+          allow(player2).to receive(:in_check?)
           allow(player1).to receive(:in_check?).with(chess_board).and_return(false, true)
-          allow(player1).to receive(:in_checkmate?).with(chess_board).and_return(false, false, true)
+          allow(player1).to receive(:in_checkmate?).with(chess_board, true).and_return(false, true)
         end
 
         it 'outputs message for player1 about the check once' do
@@ -223,8 +229,9 @@ describe Game do
 
       context 'when player2 is in check on 3nd move and is checkmated on 5th move' do
         before do
-          allow(player2).to receive(:in_check?).with(chess_board).and_return(false, true)
-          allow(player2).to receive(:in_checkmate?).with(chess_board).and_return(false, false, true)
+          allow(player1).to receive(:in_check?)
+          allow(player2).to receive(:in_check?).with(chess_board).and_return(false, true, true)
+          allow(player2).to receive(:in_checkmate?).with(chess_board, true).and_return(false, true)
         end
 
         it 'outputs message for player2 about the check once' do
